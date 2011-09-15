@@ -1,0 +1,3 @@
+[submodule "stackmob-customcode-sdk"]
+	path = stackmob-customcode-sdk
+	url = git@github.com:stackmob/stackmob-customcode-sdk.git
