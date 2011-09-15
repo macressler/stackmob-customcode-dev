@@ -23,3 +23,4 @@ and [https://github.com/stackmob/stackmob-customcode-localrunner/tree/master/src
 Go to [https://github.com/stackmob/stackmob-customcode-sdk](https://github.com/stackmob/stackmob-customcode-sdk) for more details and  examples.
 
 ## TODO
+* Java compatability for CustomCodeMethodRunner
