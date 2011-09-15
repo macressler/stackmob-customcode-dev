@@ -22,7 +22,6 @@ import com.sun.net.httpserver.{HttpServer, HttpExchange, HttpHandler}
 import com.stackmob.core.jar.JarEntryObject
 import com.stackmob.core.MethodVerb
 import com.stackmob.core.customcode.CustomCodeMethod
-import com.stackmob.core.rest.ProcessedAPIRequest
 import com.google.gson.Gson
 import collection.JavaConversions._
 
@@ -35,22 +34,20 @@ class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[Stri
 
   val runner = CustomCodeMethodRunnerFactory.getForScala(entryObject, initialModels)
 
+  val server = HttpServer.create(new InetSocketAddress(port), 0)
+  server.setExecutor(Executors.newCachedThreadPool());
+
+  val contexts = for(m <- asScalaBuffer(methods).toList)
+    yield server.createContext(getUrl(m.getMethodName), new CustomCodeMethodServerHandler(runner, m, MethodVerb.GET))
+
   protected def getUrl(methodName:String) = "/api/0/"+appName+"/"+methodName
 
   def serve() {
-    val server = HttpServer.create(new InetSocketAddress(port), 0)
-
-    for(m <- asScalaBuffer(methods).toList) {
-      server.createContext(getUrl(m.getMethodName), new CustomCodeMethodServerHandler(runner, m, MethodVerb.GET))
-    }
-
-    //server.createContext("/", new MyHandler());
-    server.setExecutor(Executors.newCachedThreadPool());
     server.start();
     //TODO: slf4j
     println("StackMob Custom Code Method Development Server is listening on port " + port)
     println("with URLs: ")
-    for(m <- methods) println(getUrl(m.getMethodName))
+    for(c <- contexts) println(c.getPath)
   }
 
 }
