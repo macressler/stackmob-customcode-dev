@@ -24,7 +24,7 @@ import com.stackmob.sdkapi.DatastoreService
 class DatastoreServiceMockImplTests {
   import Assert._
 
-  val ds:DatastoreService = new DatastoreServiceMockImpl("tests")
+  val ds:DatastoreService = new DatastoreServiceMockImpl("tests", List())
   val modelName = "testModel"
   val data = Map("hello" -> "world", "hello1" -> "world1")
   val query = Map("hello" -> seqAsJavaList(List("world")))

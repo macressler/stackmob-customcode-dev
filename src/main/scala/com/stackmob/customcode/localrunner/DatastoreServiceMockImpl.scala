@@ -23,9 +23,13 @@ import java.lang.{Boolean => JBoolean}
 import java.util.{Set => JSet, Map => JMap, List => JList, HashMap => JHashMap, ArrayList => JArrayList}
 import JavaConversions._
 
-class DatastoreServiceMockImpl(appName:String) extends DatastoreServiceScalaAdapter {
+class DatastoreServiceMockImpl(appName:String, initialModels:List[String]) extends DatastoreServiceScalaAdapter {
 
   private var db = Map[String, List[Map[String, Object]]]()
+  for(m <- initialModels) {
+    db = db + ((m, List[Map[String, Object]]()))
+  }
+
   private val pkFieldName = "objectId"
 
   private def ensureModelExists(modelName:String):List[Map[String, Object]] = {

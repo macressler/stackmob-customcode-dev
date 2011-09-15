@@ -19,8 +19,8 @@ package com.stackmob.customcode.localrunner
 import com.stackmob.sdkapi._
 import org.mockito.Mockito._
 
-class SDKServiceProviderMockImpl(appName:String) extends SDKServiceProvider {
-  override def getDatastoreService = new DatastoreServiceMockImpl(appName)
+class SDKServiceProviderMockImpl(appName:String, initialDatastoreModels:List[String]) extends SDKServiceProvider {
+  override def getDatastoreService = new DatastoreServiceMockImpl(appName, initialDatastoreModels)
   override def getPushService = mock(classOf[PushService])
   override def getTwitterService = mock(classOf[TwitterService])
   override def getFacebookService = mock(classOf[FacebookService])

@@ -20,15 +20,19 @@ import com.stackmob.core._
 import com.stackmob.core.rest._
 import com.stackmob.core.customcode._
 import com.stackmob.core.jar._
-import collection.JavaConversions._
+import java.util.{Map => JMap, List => JList}
 
-class CustomCodeMethodRunner(entryObject: JarEntryObject) {
+//TODO: java compatability
+class CustomCodeMethodRunner(entryObject: JarEntryObject, initialModels:List[String]) {
+  import collection.JavaConversions.{asScalaBuffer, mapAsJavaMap}
+
   val methodsList = asScalaBuffer(entryObject.methods()).toList
   val methodsMap:Map[String, CustomCodeMethod] = methodsList.map((obj:CustomCodeMethod) => (obj.getMethodName, obj)).toMap
   val appName = "app_"+entryObject.getClass.getName
   val apiVersion = 0
-  def run(verb:MethodVerb, method:String, params:Map[String, String]) = {
-    val sdkServiceProvider = new SDKServiceProviderMockImpl(entryObject.getClass.getName)
+
+  def run(verb:MethodVerb, method:String, params:Map[String, String]):ResponseToProcess = {
+    val sdkServiceProvider = new SDKServiceProviderMockImpl(entryObject.getClass.getName, initialModels)
     val url = "http://test/"+method
     val processedAPIRequest = new ProcessedAPIRequest(verb, url, null, params, appName, apiVersion, method, 0)
 
