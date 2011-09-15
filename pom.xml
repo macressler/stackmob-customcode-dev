@@ -6,7 +6,7 @@
     <groupId>com.stackmob</groupId>
     <artifactId>localrunner</artifactId>
     <packaging>pom</packaging>
-    <name>StackMob Parent POM</name>
+    <name>StackMob Custom Code Local Runner</name>
     <version>0.01-SNAPSHOT</version>
 
     <organization>
