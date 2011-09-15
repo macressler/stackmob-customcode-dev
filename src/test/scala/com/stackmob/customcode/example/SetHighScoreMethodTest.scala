@@ -25,7 +25,7 @@ import collection.JavaConversions._
 class SetHighScoreMethodTest {
   val method = new SetHighScoreMethod().getMethodName
   val entryPoint = new EntryPointExtender
-  val runner = new CustomCodeMethodRunner(entryPoint, List("users"))
+  val runner = CustomCodeMethodRunnerFactory.getForScala(entryPoint, List("users"))
 
   @Test
   def newHighScore() {

@@ -20,18 +20,16 @@ import com.stackmob.core._
 import com.stackmob.core.rest._
 import com.stackmob.core.customcode._
 import com.stackmob.core.jar._
-import java.util.{Map => JMap, List => JList}
+import collection.JavaConversions.{asScalaBuffer, mapAsJavaMap, mapAsScalaMap}
 
-//TODO: java compatability
-class CustomCodeMethodRunner(entryObject: JarEntryObject, initialModels:List[String]) {
-  import collection.JavaConversions.{asScalaBuffer, mapAsJavaMap}
+abstract class CustomCodeMethodRunner(entryObject: JarEntryObject, initialModels:List[String]) {
 
-  val methodsList = asScalaBuffer(entryObject.methods()).toList
-  val methodsMap:Map[String, CustomCodeMethod] = methodsList.map((obj:CustomCodeMethod) => (obj.getMethodName, obj)).toMap
+  protected val methodsList = asScalaBuffer(entryObject.methods()).toList
+  protected val methodsMap:Map[String, CustomCodeMethod] = methodsList.map((obj:CustomCodeMethod) => (obj.getMethodName, obj)).toMap
   val appName = "app_"+entryObject.getClass.getName
   val apiVersion = 0
 
-  def run(verb:MethodVerb, method:String, params:Map[String, String]):ResponseToProcess = {
+  protected def runImpl(verb:MethodVerb, method:String, params:Map[String, String]):ResponseToProcess = {
     val sdkServiceProvider = new SDKServiceProviderMockImpl(entryObject.getClass.getName, initialModels)
     val url = "http://test/"+method
     val processedAPIRequest = new ProcessedAPIRequest(verb, url, null, params, appName, apiVersion, method, 0)
@@ -39,4 +37,32 @@ class CustomCodeMethodRunner(entryObject: JarEntryObject, initialModels:List[Str
     val ccMethod = methodsMap(method)
     ccMethod.execute(processedAPIRequest, sdkServiceProvider)
   }
+}
+
+/**
+ * CustomCodeMethodRunner suited for use with Java
+ */
+class CustomCodeMethodRunnerJavaAdapter(entryObject:JarEntryObject, initialModels:java.util.List[String])
+  extends CustomCodeMethodRunner(entryObject, asScalaBuffer(initialModels).toList) {
+  def run(verb:MethodVerb, method:String, params:java.util.Map[String, String]) =
+     runImpl(verb, method, mapAsScalaMap(params).toMap)
+}
+
+/**
+ * CustomCodeMethodRunner suited for use with Scala
+ */
+class CustomCodeMethodRunnerScalaAdapter(entryObject:JarEntryObject, initialModels:List[String])
+  extends CustomCodeMethodRunner(entryObject, initialModels) {
+  def run(verb:MethodVerb, method:String, params:Map[String, String]) = runImpl(verb, method, params)
+}
+
+/**
+ * Factory for building CustomCodeMethodRunners
+ */
+object CustomCodeMethodRunnerFactory {
+  def getForJava(entryObject:JarEntryObject, initialModels:java.util.List[String]) =
+    new CustomCodeMethodRunnerJavaAdapter(entryObject, initialModels)
+
+  def getForScala(entryObject:JarEntryObject, initialModels:List[String]) =
+    new CustomCodeMethodRunnerScalaAdapter(entryObject, initialModels)
 }

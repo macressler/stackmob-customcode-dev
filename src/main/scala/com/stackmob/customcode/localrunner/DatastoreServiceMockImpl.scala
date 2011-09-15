@@ -18,10 +18,6 @@ package com.stackmob.customcode.localrunner
 
 import com.stackmob.core.DatastoreException
 import java.util.UUID
-import collection.JavaConversions._
-import java.lang.{Boolean => JBoolean}
-import java.util.{Set => JSet, Map => JMap, List => JList, HashMap => JHashMap, ArrayList => JArrayList}
-import JavaConversions._
 
 class DatastoreServiceMockImpl(appName:String, initialModels:List[String]) extends DatastoreServiceScalaAdapter {
 
