@@ -24,12 +24,14 @@ import com.stackmob.core.MethodVerb
 import com.stackmob.core.customcode.CustomCodeMethod
 import com.google.gson.Gson
 import collection.JavaConversions._
+import JavaConversions._
 
 /**
  * a simple HTTP server that exposes your custom code methods via a REST interface for testing.
  */
 class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[String], appName:String, port:Int = 8080) {
 
+  val stopDelaySeconds = 2
   val methods = entryObject.methods()
 
   val runner = CustomCodeMethodRunnerFactory.getForScala(entryObject, initialModels)
@@ -43,11 +45,16 @@ class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[Stri
   protected def getUrl(methodName:String) = "/api/0/"+appName+"/"+methodName
 
   def serve() {
-    server.start();
-    //TODO: slf4j
-    println("StackMob Custom Code Method Development Server is listening on port " + port)
+    server.start()
+    println("StackMob Custom Code Method Development Server is listening on port " + port + " for app " + appName)
     println("with URLs: ")
     for(c <- contexts) println(c.getPath)
+  }
+
+  def shutdown() {
+    println("shutting down server for app " + appName)
+    server.stop(stopDelaySeconds)
+    println("server shutdown")
   }
 
 }
@@ -65,7 +72,7 @@ class CustomCodeMethodServerHandler(runner:CustomCodeMethodRunnerScalaAdapter, m
     catch {
       case e:Throwable => {
         exchange.sendResponseHeaders(500, 0)
-        val errString = "{\"error\":\"" + e.getMessage.getBytes + "\"}"
+        val errString = "{\"error\":\"" + e.getMessage + "\"}"
         exchange.getResponseBody.write(errString.getBytes)
       }
     }
@@ -77,13 +84,22 @@ class CustomCodeMethodServerHandler(runner:CustomCodeMethodRunnerScalaAdapter, m
     if(requestedVerb != verb)
       throw new Exception("method " + method.getMethodName + " is only available by " + verb.toString)
 
-    val expectedParams = method.getParams
-    val queryString = exchange.getRequestURI.getQuery
-    val queryList = queryString.split("&").toList
-    val queryMap = queryList.map(e => {
-      val split = e.split("&")
-      (split(0), split(1))
-    }).toMap
+    val expectedParams:List[String] = method.getParams
+
+    val queryStringOption = exchange.getRequestURI.getQuery match {
+      case q:String => Some(q)
+      case _ => None
+    }
+    val queryMap:Map[String, String] = queryStringOption match {
+      case Some(queryString) => {
+        val queryList = queryString.split("&").toList
+        queryList.map(e => {
+          val split = e.split("=")
+          (split(0), split(1))
+        }).toMap
+      }
+      case None => Map[String, String]()
+    }
 
     if(expectedParams != queryMap.keySet.toList)
       throw new Exception("expected parameters " + expectedParams + " do not match actual params " + queryMap.keySet)

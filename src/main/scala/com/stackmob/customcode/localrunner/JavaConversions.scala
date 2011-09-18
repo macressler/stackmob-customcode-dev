@@ -54,4 +54,6 @@ object JavaConversions {
   }
 
   implicit def mapAsScalaImmutable[A, B](m:JMap[A, B]):Map[A, B] = mapAsScalaMap(m).toMap
+
+  implicit def listAsScalaList[T](l:JList[T]):List[T] = asScalaBuffer(l).toList
 }
