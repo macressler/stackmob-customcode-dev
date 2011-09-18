@@ -11,6 +11,30 @@ I haven't tested this, but it should go something like this:
 * git submodule update
 * profit
 
+Eventually this should be moved into Maven
+
+## Use
+
+Use the CustomCodeMethodServer class to create a REST API out of your custom code. Here's how:
+
+###In Java
+    EntryPointExtender entryObject = new YOUR_JAR_ENTRY_OBJECT_SUBCLASS();
+    List<String> initialModels = new ArrayList<String>();
+    initialModels.add("YOUR MODEL NAME 1");
+    initialModels.add("YOUR MODEL NAME 2");
+    String appName = "YOUR APP NAME";
+    CustomCodeMethodServer server = new CustomCodeMethodServer(entryObject, initialModels, appName);
+    server.serve(); //blocks until the server is killed
+
+
+###In Scala
+    val entryObject = new YOUR_JAR_ENTRY_OBJECT_SUBCLASS
+    val initialModels = List("YOUR MODEL NAME 1", "YOUR MODEL NAME 2")
+    val appName = "YOUR APP NAME"
+    val server = new CustomCodeMethodServer(entryObject, initialModels, appName)
+    server.serve
+
+
 ## Build
 
 The local runner is configured to build with Maven. More later.
