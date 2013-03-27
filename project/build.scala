@@ -16,7 +16,7 @@ object BuildSettings {
   val defaultArgs = Seq(
     "-Xmx2048m",
     "-XX:MaxPermSize=512m",
-    "-Xss32m",
+    "-Xss32m"
   )
   val runArgs = defaultArgs ++ Seq(
     "-Xdebug",
@@ -33,22 +33,11 @@ object BuildSettings {
     fork := true,
     scalacOptions ++= Seq("-deprecation", "-unchecked"),
     javaOptions in run ++= runArgs,
-    javaOptions in test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    publishTo <<= version { version: String =>
-      val stackmobNexus = "http://nexus/nexus/content/repositories/"
-      if (version.trim.endsWith("SNAPSHOT")) {
-        Some("snapshots" at stackmobNexus + "snapshots/")
-      } else {
-        Some("releases" at stackmobNexus + "releases/")
-      }
-    },
     props in Compile <++= (fullClasspath in Runtime).map { cp: Classpath =>
       val artifacts = cp.flatMap(_.get(moduleID.key))
       Seq("DEPENDENCIES" -> artifacts.map(_.toString()).sorted.mkString(","))
     },
-    resolvers += "StackMob Nexus" at "http://nexus/nexus/content/groups/public",
-    snapshotDependencies ~= { _.filterNot(_.name.contains("scalamachine")) },
     conflictWarning ~= { cw =>
       cw.copy(filter = (id: ModuleID) => true, group = (id: ModuleID) => id.organization + ":" + id.name, level = Level.Error, failOnConflict = true)
     }
@@ -56,12 +45,13 @@ object BuildSettings {
 }
 
 object Dependencies {
-  lazy val specs2             = "org.specs2"              %% "specs2"                   % "1.12.1"          % "test"
-  lazy val scalacheck         = "org.scalacheck"          %% "scalacheck"               % "1.10.0"          % "test"
-  lazy val mockito            = "org.mockito"             % "mockito-all"               % "1.9.0"           % "test"
-  lazy val hamcrest           = "org.hamcrest"            % "hamcrest-all"              % "1.1"             % "test"
-  lazy val pegdown            = "org.pegdown"             % "pegdown"                   % "1.0.2"           % "test"
-  lazy val h2                 = "com.h2database"          % "h2"                        % "1.2.127"         % "test"
+  private lazy val customCodeVsn = "0.5.6"
+  private lazy val gsonVsn = "1.7.1"
+  lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
+  lazy val gson = "com.google.code.gson" % "gson"  % gsonVsn
+  lazy val mockito = "org.mockito" % "mockito-all" % "1.9.0"
+  lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
+
 }
 
 object LocalRunnerBuild extends Build {
@@ -70,10 +60,10 @@ object LocalRunnerBuild extends Build {
 
   lazy val localRunner = Project("stackmob-customcode-localrunner", file("."),
     settings = standardSettings ++ Seq(
-      name := "allspark",
+      libraryDependencies ++= Seq(customcode, gson, mockito, scalaz),
+      name := "stackmob-customcode-localrunner",
       publish := {}
-    ),
-    aggregate = Seq(common, server, client)
+    )
   )
 }
 
