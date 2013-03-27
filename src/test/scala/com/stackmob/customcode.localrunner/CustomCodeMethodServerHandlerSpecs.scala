@@ -55,7 +55,6 @@ class CustomCodeMethodServerHandlerSpecs extends Specification with Mockito { de
 
   implicit private def stringToURI(s:String) = new URI(s)
 
-  @Test
   def normalHandle() = {
     val mockExchange = constructExchange(url)
     handler.handle(mockExchange)
@@ -63,8 +62,7 @@ class CustomCodeMethodServerHandlerSpecs extends Specification with Mockito { de
     verify(mockExchange.getResponseBody).write(expectedResponseBytes)
   }
 
-  @Test
-  def wrongParams() {
+  def wrongParams() = {
     val invalidURL = "http://localhost/api/0/testapp/" + methodName
     val invalidExchange = constructExchange(invalidURL)
 
@@ -72,8 +70,7 @@ class CustomCodeMethodServerHandlerSpecs extends Specification with Mockito { de
     verify(invalidExchange).sendResponseHeaders(500, 0)
   }
 
-  @Test
-  def invalidMethod() {
+  def invalidMethod() = {
     val invalidURL = "http://localhost/api/0/testapp/invalid_method"
     val invalidExchange = constructExchange(invalidURL)
 
