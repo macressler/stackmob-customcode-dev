@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode.localrunner.sdk
 
 import java.lang.{Boolean => JBoolean}
 import JavaConversions._

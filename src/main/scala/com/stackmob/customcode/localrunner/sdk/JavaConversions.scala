@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode.localrunner.sdk
 
 import collection.JavaConversions._
 import java.util.{ArrayList => JArrayList, HashMap => JHashMap, List => JList, Map => JMap}
