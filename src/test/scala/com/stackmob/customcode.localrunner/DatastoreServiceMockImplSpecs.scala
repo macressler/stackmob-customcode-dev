@@ -16,13 +16,17 @@
 
 package com.stackmob.customcode.localrunner
 
-import org.junit.{Test, Assert}
 import collection.JavaConversions._
 import JavaConversions._
 import com.stackmob.sdkapi.DatastoreService
+import org.specs2.Specification
+import collection.JavaConverters._
 
-class DatastoreServiceMockImplSpecs {
-  import Assert._
+class DatastoreServiceMockImplSpecs extends Specification { def is =
+  "DatastoreService".title                                                                                              ^ end ^
+  """DatastoreService is a (deprecated) custom code interface to access the StackMob datastore"""                       ^ end ^
+  "crud should work properly"                                                                                           ! crud() ^ end ^
+                                                                                                                        end
 
   val ds:DatastoreService = new DatastoreServiceMockImpl("tests", List())
   val modelName = "testModel"
@@ -36,21 +40,29 @@ class DatastoreServiceMockImplSpecs {
 
   val pkKey = "objectId"
 
-  private def assertMapEquals(m1:Map[String, Object], m2:Map[String, Object], exceptKey:String = pkKey) = {
+  private def mapEquals(m1:Map[String, Object], m2:Map[String, Object], exceptKey:String = pkKey) = {
     val newM1 = m1 - exceptKey
     val newM2 = m2 - exceptKey
 
-    assertEquals(newM1, newM2)
+    newM1 must haveTheSameElementsAs(newM2)
   }
 
-  @Test
   def crud() {
     val created:Map[String, Object] = ds.createObject(modelName, data)
-    assertMapEquals(data, created)
-    assertTrue(created.contains(pkKey))
+    val createdEq = mapEquals(data, created)
+    val createdHasPK = created.get(pkKey) must beSome
+
     val pk = created(pkKey).toString
 
-    val read:List[Map[String, Object]] = ds.readObjects(modelName, query)
+    val read = ds.readObjects(modelName, query).asScala
+    val readSizeRes = read.size must beEqualTo(1)
+    val readMapRes = read.get(0) must beSome.like {
+      case m => {
+        mapEquals(m, data)
+      }
+    }
+
+    val readRes = mapEquals(res, )
     assertEquals(1, read.size)
     assertMapEquals(read(0), data)
 
@@ -70,11 +82,9 @@ class DatastoreServiceMockImplSpecs {
     assertMapEquals(newData, dataAfterUpdate)
     assertTrue(pk.equals(pkAfterUpdate))
 
-    val deleted:Boolean = ds.deleteObject(modelName, dataAfterUpdate(pkKey).toString)
-    assertTrue(deleted)
+    val deletedRes = ds.deleteObject(modelName, dataAfterUpdate(pkKey).toString) must beTrue
 
-    val readAfterDelete:List[Map[String, Object]] = ds.readObjects(modelName, query)
-    assertEquals(0, readAfterDelete.size)
+    val afterDeleteRes = ds.readObjects(modelName, query).size() must beEqualTo(0)
   }
 
   @Test
