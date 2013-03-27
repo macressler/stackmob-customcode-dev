@@ -47,11 +47,24 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
     val httpURI = baseReq.getUri
     val loggedInUser = "cc-localrunner-user"
     val queryString = httpURI.getQuery //TODO: get query with correct query string encoding
-    val queryParams = Map[String, String]().asJava
+    val queryParams = queryString.split("&").toList.foldLeft(Map[String, String]()) { (agg, cur) =>
+      cur.split("=").toList match {
+        case key :: value :: Nil => agg ++ Map(key -> value)
+        case _ => agg
+      }
+    }
     val apiVersion = 0
     val counter = 0
 
-    new ProcessedAPIRequest(requestedVerb, httpURI.toString, loggedInUser, queryParams, body, appName, apiVersion, methodName, counter)
+    new ProcessedAPIRequest(requestedVerb,
+      httpURI.toString,
+      loggedInUser,
+      queryParams.asJava,
+      body,
+      appName,
+      apiVersion,
+      methodName,
+      counter)
   }
 
   private implicit val formats = Serialization.formats(NoTypeHints)
