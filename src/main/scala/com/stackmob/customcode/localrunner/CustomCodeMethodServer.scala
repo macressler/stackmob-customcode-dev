@@ -28,8 +28,12 @@ import JavaConversions._
 
 /**
  * a simple HTTP server that exposes your custom code methods via a REST interface for testing.
+ * TODO: make this a Jetty server
  */
-class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[String], appName:String, port:Int = 8080) {
+class CustomCodeMethodServer(entryObject:JarEntryObject,
+                             initialModels:List[String],
+                             appName:String,
+                             port:Int = 8080) {
 
   val stopDelaySeconds = 2
   val methods = entryObject.methods()
@@ -37,7 +41,7 @@ class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[Stri
   val runner = CustomCodeMethodRunnerFactory.getForScala(entryObject, initialModels)
 
   val server = HttpServer.create(new InetSocketAddress(port), 0)
-  server.setExecutor(Executors.newCachedThreadPool());
+  server.setExecutor(Executors.newCachedThreadPool())
 
   val contexts = for(m <- asScalaBuffer(methods).toList)
     yield server.createContext(getUrl(m.getMethodName), new CustomCodeMethodServerHandler(runner, m, MethodVerb.GET))
@@ -59,7 +63,9 @@ class CustomCodeMethodServer(entryObject:JarEntryObject, initialModels:List[Stri
 
 }
 
-class CustomCodeMethodServerHandler(runner:CustomCodeMethodRunnerScalaAdapter, method:CustomCodeMethod, verb:MethodVerb)
+class CustomCodeMethodServerHandler(runner:CustomCodeMethodRunnerScalaAdapter,
+                                    method:CustomCodeMethod,
+                                    verb:MethodVerb)
   extends HttpHandler {
 
   def handle(exchange:HttpExchange) {
@@ -81,8 +87,9 @@ class CustomCodeMethodServerHandler(runner:CustomCodeMethodRunnerScalaAdapter, m
   protected def handleImpl(exchange:HttpExchange) = {
 
     val requestedVerb = MethodVerb.valueOf(exchange.getRequestMethod)
-    if(requestedVerb != verb)
+    if(requestedVerb != verb) {
       throw new Exception("method " + method.getMethodName + " is only available by " + verb.toString)
+    }
 
     val expectedParams:List[String] = method.getParams
 

@@ -18,7 +18,7 @@ package com.stackmob.customcode.localrunner.functional
 
 import com.stackmob.customcode.localrunner.CustomCodeMethodServer
 import com.stackmob.customcode.example.EntryPointExtender
-import org.specs._
+import org.specs2._
 
 
 //class CustomCodeMethodServerTests extends Specification {

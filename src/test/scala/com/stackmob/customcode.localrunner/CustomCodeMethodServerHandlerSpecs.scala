@@ -17,41 +17,46 @@
 package com.stackmob.customcode.localrunner
 
 import com.stackmob.customcode.example.EntryPointExtender
-import org.junit.Test
 import com.sun.net.httpserver.HttpExchange
 import org.mockito.Mockito._
 import java.net.URI
 import java.io.OutputStream
 import com.stackmob.core.MethodVerb
 import com.google.gson.Gson
+import org.specs2.Specification
+import org.specs2.mock.Mockito
 
-class CustomCodeMethodServerHandlerTests {
+class CustomCodeMethodServerHandlerSpecs extends Specification with Mockito { def is =
+  "CustomCodeMethodServer".title                                                                                        ^ end ^
+                                                                                                                        end
 
-  val methodName = "testmethod"
-  val url = "http://localhost/api/0/testapp/" + methodName + "?username=aaron&score=2345"
-  val entryObject = new EntryPointExtender
-  val initialModels = List("users")
-  val method = entryObject.methods.get(0)
-  val expectedResponseMap = Map("updated" -> true, "newUser" -> true, "username" -> "aaron", "newScore" -> "2345")
-  val expectedResponseBytes = new Gson().toJson(expectedResponseMap).getBytes
+  private lazy val methodName = "testmethod"
+  private lazy val url = "http://localhost/api/0/testapp/" + methodName + "?username=aaron&score=2345"
+  private lazy val entryObject = new EntryPointExtender
+  private lazy val initialModels = List("users")
+  private lazy val method = entryObject.methods.get(0)
+  private lazy val expectedResponseMap = Map("updated" -> true, "newUser" -> true, "username" -> "aaron", "newScore" -> "2345")
+  private lazy val expectedResponseBytes = new Gson().toJson(expectedResponseMap).getBytes
 
-  val mockOutputStream = mock(classOf[OutputStream])
+  private lazy val mockOutputStream = mock[OutputStream]
 
-  val runner = CustomCodeMethodRunnerFactory.getForScala(entryObject, initialModels)
-  val handler = new CustomCodeMethodServerHandler(runner, method, MethodVerb.GET)
+  private lazy val runner = CustomCodeMethodRunnerFactory.getForScala(entryObject, initialModels)
+  private lazy val handler = new CustomCodeMethodServerHandler(runner, method, MethodVerb.GET)
 
-  private def constructExchange(uri:URI, verb:MethodVerb = MethodVerb.GET, outputStream:OutputStream = mockOutputStream) = {
-    val ex = mock(classOf[HttpExchange])
-    when(ex.getRequestMethod).thenReturn(verb.toString)
-    when(ex.getRequestURI).thenReturn(uri)
-    when(ex.getResponseBody).thenReturn(outputStream)
+  private def constructExchange(uri:URI,
+                                verb:MethodVerb = MethodVerb.GET,
+                                outputStream:OutputStream = mockOutputStream): HttpExchange = {
+    val ex = mock[HttpExchange]
+    ex.getRequestMethod returns verb.toString
+    ex.getRequestURI returns uri
+    ex.getResponseBody returns outputStream
     ex
   }
 
   implicit private def stringToURI(s:String) = new URI(s)
 
   @Test
-  def normalHandle() {
+  def normalHandle() = {
     val mockExchange = constructExchange(url)
     handler.handle(mockExchange)
     verify(mockExchange).sendResponseHeaders(200, 0)

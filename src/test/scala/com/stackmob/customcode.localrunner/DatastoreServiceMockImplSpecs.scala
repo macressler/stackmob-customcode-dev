@@ -21,7 +21,7 @@ import collection.JavaConversions._
 import JavaConversions._
 import com.stackmob.sdkapi.DatastoreService
 
-class DatastoreServiceMockImplTests {
+class DatastoreServiceMockImplSpecs {
   import Assert._
 
   val ds:DatastoreService = new DatastoreServiceMockImpl("tests", List())
@@ -93,7 +93,7 @@ class DatastoreServiceMockImplTests {
         deleteAndVerify(ids.tail)
       }
       catch {
-        case e:Exception =>
+        case e => //do nothing
       }
     }
 

@@ -51,6 +51,7 @@ object Dependencies {
   lazy val gson = "com.google.code.gson" % "gson"  % gsonVsn
   lazy val mockito = "org.mockito" % "mockito-all" % "1.9.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
+  lazy val specs2 = "org.specs2" %% "specs2" % "1.12.1" % "test"
 
 }
 
@@ -60,7 +61,7 @@ object LocalRunnerBuild extends Build {
 
   lazy val localRunner = Project("stackmob-customcode-localrunner", file("."),
     settings = standardSettings ++ Seq(
-      libraryDependencies ++= Seq(customcode, gson, mockito, scalaz),
+      libraryDependencies ++= Seq(customcode, gson, mockito, scalaz, specs2),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )

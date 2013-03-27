@@ -17,13 +17,21 @@
 package com.stackmob.customcode.localrunner
 
 import com.stackmob.sdkapi._
+import caching.CachingService
+import http.HttpService
 import org.mockito.Mockito._
 
 class SDKServiceProviderMockImpl(appName:String, initialDatastoreModels:List[String]) extends SDKServiceProvider {
-  override def getDatastoreService = new DatastoreServiceMockImpl(appName, initialDatastoreModels)
-  override def getPushService = mock(classOf[PushService])
-  override def getTwitterService = mock(classOf[TwitterService])
-  override def getFacebookService = mock(classOf[FacebookService])
-  override def isSandbox = true
-  override def getVersion = "scalaCCExample"
+  override def getDatastoreService: DatastoreService = new DatastoreServiceMockImpl(appName, initialDatastoreModels)
+  override def getPushService: PushService = mock(classOf[PushService])
+  override def getTwitterService: TwitterService = mock(classOf[TwitterService])
+  override def getFacebookService: FacebookService = mock(classOf[FacebookService])
+  override def isSandbox: Boolean = true
+  override def getVersion: String = "scalaCCExample"
+  override def getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
+  override def getCachingService: CachingService = mock(classOf[CachingService])
+  override def getHttpService: HttpService = mock(classOf[HttpService])
+  override def getDataService: DataService = mock(classOf[DataService])
+  override def getLoggerService(s: String) = mock(classOf[LoggerService])
+  override def getLoggerService(c: Class[_]) = mock(classOf[LoggerService])
 }

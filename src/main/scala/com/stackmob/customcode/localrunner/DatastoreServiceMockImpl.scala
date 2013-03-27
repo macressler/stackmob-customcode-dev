@@ -40,11 +40,12 @@ class DatastoreServiceMockImpl(appName:String, initialModels:List[String]) exten
 
   private def getObjectId = UUID.randomUUID.toString
 
-  private def findByObjectId(modelName:String, objectId:String) = {
+  private def findByObjectId(modelName:String, objectId:String): Map[String, Object] = {
     val lst = ensureModelExists(modelName)
-    lst.find((elt:Map[String, Object]) => elt(pkFieldName).equals(objectId)) match {
-      case None => throw new DatastoreException("no document with objectId " + objectId + " in model " + modelName)
-      case Some(elt: Map[String, Object]) => elt
+    lst.find { elt:Map[String, Object] =>
+      elt(pkFieldName).equals(objectId)
+    }.map(identity[Map[String, Object]]).getOrElse {
+      throw new DatastoreException("no document with objectId " + objectId + " in model " + modelName)
     }
   }
 
