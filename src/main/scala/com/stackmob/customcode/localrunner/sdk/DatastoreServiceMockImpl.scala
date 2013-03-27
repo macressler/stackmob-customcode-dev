@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode.localrunner.sdk
 
 import com.stackmob.core.DatastoreException
 import java.util.UUID
 
+//TODO: make this hit the development api
 class DatastoreServiceMockImpl(appName:String, initialModels:List[String]) extends DatastoreServiceScalaAdapter {
 
   private var db = Map[String, List[Map[String, Object]]]()
