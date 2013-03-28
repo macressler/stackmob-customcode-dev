@@ -21,7 +21,7 @@ import java.util.{List => JList, Set => JSet}
  * Date: 3/27/13
  * Time: 5:03 PM
  */
-class DataServiceMockImpl(datastore: StackMobDatastore) extends DataService {
+class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def getUserSchema = userSchemaName
 
   type Ex = Validation[StackMobException, String]
