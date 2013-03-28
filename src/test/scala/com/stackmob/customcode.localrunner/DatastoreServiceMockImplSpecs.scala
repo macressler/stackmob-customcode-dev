@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode
+package localrunner
 
 import collection.JavaConversions._
-import sdk.{JavaConversions, DatastoreServiceMockImpl}
-import JavaConversions._
 import com.stackmob.sdkapi.DatastoreService
 import org.specs2.Specification
-import collection.JavaConverters._
-import sdk.DatastoreServiceMockImpl
+import com.stackmob.customcode.localrunner.sdk.DatastoreServiceMockImpl
 
 class DatastoreServiceMockImplSpecs extends Specification { def is =
   "DatastoreService".title                                                                                              ^ end ^
