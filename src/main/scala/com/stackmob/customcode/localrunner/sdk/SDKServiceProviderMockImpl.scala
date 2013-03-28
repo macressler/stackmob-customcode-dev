@@ -16,6 +16,7 @@
 
 package com.stackmob.customcode.localrunner.sdk
 
+import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
 import http.HttpService
