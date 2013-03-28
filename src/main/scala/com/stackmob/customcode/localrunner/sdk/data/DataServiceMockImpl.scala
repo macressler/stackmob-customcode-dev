@@ -197,7 +197,8 @@ class DataServiceMockImpl(datastore: StackMobDatastore) extends DataService {
   override def removeRelatedObjects(schema: String,
                                     objectId: SMValue,
                                     relation: String,
-                                    relatedIds: SMList, cascadeDelete: Boolean) {
+                                    relatedIds: SMList,
+                                    cascadeDelete: Boolean) {
     //TODO: implement
     throw new DatastoreException("not yet implemented")
   }
