@@ -41,15 +41,14 @@ object BuildSettings {
 
 object Dependencies {
   private lazy val customCodeVsn = "0.5.6"
-  private lazy val gsonVsn = "1.7.1"
   private lazy val jettyVsn = "7.5.4.v20111024"
   lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
-  lazy val gson = "com.google.code.gson" % "gson"  % gsonVsn
   lazy val mockito = "org.mockito" % "mockito-all" % "1.9.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.1" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
+  lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
   lazy val guava = "com.google.guava" % "guava" % "14.0.1"
 }
 
@@ -59,7 +58,14 @@ object LocalRunnerBuild extends Build {
 
   lazy val localRunner = Project("stackmob-customcode-localrunner", file("."),
     settings = standardSettings ++ Seq(
-      libraryDependencies ++= Seq(customcode, gson, mockito, scalaz, specs2, jettyServer, liftJson, guava),
+      libraryDependencies ++= Seq(javaClientSDK,
+        customcode,
+        mockito,
+        scalaz,
+        specs2,
+        jettyServer,
+        liftJson,
+				guava),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )

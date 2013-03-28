@@ -19,20 +19,22 @@ package com.stackmob.customcode.localrunner.sdk
 import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
+import data.{DataServiceImpl, DatastoreServiceImpl, DatastoreServiceMockImpl}
 import http.HttpService
 import org.mockito.Mockito._
+import com.stackmob.sdk.api.{StackMobDatastore, StackMob}
 
-class SDKServiceProviderMockImpl(appName:String, initialDatastoreModels:List[String]) extends SDKServiceProvider {
-  override def getDatastoreService: DatastoreService = new DatastoreServiceMockImpl(appName, initialDatastoreModels)
-  override def getPushService: PushService = mock(classOf[PushService])
-  override def getTwitterService: TwitterService = mock(classOf[TwitterService])
-  override def getFacebookService: FacebookService = mock(classOf[FacebookService])
-  override def isSandbox: Boolean = true
-  override def getVersion: String = "scalaCCExample"
-  override def getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
-  override def getCachingService: CachingService = new CachingServiceImpl
-  override def getHttpService: HttpService = mock(classOf[HttpService])
-  override def getDataService: DataService = mock(classOf[DataService])
+class SDKServiceProviderMockImpl(datastore: StackMobDatastore) extends SDKServiceProvider {
+  override lazy val getDatastoreService: DatastoreService = new DatastoreServiceImpl(getDataService)
+  override lazy val getDataService: DataService = new DataServiceImpl(datastore)
+  override lazy val getPushService: PushService = mock(classOf[PushService])
+  override lazy val getTwitterService: TwitterService = mock(classOf[TwitterService])
+  override lazy val getFacebookService: FacebookService = mock(classOf[FacebookService])
+  override lazy val isSandbox: Boolean = true
+  override lazy val getVersion: String = "scalaCCExample"
+  override lazy val getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
+  override lazy val getCachingService: CachingService = new CachingServiceImpl
+  override lazy val getHttpService: HttpService = mock(classOf[HttpService])
   override def getLoggerService(s: String) = mock(classOf[LoggerService])
-  override def getLoggerService(c: Class[_]) = mock(classOf[LoggerService])
+  override def getLoggerService(c: Class[_]) = getLoggerService(c.getCanonicalName)
 }
