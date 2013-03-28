@@ -16,6 +16,7 @@
 
 package com.stackmob.customcode.localrunner.sdk
 
+import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
 import data.{DataServiceImpl, DatastoreServiceImpl, DatastoreServiceMockImpl}
@@ -32,9 +33,8 @@ class SDKServiceProviderMockImpl(datastore: StackMobDatastore) extends SDKServic
   override lazy val isSandbox: Boolean = true
   override lazy val getVersion: String = "scalaCCExample"
   override lazy val getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
-  override lazy val getCachingService: CachingService = mock(classOf[CachingService])
+  override lazy val getCachingService: CachingService = new CachingServiceImpl
   override lazy val getHttpService: HttpService = mock(classOf[HttpService])
-
   override def getLoggerService(s: String) = mock(classOf[LoggerService])
   override def getLoggerService(c: Class[_]) = getLoggerService(c.getCanonicalName)
 }

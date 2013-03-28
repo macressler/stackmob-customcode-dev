@@ -49,6 +49,7 @@ object Dependencies {
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
+  lazy val guava = "com.google.guava" % "guava" % "14.0.1"
 }
 
 object LocalRunnerBuild extends Build {
@@ -63,7 +64,8 @@ object LocalRunnerBuild extends Build {
         scalaz,
         specs2,
         jettyServer,
-        liftJson),
+        liftJson,
+				guava),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )
