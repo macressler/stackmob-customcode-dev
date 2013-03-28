@@ -81,23 +81,11 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
                            queryFields: JMap[String, JList[String]]): JList[JMap[String, Object]] = {
 
     val conditions: JList[SMCondition] = queryFields.asScala.flatMap { tup =>
-      val (key, values) = tup
-      values.asScala.toList match {
-        case hd :: Nil => {
-          val eq: SMCondition = new SMEquals(key, getSMValue(modelName, key, hd))
-          List(eq)
-        }
-        case Nil => {
-          List[SMCondition]()
-        }
-        case li => {
-          val list = li.map { st =>
-            getSMValue(modelName, key, st)
-          }
-          val eq: SMCondition = new SMEquals(key, new SMList(list))
-          List(eq)
-        }
+      val (field, possibleValues) = tup
+      val conds = possibleValues.asScala.toList.map { possibleValue =>
+        (new SMEquals(field, new SMString(possibleValue))): SMCondition
       }
+      conds.toList
     }.toList.asJava
 
     val smObjectList: List[SMObject] = dataService.readObjects(modelName, conditions).asScala.toList
@@ -129,15 +117,6 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
   override def getObjectModelNames: JSet[String] = {
     dataService.getObjectModelNames
   }
-
-  private def getSMValue(model: String, field: String, value: String): SMValue[_] = {
-    //TODO: implement this
-    sys.error("not yet implemented")
-//    val cdbi = ClientDatabaseIdentifier(EntityType.User, model)
-//    val prop: JSONSchema = cdbi.getUserSchemaOrThrow(ctx).getSchema.getProperties.get(field)
-//    getSMValueFromJSONSchema(prop, value)
-  }
-
 
   private def getArrayList[T](li: => JList[T]): JArrayList[T] = {
     val result = new JArrayList[T]()
