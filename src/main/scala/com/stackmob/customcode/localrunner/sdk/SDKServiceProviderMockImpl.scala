@@ -29,7 +29,7 @@ class SDKServiceProviderMockImpl(appName:String, initialDatastoreModels:List[Str
   override def isSandbox: Boolean = true
   override def getVersion: String = "scalaCCExample"
   override def getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
-  override def getCachingService: CachingService = mock(classOf[CachingService])
+  override def getCachingService: CachingService = new CachingServiceImpl
   override def getHttpService: HttpService = mock(classOf[HttpService])
   override def getDataService: DataService = mock(classOf[DataService])
   override def getLoggerService(s: String) = mock(classOf[LoggerService])
