@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner.sdk
+package com.stackmob.customcode.localrunner.sdk.data
 
 import java.lang.{Boolean => JBoolean}
-import JavaConversions._
 import collection.JavaConversions._
 import collection.immutable.{Map => SMap, List => SList}
 import com.stackmob.sdkapi.DatastoreService

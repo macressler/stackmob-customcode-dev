@@ -17,12 +17,12 @@
 package com.stackmob.customcode.localrunner
 
 import collection.JavaConversions._
-import sdk.{JavaConversions, DatastoreServiceMockImpl}
+import sdk.data.DatastoreServiceMockImpl
+import sdk.{JavaConversions}
 import JavaConversions._
 import com.stackmob.sdkapi.DatastoreService
 import org.specs2.Specification
 import collection.JavaConverters._
-import sdk.DatastoreServiceMockImpl
 
 class DatastoreServiceMockImplSpecs extends Specification { def is =
   "DatastoreService".title                                                                                              ^ end ^

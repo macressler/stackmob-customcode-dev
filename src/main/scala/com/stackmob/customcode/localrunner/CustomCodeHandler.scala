@@ -26,8 +26,6 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
     running ++ Map(method.getMethodName -> method)
   }
 
-  val appName = "cc-localrunner-app"
-
   private def exhaustBufferedReader(reader: BufferedReader, builder: StringBuilder = new StringBuilder): StringBuilder = {
     Option(reader.readLine()).map { line =>
       exhaustBufferedReader(reader, builder.append(line))
@@ -45,8 +43,7 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
   private def processedAPIRequest(methodName: String, baseReq: Request, servletReq: HttpServletRequest, body: String): ProcessedAPIRequest = {
     val requestedVerb = MethodVerb.valueOf(servletReq.getMethod)
     val httpURI = baseReq.getUri
-    val loggedInUser = "cc-localrunner-user"
-    val mbQueryString = Option(httpURI.getQuery) //TODO: get query with correct query string encoding
+    val mbQueryString = Option(httpURI.getQuery)
     val mbQueryParams = for {
       queryString <- mbQueryString
     } yield {
