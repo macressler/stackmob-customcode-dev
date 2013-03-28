@@ -36,4 +36,10 @@ package object data {
     newQuery
   }
 
+  //TODO: implement this
+  def smObject(s: String): SMObject = {
+    val map = Map[String, SMValue[_]]()
+    new SMObject(map.asJava)
+  }
+
 }

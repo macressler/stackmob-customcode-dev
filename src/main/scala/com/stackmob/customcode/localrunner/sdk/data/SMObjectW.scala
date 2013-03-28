@@ -1,6 +1,7 @@
 package com.stackmob.customcode.localrunner.sdk.data
 
 import com.stackmob.sdkapi.SMObject
+import net.liftweb.json._
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,5 +14,20 @@ import com.stackmob.sdkapi.SMObject
  */
 trait SMObjectW {
   protected def smObject: SMObject
+
+  //TODO: check for graph cycles in smObject
+  def toJValue: JValue = {
+    //TODO: implement this
+    JNothing
+//    smObject match {
+//
+//    }
+//    val smValueMap = smObject.getValue
+//    val jValueList = smValueMap
+  }
+
+  def toJsonString: String = {
+    compact(render(toJValue))
+  }
 
 }
