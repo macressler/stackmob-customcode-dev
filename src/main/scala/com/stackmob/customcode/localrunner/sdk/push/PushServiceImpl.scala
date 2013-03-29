@@ -30,14 +30,12 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @throws(classOf[PushServiceException])
   override def sendPushToUsers(users: JList[String], pairs: JMap[String, String]) {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    synchronous(stackmobPush.pushToUsers(pairs, users, _))
   }
 
   @throws(classOf[PushServiceException])
   def broadcastPush(pairs: JMap[String, String]) {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    synchronous(stackmobPush.broadcastPushNotification(pairs, _))
   }
 
   @throws(classOf[DatastoreException])
