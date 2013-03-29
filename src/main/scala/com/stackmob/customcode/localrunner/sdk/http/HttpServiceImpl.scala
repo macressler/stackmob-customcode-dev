@@ -8,6 +8,7 @@ import com.stackmob.sdkapi.http.response.HttpResponse
 import com.stackmob.newman.ApacheHttpClient
 import com.stackmob.newman.dsl._
 import collection.JavaConverters._
+import com.stackmob.sdkapi.http.exceptions.{TimeoutException, AccessDeniedException}
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,6 +20,7 @@ import collection.JavaConverters._
  * Time: 5:37 PM
  */
 class HttpServiceImpl extends HttpService {
+  //TODO: simulate rate limits, blacklists and whitelists
   private implicit val newmanClient = new ApacheHttpClient()
 
   private lazy val executorService = Executors.newFixedThreadPool(4)
@@ -27,6 +29,8 @@ class HttpServiceImpl extends HttpService {
     true
   }
 
+  @throws(classOf[AccessDeniedException])
+  @throws(classOf[TimeoutException])
   override def get(req: GetRequest): HttpResponse = {
     ccHttpResponse {
       GET(req.getUrl)
@@ -34,10 +38,13 @@ class HttpServiceImpl extends HttpService {
     }
   }
 
+  @throws(classOf[AccessDeniedException])
   override def getAsync(req: GetRequest): Future[HttpResponse] = {
     executorService.submit(callable(get(req)))
   }
 
+  @throws(classOf[AccessDeniedException])
+  @throws(classOf[TimeoutException])
   override def post(req: PostRequest): HttpResponse = {
     ccHttpResponse {
       POST(req.getUrl)
@@ -46,10 +53,13 @@ class HttpServiceImpl extends HttpService {
     }
   }
 
+  @throws(classOf[AccessDeniedException])
   override def postAsync(req: PostRequest): Future[HttpResponse] = {
     executorService.submit(callable(post(req)))
   }
 
+  @throws(classOf[AccessDeniedException])
+  @throws(classOf[TimeoutException])
   override def put(req: PutRequest): HttpResponse = {
     ccHttpResponse {
       PUT(req.getUrl)
@@ -58,10 +68,13 @@ class HttpServiceImpl extends HttpService {
     }
   }
 
+  @throws(classOf[AccessDeniedException])
   override def putAsync(req: PutRequest): Future[HttpResponse] = {
     executorService.submit(callable(put(req)))
   }
 
+  @throws(classOf[AccessDeniedException])
+  @throws(classOf[TimeoutException])
   override def delete(req: DeleteRequest): HttpResponse = {
     ccHttpResponse {
       DELETE(req.getUrl)
@@ -69,6 +82,7 @@ class HttpServiceImpl extends HttpService {
     }
   }
 
+  @throws(classOf[AccessDeniedException])
   override def deleteAsync(req: DeleteRequest): Future[HttpResponse] = {
     executorService.submit(callable(delete(req)))
   }
