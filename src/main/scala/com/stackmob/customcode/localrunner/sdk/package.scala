@@ -15,6 +15,7 @@ package object sdk {
   type JMap[K, V] = java.util.Map[K, V]
   type JBoolean = java.lang.Boolean
   type JSet[T] = java.util.Set[T]
+  type JHashSet[T] = java.util.HashSet[T]
   type JArrayList[T] = java.util.ArrayList[T]
 
 }

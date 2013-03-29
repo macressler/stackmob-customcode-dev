@@ -20,9 +20,10 @@ import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
 import com.stackmob.customcode.localrunner.sdk.data._
-import http.HttpService
+import http.HttpServiceImpl
 import org.mockito.Mockito._
 import com.stackmob.sdk.api.StackMob
+import com.stackmob.sdkapi.http.HttpService
 
 class SDKServiceProviderImpl(stackmob: StackMob) extends SDKServiceProvider {
   override lazy val getDatastoreService: DatastoreService = new DatastoreServiceImpl(getDataService)
@@ -34,7 +35,7 @@ class SDKServiceProviderImpl(stackmob: StackMob) extends SDKServiceProvider {
   override lazy val getVersion: String = "scalaCCExample"
   override lazy val getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
   override lazy val getCachingService: CachingService = new CachingServiceImpl
-  override lazy val getHttpService: HttpService = mock(classOf[HttpService])
+  override lazy val getHttpService: HttpService = new HttpServiceImpl
   override def getLoggerService(s: String) = mock(classOf[LoggerService])
   override def getLoggerService(c: Class[_]) = getLoggerService(c.getCanonicalName)
 }
