@@ -24,22 +24,6 @@ import java.util.concurrent.LinkedBlockingQueue
 class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def getUserSchema = userSchemaName
 
-  type Ex = Validation[StackMobException, String]
-
-  private def synchronous(fn: StackMobCallback => Unit): Promise[Ex] = {
-    val q = new LinkedBlockingQueue[Ex](1)
-    val callback = new StackMobCallback {
-      def failure(e: StackMobException) {
-        q.put(e.fail)
-      }
-      def success(responseBody: String) {
-        q.put(responseBody.success)
-      }
-    }
-    Promise(fn(callback))
-    Promise(q.take)
-  }
-
   private def convert(s: StackMobException): Throwable = {
     s match {
       case e: StackMobHTTPResponseException if e.getCode == 400 => {

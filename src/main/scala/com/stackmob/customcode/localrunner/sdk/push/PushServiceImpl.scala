@@ -7,6 +7,7 @@ import com.stackmob.sdkapi.PushService
 import com.stackmob.sdk.push.StackMobPush
 import com.stackmob.sdkapi.PushService.{TokenType, TokenAndType}
 import com.stackmob.core.{DatastoreException, PushServiceException}
+import collection.JavaConverters._
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,13 +21,15 @@ import com.stackmob.core.{DatastoreException, PushServiceException}
 class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @throws(classOf[PushServiceException])
-  def sendPushToTokens(tokens: JList[TokenAndType], pairs: JMap[String, String]) {
-    //TODO: implement this
-    sys.error("not yet implemented")
+  override def sendPushToTokens(tokens: JList[TokenAndType], pairs: JMap[String, String]) {
+    val stackmobPushTokens = tokens.asScala.map { t =>
+      stackmobPushToken(t)
+    }.toList.asJava
+    synchronous(stackmobPush.pushToTokens(pairs, stackmobPushTokens, _))
   }
 
   @throws(classOf[PushServiceException])
-  def sendPushToUsers(users: JList[String], pairs: JMap[String, String]) {
+  override def sendPushToUsers(users: JList[String], pairs: JMap[String, String]) {
     //TODO: implement this
     sys.error("not yet implemented")
   }
@@ -62,61 +65,61 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
+  override def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @throws(classOf[DatastoreException])
-  def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
+  override def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[PushServiceException])
-  def sendPush(tokens: JList[String], badge: Int, sound: String, alert: String) {
-    //TODO: implement this
-    sys.error("not yet implemented")
-  }
-
-  @Deprecated
-  @throws(classOf[PushServiceException])
-  def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String) {
+  override def sendPush(tokens: JList[String], badge: Int, sound: String, alert: String) {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[PushServiceException])
-  def broadcastPush(badge: Int, sound: String, alert: String) {
+  override def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String) {
+    //TODO: implement this
+    sys.error("not yet implemented")
+  }
+
+  @Deprecated
+  @throws(classOf[PushServiceException])
+  override def broadcastPush(badge: Int, sound: String, alert: String) {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  def getExpiredTokens(clear: Boolean): JMap[String, Long] = {
+  override def getExpiredTokens(clear: Boolean): JMap[String, Long] = {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  def registerToken(username: String, token: String) {
+  override def registerToken(username: String, token: String) {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  def getTokensForUsers(users: JList[String]): JMap[String, String] = {
+  override def getTokensForUsers(users: JList[String]): JMap[String, String] = {
     //TODO: implement this
     sys.error("not yet implemented")
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  def removeToken(token: String) {
+  override def removeToken(token: String) {
     //TODO: implement this
     sys.error("not yet implemented")
   }

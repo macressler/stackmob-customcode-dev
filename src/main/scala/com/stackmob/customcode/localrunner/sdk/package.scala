@@ -1,5 +1,12 @@
 package com.stackmob.customcode.localrunner
 
+import com.stackmob.sdk.callback.StackMobCallback
+import scalaz.concurrent.Promise
+import java.util.concurrent.LinkedBlockingQueue
+import com.stackmob.sdk.exception.StackMobException
+import scalaz.{Validation, Failure, Success}
+import scalaz.concurrent.Promise
+
 /**
  * Created by IntelliJ IDEA.
  *
@@ -10,6 +17,20 @@ package com.stackmob.customcode.localrunner
  * Time: 4:45 PM
  */
 package object sdk {
+
+  def synchronous(fn: StackMobCallback => Unit): Promise[Validation[StackMobException, String]] = {
+    val q = new LinkedBlockingQueue[Validation[StackMobException, String]](1)
+    val callback = new StackMobCallback {
+      def failure(e: StackMobException) {
+        q.put(Failure(e))
+      }
+      def success(responseBody: String) {
+        q.put(Success(responseBody))
+      }
+    }
+    Promise(fn(callback))
+    Promise(q.take)
+  }
 
   type JList[T] = java.util.List[T]
   type JMap[K, V] = java.util.Map[K, V]
