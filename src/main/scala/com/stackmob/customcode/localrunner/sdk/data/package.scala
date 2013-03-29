@@ -46,6 +46,4 @@ package object data {
   }
 
   type SMValueCtor = SMValue[_]
-  type SMListCtor = SMList[_]
-
 }

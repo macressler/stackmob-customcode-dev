@@ -150,7 +150,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def addRelatedObjects(schema: String,
                                  objectId: SMValueCtor,
                                  relation: String,
-                                 relatedIds: JList[_]): SMObject = {
+                                 relatedIds: JList[_ <: SMValueCtor]): SMObject = {
     //TODO: implement
     throw new DatastoreException("not yet implemented")
   }
@@ -160,7 +160,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def addRelatedObjects(schema: String,
                                  objectId: SMValueCtor,
                                  relation: String,
-                                 relatedIds: SMListCtor): SMObject = {
+                                 relatedIds: SMList[_ <: SMValueCtor]): SMObject = {
     //TODO: implement
     throw new DatastoreException("not yet implemented")
   }
@@ -186,7 +186,8 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def removeRelatedObjects(schema: String,
                                     objectId: SMValueCtor,
                                     relation: String,
-                                    relatedIds: JList[_ <: SMValueCtor], cascadeDelete: Boolean) {
+                                    relatedIds: JList[_ <: SMValueCtor],
+                                    cascadeDelete: Boolean) {
     //TODO: implement
     throw new DatastoreException("not yet implemented")
   }
@@ -196,8 +197,8 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def removeRelatedObjects(schema: String,
                                     objectId: SMValueCtor,
                                     relation: String,
-                                    relatedIds: SMListCtor,
-                                    cascadeDelete: JBoolean) {
+                                    relatedIds: SMList[_ <: SMValueCtor],
+                                    cascadeDelete: Boolean) {
     //TODO: implement
     throw new DatastoreException("not yet implemented")
   }
