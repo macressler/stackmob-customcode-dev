@@ -9,8 +9,11 @@ import com.stackmob.core.customcode.CustomCodeMethod
 import com.stackmob.core.rest.ProcessedAPIRequest
 import com.stackmob.core.MethodVerb
 import java.io.BufferedReader
-import sdk.SDKServiceProviderMockImpl
+import sdk.SDKServiceProviderImpl
 import net.liftweb.json.{NoTypeHints, Serialization}
+import com.stackmob.sdk.api.StackMob
+import com.stackmob.sdk.api.StackMob.OAuthVersion
+import json._
 
 /**
  * Created by IntelliJ IDEA.
@@ -70,8 +73,11 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
       counter)
   }
 
-  private implicit val formats = Serialization.formats(NoTypeHints)
+  //TODO: get these from config file
+  private lazy val apiKey = "cc-test-api-key"
+  private lazy val apiSecret = "cc-test-api-secret"
 
+  private lazy val stackmob = new StackMob(OAuthVersion.One, 0, apiKey, apiSecret)
   override def handle(target: String,
                       baseRequest: Request,
                       servletRequest: HttpServletRequest,
@@ -82,10 +88,10 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
     methods.get(realPath).map { method =>
       val body = exhaustBufferedReader(baseRequest.getReader).toString()
       val apiReq = processedAPIRequest(realPath, baseRequest, servletRequest, body)
-      val sdkServiceProvider = new SDKServiceProviderMockImpl(appName, List[String]())
+      val sdkServiceProvider = new SDKServiceProviderImpl(stackmob)
       val resp = method.execute(apiReq, sdkServiceProvider)
       val respMap = resp.getResponseMap
-      val respJSON = Serialization.write(respMap.asScala)
+      val respJSON = json.write(respMap.asScala)
 
       response.setStatus(resp.getResponseCode)
       writer.print(respJSON)

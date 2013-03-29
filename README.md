@@ -45,6 +45,3 @@ Example code is located at [https://github.com/stackmob/stackmob-customcode-loca
 and [https://github.com/stackmob/stackmob-customcode-localrunner/tree/master/src/test/scala/com/stackmob/customcode/example](https://github.com/stackmob/stackmob-customcode-localrunner/tree/master/src/test/scala/com/stackmob/customcode/example).
 
 Go to [https://github.com/stackmob/stackmob-customcode-sdk](https://github.com/stackmob/stackmob-customcode-sdk) for more details and  examples.
-
-## TODO
-* Java compatability for CustomCodeMethodRunner

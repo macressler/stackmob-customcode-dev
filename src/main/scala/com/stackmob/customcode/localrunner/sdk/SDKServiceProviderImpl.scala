@@ -19,14 +19,14 @@ package com.stackmob.customcode.localrunner.sdk
 import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
-import data.{DataServiceImpl, DatastoreServiceImpl, DatastoreServiceMockImpl}
+import com.stackmob.customcode.localrunner.sdk.data._
 import http.HttpService
 import org.mockito.Mockito._
-import com.stackmob.sdk.api.{StackMobDatastore, StackMob}
+import com.stackmob.sdk.api.StackMob
 
-class SDKServiceProviderMockImpl(datastore: StackMobDatastore) extends SDKServiceProvider {
+class SDKServiceProviderImpl(stackmob: StackMob) extends SDKServiceProvider {
   override lazy val getDatastoreService: DatastoreService = new DatastoreServiceImpl(getDataService)
-  override lazy val getDataService: DataService = new DataServiceImpl(datastore)
+  override lazy val getDataService: DataService = new DataServiceImpl(stackmob.getDatastore)
   override lazy val getPushService: PushService = mock(classOf[PushService])
   override lazy val getTwitterService: TwitterService = mock(classOf[TwitterService])
   override lazy val getFacebookService: FacebookService = mock(classOf[FacebookService])

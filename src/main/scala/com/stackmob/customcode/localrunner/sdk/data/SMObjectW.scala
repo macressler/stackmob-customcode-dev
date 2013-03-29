@@ -19,15 +19,20 @@ trait SMObjectW {
   def toJValue: JValue = {
     //TODO: implement this
     JNothing
-//    smObject match {
-//
-//    }
-//    val smValueMap = smObject.getValue
-//    val jValueList = smValueMap
   }
 
   def toJsonString: String = {
     compact(render(toJValue))
+  }
+
+  def toSMValueMap: Map[String, SMValueCtor] = {
+    //TODO: implement this
+    sys.error("not yet implemented")
+  }
+
+  def toObjectMap: Map[String, Object] = {
+    //TODO: implement this
+    sys.error("not yet implemented")
   }
 
 }

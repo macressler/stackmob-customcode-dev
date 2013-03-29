@@ -3,6 +3,7 @@ package com.stackmob.customcode.localrunner.sdk.data
 import com.stackmob.sdk.api.{StackMobGeoPoint, StackMobQuery}
 import com.stackmob.sdkapi._
 import com.stackmob.customcode.localrunner._
+import collection.JavaConverters._
 
 /**
  * Created by IntelliJ IDEA.

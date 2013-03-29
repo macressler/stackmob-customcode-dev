@@ -20,25 +20,29 @@ package localrunner
 import collection.JavaConversions._
 import com.stackmob.sdkapi.DatastoreService
 import org.specs2.Specification
-import com.stackmob.customcode.localrunner.sdk.DatastoreServiceMockImpl
+import com.stackmob.customcode.localrunner.sdk.data.{DataServiceImpl, DatastoreServiceImpl}
+import com.stackmob.sdk.api.StackMobDatastore
+import org.mockito.Mockito._
+import collection.JavaConverters._
 
-class DatastoreServiceMockImplSpecs extends Specification { def is =
+class DatastoreServiceImplSpecs extends Specification { def is =
   "DatastoreService".title                                                                                              ^ end ^
   """DatastoreService is a (deprecated) custom code interface to access the StackMob datastore"""                       ^ end ^
   "crud should work properly"                                                                                           ! crud() ^ end ^
                                                                                                                         end
 
-  val ds:DatastoreService = new DatastoreServiceMockImpl("tests", List())
-  val modelName = "testModel"
-  val data = Map("hello" -> "world", "hello1" -> "world1")
-  val query = Map("hello" -> seqAsJavaList(List("world")))
+  private val dataService = new DataServiceImpl(mock(classOf[StackMobDatastore]))
+  private val datastoreService:DatastoreService = new DatastoreServiceImpl(dataService)
+  private val modelName = "testModel"
+  private val data = Map("hello" -> "world", "hello1" -> "world1")
+  private val query = Map("hello" -> seqAsJavaList(List("world")))
 
-  val invalidQueries = List(
+  private val invalidQueries = List(
     Map("hello" -> seqAsJavaList(List("world1"))),
     Map("asdasfafasd" -> seqAsJavaList(List("world")))
   )
 
-  val pkKey = "objectId"
+  private val pkKey = "objectId"
 
   private def mapEquals(m1:Map[String, Object], m2:Map[String, Object], exceptKey:String = pkKey) = {
     val newM1 = m1 - exceptKey
@@ -48,7 +52,7 @@ class DatastoreServiceMockImplSpecs extends Specification { def is =
   }
 
   private def crud() = {
-    val created:Map[String, Object] = ds.createObject(modelName, data)
+    val created: Map[String, Object] = datastoreService.createObject(modelName, data).asScala.toMap
     val createdEq = mapEquals(data, created)
     val createdHasPK = created.get(pkKey) must beSome
 

@@ -14,64 +14,23 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.localrunner.sdk.data
+package com.stackmob.customcode.localrunner
+package sdk
+package data
 
 import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import com.stackmob.sdkapi._
-import java.util.{List => JList, Map => JMap, ArrayList => JArrayList, Set => JSet}
-import java.lang.{Boolean => JBoolean}
-import collection.JavaConverters._
 import java.net.ConnectException
+import collection.JavaConverters._
 
 class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
 
-  private implicit def objectToSMValue(obj: Object) = anyToSMValue(obj)
-
-  def getObjectList(list: JList[_]): JList[SMValue[_]] = list.asScala.map {
-    case obj: Object => objectToSMValue(obj)
-    case _ => throw new DatastoreException("unsupported type: not a java.lang.Object!")
-  }.toList.asJava
-
-  private implicit def anyToSMValue(obj: Any): SMValue[_] = obj match {
-    case null => null
-    case i: Boolean => new SMBoolean(i)
-    case i: Double => new SMDouble(i)
-    case i: Float => new SMDouble(i)
-    case i: Int => new SMInt(i)
-    case i: JList[_] => new SMList(getObjectList(i))
-    case i: Long => new SMInt(i)
-    case i: String => new SMString(i)
-    case o: Object => throw new DatastoreException("unsupported type %s is not a valid object to convert to SMValue" format (o.getClass.getCanonicalName))
-    case a => throw new ClassCastException("Not an SMValue, not even an object: %s" format (a.getClass.getCanonicalName))
-  }
-
-  private implicit def SMValueToObject(v: SMValue[_]): AnyRef = v match {
-    case null => null
-    case b: SMBoolean => b.getValue
-    case d: SMDouble => d.getValue
-    case i: SMInt => i.getValue
-    case l: SMList[_] => getArrayList(l.getValue.asScala.map {
-      case smv: SMValue[_] => SMValueToObject(smv)
-      case something => throw new DatastoreException(something.toString + " is not an SMValue")
-    }.toList.asJava)
-    case o: SMObject => o.getValue.asScala.mapValues(SMValueToObject(_))
-    case s: SMString => s.getValue
-    case u => throw new DatastoreException("unsupported type %s should have been an SMValue" format (u.getClass.getCanonicalName))
-  }
-
-  private implicit def MapToSMObject(m: JMap[String, Object]): SMObject = {
-    new SMObject(m.asScala.mapValues(objectToSMValue(_)).asJava)
-  }
-
-  private implicit def SMObjectToMap(obj: SMObject): JMap[String, Object] = {
-    obj.getValue.asScala.mapValues(SMValueToObject(_)).asJava
-  }
-
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
   override def createObject(modelName: String, toCreate: JMap[String, Object]): JMap[String, Object] = {
-    dataService.createObject(modelName, toCreate)
+    val smObjectToCreate = smObject(toCreate.asScala.toMap)
+    dataService.createObject(modelName, smObjectToCreate).toObjectMap.asJava
   }
 
 
@@ -89,7 +48,9 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
     }.toList.asJava
 
     val smObjectList: List[SMObject] = dataService.readObjects(modelName, conditions).asScala.toList
-    val mapList: List[JMap[String, Object]] = smObjectList.map(SMObjectToMap(_))
+    val mapList: List[JMap[String, Object]] = smObjectList.map { smObject =>
+      smObject.toObjectMap.asJava
+    }
     getArrayList(mapList.toList.asJava)
   }
 
@@ -100,11 +61,11 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
                             newValue: JMap[String, Object]): JMap[String, Object] = {
     val smUpdates = newValue.asScala.map({
       tup: (String, Object) =>
-        val l: SMUpdate = new SMSet(tup._1, objectToSMValue(tup._2))
+        val l: SMUpdate = new SMSet(tup._1, smValue(tup._2))
         l
     }).toList.asJava
 
-    dataService.updateObject(modelName, objectId, smUpdates)
+    dataService.updateObject(modelName, objectId, smUpdates).toObjectMap.asJava
   }
 
   @throws(classOf[InvalidSchemaException])
@@ -117,6 +78,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
   override def getObjectModelNames: JSet[String] = {
     dataService.getObjectModelNames
   }
+
 
   private def getArrayList[T](li: => JList[T]): JArrayList[T] = {
     val result = new JArrayList[T]()

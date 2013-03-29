@@ -2,8 +2,7 @@ package com.stackmob.customcode.localrunner
 package sdk
 
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.{StackMobGeoPoint, StackMobQuery}
-import collection.JavaConverters._
+import com.stackmob.sdk.api.StackMobQuery
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,9 +36,16 @@ package object data {
   }
 
   //TODO: implement this
-  def smObject(s: String): SMObject = {
-    val map = Map[String, SMValue[_]]()
-    new SMObject(map.asJava)
+  def smObject(map: Map[String, Object]): SMObject = {
+    sys.error("not yet implemented")
   }
+
+  //TODO: implement this
+  def smValue(a: Any): SMValue[_] = {
+    sys.error("not yet implemented")
+  }
+
+  type SMValueCtor = SMValue[_]
+  type SMListCtor = SMList[_]
 
 }
