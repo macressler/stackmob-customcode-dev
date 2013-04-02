@@ -51,6 +51,8 @@ object Dependencies {
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
   lazy val newman = "com.stackmob" %% "newman" % "0.14.0" exclude("commons-codec", "commons-codec")
   lazy val liftJsonScalaz = "net.liftweb" %% "lift-json-scalaz" % "2.5-RC2"
+  lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
+  lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.0.9"
 }
 
 object LocalRunnerBuild extends Build {
@@ -67,7 +69,9 @@ object LocalRunnerBuild extends Build {
         jettyServer,
         liftJson,
         newman,
-        liftJsonScalaz),
+        liftJsonScalaz,
+        slf4j,
+        logbackClassic),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )
