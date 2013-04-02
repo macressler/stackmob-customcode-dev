@@ -20,6 +20,7 @@ import cache.CachingServiceImpl
 import com.stackmob.sdkapi._
 import caching.CachingService
 import com.stackmob.customcode.localrunner.sdk.data._
+import configvar.ConfigVarServiceImpl
 import http.HttpServiceImpl
 import org.mockito.Mockito._
 import com.stackmob.sdk.api.StackMob
@@ -35,7 +36,7 @@ class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) ext
   override lazy val getFacebookService: FacebookService = mock(classOf[FacebookService])
   override lazy val isSandbox: Boolean = true
   override lazy val getVersion: String = "scalaCCExample"
-  override lazy val getConfigVarService: ConfigVarService = mock(classOf[ConfigVarService])
+  override lazy val getConfigVarService: ConfigVarService = new ConfigVarServiceImpl
   override lazy val getCachingService: CachingService = new CachingServiceImpl
   override lazy val getHttpService: HttpService = new HttpServiceImpl
   override def getLoggerService(s: String) = mock(classOf[LoggerService])
