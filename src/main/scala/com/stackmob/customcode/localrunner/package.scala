@@ -16,11 +16,15 @@ import java.util.UUID
 package object localrunner {
   lazy val uuid = UUID.randomUUID()
 
-  def appName = "cc-localrunner-app-%s".format(uuid)
-  def loggedInUser = "cc-localrunner-logged-in-user-%s".format(uuid)
-  def testFBUser = "cc-localrunner-test-facebook-user-%s".format(uuid)
-  def testFBMessageID = "cc-localrunner-test-facebook-message-id-%s".format(uuid)
-  def userSchemaName = "cc-localrunner-user-schema-%s".format(uuid)
+  private def fmt(s: String) = "cc-localrunner-%s-%s".format(s, uuid)
+
+  lazy val appName = fmt("app")
+  lazy val userSchemaName = fmt("user-schema")
+  lazy val userName = fmt("user")
+  lazy val loggedInUser = fmt("logged-in-user")
+  lazy val testFBUser = fmt("facebook-user")
+  lazy val testFBMessageID = fmt("facebook-message")
+  lazy val testTwitterUser = fmt("twitter-user")
 
   def validating[T](t: => T): Validation[Throwable, T] = {
     try {

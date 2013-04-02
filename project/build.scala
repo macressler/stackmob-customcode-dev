@@ -43,7 +43,6 @@ object Dependencies {
   private lazy val customCodeVsn = "0.5.6"
   private lazy val jettyVsn = "7.5.4.v20111024"
   lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
-  lazy val mockito = "org.mockito" % "mockito-all" % "1.9.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.1" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
@@ -63,7 +62,6 @@ object LocalRunnerBuild extends Build {
     settings = standardSettings ++ Seq(
       libraryDependencies ++= Seq(javaClientSDK,
         customcode,
-        mockito,
         scalaz,
         specs2,
         jettyServer,

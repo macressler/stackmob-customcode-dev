@@ -24,17 +24,17 @@ import configvar.ConfigVarServiceImpl
 import facebook.FacebookServiceImpl
 import http.HttpServiceImpl
 import logger.LoggerServiceImpl
-import org.mockito.Mockito._
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdkapi.http.HttpService
 import push.PushServiceImpl
 import com.stackmob.sdk.push.StackMobPush
+import twitter.TwitterServiceImpl
 
 class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) extends SDKServiceProvider {
   override lazy val getDatastoreService: DatastoreService = new DatastoreServiceImpl(getDataService)
   override lazy val getDataService: DataService = new DataServiceImpl(stackmob.getDatastore)
   override lazy val getPushService: PushService = new PushServiceImpl(stackmobPush)
-  override lazy val getTwitterService: TwitterService = mock(classOf[TwitterService])
+  override lazy val getTwitterService: TwitterService = new TwitterServiceImpl
   override lazy val getFacebookService: FacebookService = new FacebookServiceImpl
   override lazy val isSandbox: Boolean = true
   override lazy val getVersion: String = "scalaCCExample"
