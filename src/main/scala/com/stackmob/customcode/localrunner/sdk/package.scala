@@ -34,6 +34,16 @@ package object sdk {
 
   type JList[T] = java.util.List[T]
   type JMap[K, V] = java.util.Map[K, V]
+  type JHashMap[K, V] = java.util.HashMap[K, V]
+  object JMap {
+    def apply[K, V](pairs: (K, V)*): JMap[K, V] = {
+      val m = new JHashMap[K, V]
+      pairs.toList.foreach { tup =>
+        m.put(tup._1, tup._2)
+      }
+      m
+    }
+  }
   type JBoolean = java.lang.Boolean
   type JSet[T] = java.util.Set[T]
   type JHashSet[T] = java.util.HashSet[T]

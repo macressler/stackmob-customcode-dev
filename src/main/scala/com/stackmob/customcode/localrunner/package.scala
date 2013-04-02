@@ -1,6 +1,6 @@
 package com.stackmob.customcode
 
-import scalaz.Validation
+import scalaz.{Validation, Success, Failure}
 import scalaz.Scalaz._
 
 /**
@@ -23,5 +23,19 @@ package object localrunner {
     } catch {
       case t => t.fail[T]
     }
+  }
+
+  sealed trait ValidationW[Fail, Success] {
+    protected def validation: Validation[Fail, Success]
+
+    def mapFailure[NewFail](fn: Fail => NewFail): Validation[NewFail, Success] = {
+      validation match {
+        case Success(s) => Success(s)
+        case Failure(t) => Failure(fn(t))
+      }
+    }
+  }
+  implicit def validationToW[Fail, Success](v: Validation[Fail, Success]) = new ValidationW[Fail, Success] {
+    override protected lazy val validation = v
   }
 }
