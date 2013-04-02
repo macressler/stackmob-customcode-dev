@@ -38,4 +38,17 @@ package object localrunner {
   implicit def validationToW[Fail, Success](v: Validation[Fail, Success]) = new ValidationW[Fail, Success] {
     override protected lazy val validation = v
   }
+
+  sealed trait ThrowableValidationW[Success] {
+    protected def validation: Validation[Throwable, Success]
+
+    def getOrThrow: Success = {
+      validation ||| { t: Throwable =>
+        throw t
+      }
+    }
+  }
+  implicit def throwableValidationToW[Success](v: Validation[Throwable, Success]) = new ThrowableValidationW[Success] {
+    override protected lazy val validation = v
+  }
 }

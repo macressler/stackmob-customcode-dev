@@ -33,6 +33,8 @@ package object sdk {
   }
 
   type JList[T] = java.util.List[T]
+  type JArrayList[T] = java.util.ArrayList[T]
+
   type JMap[K, V] = java.util.Map[K, V]
   type JHashMap[K, V] = java.util.HashMap[K, V]
   object JMap {
@@ -44,9 +46,21 @@ package object sdk {
       m
     }
   }
+
   type JBoolean = java.lang.Boolean
+
   type JSet[T] = java.util.Set[T]
   type JHashSet[T] = java.util.HashSet[T]
-  type JArrayList[T] = java.util.ArrayList[T]
+  object JSet {
+    def apply[T](elts: T*): JSet[T] = {
+      val s = new JHashSet[T]
+      elts.toList.foreach { elt =>
+        s.add(elt)
+      }
+      s
+    }
+  }
+
+
 
 }

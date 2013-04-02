@@ -8,6 +8,8 @@ import com.stackmob.sdk.push.StackMobPush
 import com.stackmob.sdkapi.PushService.{TokenType, TokenAndType}
 import com.stackmob.core.{DatastoreException, PushServiceException}
 import collection.JavaConverters._
+import net.liftweb.json.{parse, JValue}
+import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,7 +27,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
     val stackmobPushTokens = tokens.asScala.map { t =>
       stackmobPushToken(t)
     }.toList.asJava
-    synchronous(stackmobPush.pushToTokens(pairs, stackmobPushTokens, _))
+    synchronous(stackmobPush.pushToTokens(pairs, stackmobPushTokens, _)).get.getOrThrow
   }
 
   @throws(classOf[PushServiceException])
@@ -39,51 +41,82 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
       validation.mapFailure { t =>
         new PushServiceException(t.getMessage)
       }
-    }.get ||| { t =>
-      throw t
+    }.get.getOrThrow
+  }
+
+  private implicit val tokensMapJSONR: JSONR[UsersToTokensAndTypes] = new JSONR[UsersToTokensAndTypes] {
+    override def read(json: JValue): Result[UsersToTokensAndTypes] = {
+      field[UsersToTokensAndTypes]("tokens")(json)
     }
   }
 
   @throws(classOf[DatastoreException])
   def getAllTokensForUsers(users: JList[String]): JMap[String, JList[TokenAndType]] = {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    val validation = for {
+      respString <- synchronous(stackmobPush.getTokensForUsers(users, _)).get.mapFailure { t =>
+        new DatastoreException(t.getMessage)
+      }
+      respJValue <- validating(parse(respString)).mapFailure { t =>
+        new DatastoreException(t.getMessage)
+      }
+      respMap <- fromJSON[UsersToTokensAndTypes](respJValue).mapFailure { failNel =>
+        new DatastoreException("result string from StackMob was malformed\n%s".format(respString))
+      }
+    } yield respMap
+
+    validation.getOrThrow.map { tup =>
+      tup._1 -> tup._2.asJava
+    }.asJava
   }
 
   @throws(classOf[DatastoreException])
   override def removeToken(token: TokenAndType) {
     synchronous(stackmobPush.removePushToken(stackmobPushToken(token), _)).get.mapFailure { t =>
       new DatastoreException(t.getMessage)
-    } ||| { t =>
-      throw t
-    }
+    }.getOrThrow
   }
 
   @throws(classOf[PushServiceException])
   override def getSendableDevicesForPayload(pairs: JMap[String, String]): JSet[TokenType] = {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    val serialized = json.write(pairs)
+    val numBytes = serialized.getBytes.length
+    Set(
+      (if(numBytes > IosMaxBytes) None else Some(TokenType.iOS)),
+      (if(numBytes > AndroidMaxBytes) None else Some(TokenType.Android))
+    ).flatMap { mbTokenType =>
+      mbTokenType.map { tokenType =>
+        Set(tokenType)
+      }.getOrElse(Set[TokenType]())
+    }.asJava
   }
 
   @throws(classOf[DatastoreException])
   override def registerTokenForUser(username: String, token: TokenAndType) {
     synchronous(stackmobPush.registerForPushWithUser(stackmobPushToken(token), username, _)).get.mapFailure { t =>
       new DatastoreException(t.getMessage)
-    } ||| { t =>
-      throw t
-    }
+    }.getOrThrow
   }
 
   @throws(classOf[DatastoreException])
   override def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
-    sys.error("not yet implemented")
+    //TODO: endpoint for this in push API
+    JMap[TokenAndType, Long]()
   }
 
   @Deprecated
   @throws(classOf[PushServiceException])
   override def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String) {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    sendPushToTokens(iosList(recipients), iosMap(badge, sound, alert))
+  }
+
+  @Deprecated
+  @throws(classOf[PushServiceException])
+  override def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String, recipientsAreTokens: Boolean) {
+    if(recipientsAreTokens) {
+      sendPushToTokens(iosList(recipients), iosMap(badge, sound, alert))
+    } else {
+      sendPushToUsers(recipients, iosMap(badge, sound, alert))
+    }
   }
 
   @Deprecated
@@ -95,30 +128,33 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   @Deprecated
   @throws(classOf[DatastoreException])
   override def getExpiredTokens(clear: Boolean): JMap[String, Long] = {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    //TODO: endpoint for this in push API
+    JMap[String, Long]()
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
   override def registerToken(username: String, token: String) {
-    registerTokenForUser(username, new TokenAndType(token, TokenType.iOS))
-    //TODO: implement this
-    sys.error("not yet implemented")
+    registerTokenForUser(username, tokenAndType(token, TokenType.iOS))
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
   override def getTokensForUsers(users: JList[String]): JMap[String, String] = {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    val map = getAllTokensForUsers(users).asScala.flatMap { tup =>
+      val (user, tokensAndTypes) = tup
+      tokensAndTypes.asScala.map { tokenAndType =>
+        user -> tokenAndType.getToken
+      }.toList
+    }
+
+    map.asJava
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
   override def removeToken(token: String) {
-    //TODO: implement this
-    sys.error("not yet implemented")
+    removeToken(tokenAndType(token, TokenType.iOS))
   }
 
 }
