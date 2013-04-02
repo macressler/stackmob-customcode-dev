@@ -22,6 +22,7 @@ import caching.CachingService
 import com.stackmob.customcode.localrunner.sdk.data._
 import configvar.ConfigVarServiceImpl
 import http.HttpServiceImpl
+import logger.LoggerServiceImpl
 import org.mockito.Mockito._
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdkapi.http.HttpService
@@ -39,6 +40,6 @@ class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) ext
   override lazy val getConfigVarService: ConfigVarService = new ConfigVarServiceImpl
   override lazy val getCachingService: CachingService = new CachingServiceImpl
   override lazy val getHttpService: HttpService = new HttpServiceImpl
-  override def getLoggerService(s: String) = mock(classOf[LoggerService])
+  override def getLoggerService(s: String) = new LoggerServiceImpl(s)
   override def getLoggerService(c: Class[_]) = getLoggerService(c.getCanonicalName)
 }
