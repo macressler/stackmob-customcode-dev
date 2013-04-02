@@ -5,7 +5,7 @@ package push
 
 import com.stackmob.sdkapi.PushService
 import com.stackmob.sdk.push.StackMobPush
-import com.stackmob.sdkapi.PushService.{TokenType, TokenAndType}
+import com.stackmob.sdkapi.PushService.{TokenType, TokenAndType => CCTokenAndType}
 import com.stackmob.core.{DatastoreException, PushServiceException}
 import collection.JavaConverters._
 import net.liftweb.json.{parse, JValue}
@@ -23,7 +23,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @throws(classOf[PushServiceException])
-  override def sendPushToTokens(tokens: JList[TokenAndType], pairs: JMap[String, String]) {
+  override def sendPushToTokens(tokens: JList[CCTokenAndType], pairs: JMap[String, String]) {
     val stackmobPushTokens = tokens.asScala.map { t =>
       stackmobPushToken(t)
     }.toList.asJava
@@ -51,7 +51,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  def getAllTokensForUsers(users: JList[String]): JMap[String, JList[TokenAndType]] = {
+  def getAllTokensForUsers(users: JList[String]): JMap[String, JList[CCTokenAndType]] = {
     val validation = for {
       respString <- synchronous(stackmobPush.getTokensForUsers(users, _)).get.mapFailure { t =>
         new DatastoreException(t.getMessage)
@@ -70,7 +70,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  override def removeToken(token: TokenAndType) {
+  override def removeToken(token: CCTokenAndType) {
     synchronous(stackmobPush.removePushToken(stackmobPushToken(token), _)).get.mapFailure { t =>
       new DatastoreException(t.getMessage)
     }.getOrThrow
@@ -91,16 +91,16 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  override def registerTokenForUser(username: String, token: TokenAndType) {
+  override def registerTokenForUser(username: String, token: CCTokenAndType) {
     synchronous(stackmobPush.registerForPushWithUser(stackmobPushToken(token), username, _)).get.mapFailure { t =>
       new DatastoreException(t.getMessage)
     }.getOrThrow
   }
 
   @throws(classOf[DatastoreException])
-  override def getAllExpiredTokens(clear: Boolean): JMap[TokenAndType, Long] = {
+  override def getAllExpiredTokens(clear: Boolean): JMap[CCTokenAndType, JLong] = {
     //TODO: endpoint for this in push API
-    JMap[TokenAndType, Long]()
+    JMap[CCTokenAndType, JLong]()
   }
 
   @Deprecated
@@ -127,9 +127,9 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  override def getExpiredTokens(clear: Boolean): JMap[String, Long] = {
+  override def getExpiredTokens(clear: Boolean): JMap[String, JLong] = {
     //TODO: endpoint for this in push API
-    JMap[String, Long]()
+    JMap[String, JLong]()
   }
 
   @Deprecated

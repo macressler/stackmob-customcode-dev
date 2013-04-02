@@ -40,7 +40,7 @@ trait JsonReaders {
   implicit def mapJsonR[K: JSONR, V: JSONR]: JSONR[Map[K, V]] = new JSONR[Map[K, V]] {
     override def read(json: JValue): Result[Map[K, V]] = {
       json match {
-        case JObject(fields: List[JField]) => {
+        case JObject(fields) => {
           val listOfResults: List[Result[(K, V)]] = fields.map { jField =>
             for {
               fieldNameJValue <- validating(parse(jField.name)).mapFailure { t =>

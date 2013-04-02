@@ -49,6 +49,8 @@ package object sdk {
 
   type JBoolean = java.lang.Boolean
 
+  type JLong = java.lang.Long
+
   type JSet[T] = java.util.Set[T]
   type JHashSet[T] = java.util.HashSet[T]
   object JSet {

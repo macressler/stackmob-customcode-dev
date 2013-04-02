@@ -14,6 +14,7 @@ import net.liftweb.json.{NoTypeHints, Serialization}
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdk.api.StackMob.OAuthVersion
 import json._
+import com.stackmob.sdk.push.StackMobPush
 
 /**
  * Created by IntelliJ IDEA.
@@ -77,7 +78,8 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
   private lazy val apiKey = "cc-test-api-key"
   private lazy val apiSecret = "cc-test-api-secret"
 
-  private lazy val stackmob = new StackMob(OAuthVersion.One, 0, apiKey, apiSecret)
+  private lazy val stackMob = new StackMob(OAuthVersion.One, 0, apiKey, apiSecret)
+  private lazy val stackMobPush = new StackMobPush(0, apiKey, apiSecret)
   override def handle(target: String,
                       baseRequest: Request,
                       servletRequest: HttpServletRequest,
@@ -88,7 +90,7 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
     methods.get(realPath).map { method =>
       val body = exhaustBufferedReader(baseRequest.getReader).toString()
       val apiReq = processedAPIRequest(realPath, baseRequest, servletRequest, body)
-      val sdkServiceProvider = new SDKServiceProviderImpl(stackmob)
+      val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
       val resp = method.execute(apiReq, sdkServiceProvider)
       val respMap = resp.getResponseMap
       val respJSON = json.write(respMap.asScala)
