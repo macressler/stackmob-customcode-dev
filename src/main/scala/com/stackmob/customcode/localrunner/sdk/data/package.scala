@@ -3,6 +3,7 @@ package sdk
 
 import com.stackmob.sdkapi._
 import com.stackmob.sdk.api.{StackMobQueryField, StackMobQuery}
+import collection.JavaConverters._
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,18 +52,21 @@ package object data {
     queryWithFields
   }
 
-  //TODO: implement this
   def smObject(map: Map[String, Object]): SMObject = {
-    sys.error("not yet implemented")
+    val smValueMap = map.map { tup =>
+      tup._1 -> smValue(tup._2)
+    }
+    new SMObject(smValueMap.asJava)
   }
 
-  //TODO: implement this
   def smObjectList(list: List[Map[String, Object]]): List[SMObject] = {
-    sys.error("not yet implemented")
+    list.map { rawMap =>
+      smObject(rawMap)
+    }
   }
 
   //TODO: implement this
-  def smValue(a: Any): SMValueWildcard = {
+  def smValue(o: Object): SMValueWildcard = {
     sys.error("not yet implemented")
   }
 
