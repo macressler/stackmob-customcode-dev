@@ -2,6 +2,7 @@ package com.stackmob.customcode
 
 import scalaz.{Validation, Success, Failure}
 import scalaz.Scalaz._
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,9 +14,13 @@ import scalaz.Scalaz._
  * Time: 4:53 PM
  */
 package object localrunner {
-  val appName = "cc-localrunner-app"
-  val loggedInUser = "cc-localrunner-logged-in-user"
-  val userSchemaName = "cc-localrunner-user-schema"
+  lazy val uuid = UUID.randomUUID()
+
+  def appName = "cc-localrunner-app-%s".format(uuid)
+  def loggedInUser = "cc-localrunner-logged-in-user-%s".format(uuid)
+  def testFBUser = "cc-localrunner-test-facebook-user-%s".format(uuid)
+  def testFBMessageID = "cc-localrunner-test-facebook-message-id-%s".format(uuid)
+  def userSchemaName = "cc-localrunner-user-schema-%s".format(uuid)
 
   def validating[T](t: => T): Validation[Throwable, T] = {
     try {
