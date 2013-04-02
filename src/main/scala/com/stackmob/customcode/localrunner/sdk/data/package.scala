@@ -2,7 +2,7 @@ package com.stackmob.customcode.localrunner
 package sdk
 
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.StackMobQuery
+import com.stackmob.sdk.api.{StackMobQueryField, StackMobQuery}
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,13 +26,29 @@ package object data {
     override protected lazy val smObject = s
   }
 
-  def smQuery(objectName: String, conditions: List[SMCondition]): StackMobQuery = {
-    val q = new StackMobQuery()
-    q.setObjectName(objectName)
-    val newQuery = conditions.foldLeft(q) { (agg, cur) =>
+  /**
+   * create a StackMobQuery from a list of SMConditions
+   * @param schemaName the name of the schema on which to query
+   * @param conditions the conditions to apply on the query
+   * @return the newly created StackMobQuery
+   */
+  def smQuery(schemaName: String,
+              conditions: List[SMCondition],
+              mbFields: Option[List[String]] = None): StackMobQuery = {
+    val q = new StackMobQuery(schemaName)
+    val queryWithConditions = conditions.foldLeft(q) { (agg, cur) =>
       agg.addSMCondition(cur)
     }
-    newQuery
+
+    val queryWithFields = mbFields.map { fields =>
+      fields.foldLeft(queryWithConditions) { (agg, cur) =>
+        agg.field(new StackMobQueryField(cur))
+      }
+    }.getOrElse {
+      queryWithConditions
+    }
+
+    queryWithFields
   }
 
   //TODO: implement this
@@ -41,9 +57,16 @@ package object data {
   }
 
   //TODO: implement this
-  def smValue(a: Any): SMValue[_] = {
+  def smObjectList(list: List[Map[String, Object]]): List[SMObject] = {
     sys.error("not yet implemented")
   }
 
-  type SMValueCtor = SMValue[_]
+  //TODO: implement this
+  def smValue(a: Any): SMValueWildcard = {
+    sys.error("not yet implemented")
+  }
+
+  type SMValueWildcard = SMValue[_]
+  type RawMap = Map[String, Object]
+  type RawMapList = List[RawMap]
 }

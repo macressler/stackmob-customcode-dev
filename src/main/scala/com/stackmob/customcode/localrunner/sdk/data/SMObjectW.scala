@@ -25,7 +25,7 @@ trait SMObjectW {
     compact(render(toJValue))
   }
 
-  def toSMValueMap: Map[String, SMValueCtor] = {
+  def toSMValueMap: Map[String, SMValueWildcard] = {
     //TODO: implement this
     sys.error("not yet implemented")
   }
