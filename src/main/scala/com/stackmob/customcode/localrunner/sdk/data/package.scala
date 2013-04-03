@@ -65,11 +65,29 @@ package object data {
     }
   }
 
-  //TODO: implement this
-  def smValue(o: Object): SMValueWildcard = {
+  def smValue(obj: Object): SMValueWildcard = {
+    obj match {
+      case b: Boolean => new SMBoolean(b)
+      case l: Long => new SMInt(l)
+      case d: Double => new SMDouble(d)
+      case i: Int => new SMLong(i)
+      case s: String => new SMString(s)
+      case l: ListWildcard => new SMList(l.asJava)
+      case m: RawMap => {
+        val smValueMap = m.map { tup =>
+          //TODO: check for recursive defns, and depth
+          tup._1 -> smValue(tup._2)
+        }
+        new SMObject(smValueMap.asJava)
+      }
+      case t => throw NoSMValueFoundException(t)
+    }
     sys.error("not yet implemented")
   }
 
+  case class NoSMValueFoundException[T](t: T) extends Exception("no SMValue found for %s".format(t.getClass.toString))
+
+  type ListWildcard = List[_]
   type SMValueWildcard = SMValue[_]
   type RawMap = Map[String, Object]
   type RawMapList = List[RawMap]
