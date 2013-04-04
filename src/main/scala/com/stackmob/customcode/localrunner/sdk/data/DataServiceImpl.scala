@@ -69,8 +69,18 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     objectId: SMValue[_],
                                     relatedField: String,
                                     relatedObjectsToCreate: JList[SMObject]): BulkResult = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    val objectIdString = getSMString(objectId).underlying
+    val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
+      relatedObj.toObjectMap
+    }.toList
+    synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
+      .get
+      .mapFailure(convert)
+      .map { responseStr =>
+        //TODO: fix this
+        json.read[BulkResult](responseStr)
+      }
+      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
@@ -232,14 +242,18 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def countObjects(schema: String): Long = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    synchronous(datastore.count(schema, _))
+      .get
+      .mapFailure(convert).map { respString =>
+        json.read[Long](respString)
+      }
+      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def getObjectModelNames: JSet[String] = {
-    //TODO: implement
+    //TODO: implement with listapi
     throw new DatastoreException("not yet implemented")
   }
 }
