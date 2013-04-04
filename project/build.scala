@@ -53,6 +53,8 @@ object Dependencies {
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
   lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.0.9"
   lazy val mockito = "org.mockito" % "mockito-core" % "1.9.5" % "test"
+  lazy val h2 = "com.h2database" % "h2" % "1.2.127"
+  lazy val slick = "com.typesafe.slick" %% "slick" % "1.0.0" exclude("org.slf4j", "slf4j-api")
 }
 
 object LocalRunnerBuild extends Build {
@@ -71,7 +73,9 @@ object LocalRunnerBuild extends Build {
         liftJsonScalaz,
         slf4j,
         logbackClassic,
-        mockito),
+        mockito,
+        h2,
+        slick),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )
