@@ -11,7 +11,7 @@ import Keys._
 
 object BuildSettings {
   val org = "com.stackmob"
-  val scalaVsn = "2.9.1"
+  val scalaVsn = "2.10.1"
 
   val defaultArgs = Seq(
     "-Xmx2048m",
@@ -44,7 +44,7 @@ object Dependencies {
   private lazy val jettyVsn = "7.5.4.v20111024"
   lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
-  lazy val specs2 = "org.specs2" %% "specs2" % "1.12.1" % "test"
+  lazy val specs2 = "org.specs2" %% "specs2" % "1.12.3" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"

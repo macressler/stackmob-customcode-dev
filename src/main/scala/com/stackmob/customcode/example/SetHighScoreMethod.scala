@@ -80,7 +80,7 @@ class SetHighScoreMethod extends CustomCodeMethod {
         new ResponseToProcess(500, Map("error" -> "invalid schema", "detail" -> e.toString))
       case e: DatastoreException =>
         new ResponseToProcess(500, Map("error" -> "datastore exception", "detail" -> e.toString))
-      case e =>
+      case e: Throwable =>
         new ResponseToProcess(500, Map("error" -> "unknown", "detail" -> e.toString))
     }
   }
