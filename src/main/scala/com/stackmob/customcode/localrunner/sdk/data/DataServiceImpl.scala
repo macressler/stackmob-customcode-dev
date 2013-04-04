@@ -77,7 +77,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
       .get
       .mapFailure(convert)
       .map { responseStr =>
-        //TODO: fix this
+        //TODO: fix this decoding
         json.read[BulkResult](responseStr)
       }
       .getOrThrow
@@ -231,8 +231,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: JList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    //TODO: implement, needs java SDK functionality
-    throw new DatastoreException("not yet implemented")
+    removeRelatedObjects(schema, objectId, relation, new SMList(relatedIds), cascadeDelete)
   }
 
   @throws(classOf[DatastoreException])
@@ -242,8 +241,13 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: SMList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    //TODO: implement, needs java SDK functionality
-    throw new DatastoreException("not yet implemented")
+    val relatedIdStrings = relatedIds.underlying.asScala.map { smValue =>
+      getSMString(smValue)
+    }
+    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId), relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
+      .get
+      .mapFailure(convert)
+      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
