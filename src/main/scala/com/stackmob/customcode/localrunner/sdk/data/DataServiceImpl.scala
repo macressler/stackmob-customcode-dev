@@ -168,7 +168,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                             id: SMValue[_],
                             conditions: JList[SMCondition],
                             updateActions: JList[SMUpdate]): SMObject = {
-    //TODO: implement
+    //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
 
@@ -177,7 +177,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def updateObjects(schema: String,
                              conditions: JList[SMCondition],
                              updateActions: JList[SMUpdate]) {
-    //TODO: implement
+    //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
 
@@ -187,8 +187,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                  objectId: SMValue[_],
                                  relation: String,
                                  relatedIds: JList[_ <: SMValue[_]]): SMObject = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    addRelatedObjects(schema, objectId, relation, new SMList(relatedIds))
   }
 
   @throws(classOf[DatastoreException])
@@ -197,8 +196,14 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                  objectId: SMValue[_],
                                  relation: String,
                                  relatedIds: SMList[_ <: SMValue[_]]): SMObject = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    val relatedIdStrings = relatedIds.underlying.asScala.map { relatedIdSMValue =>
+      getSMString(relatedIdSMValue)
+    }
+    synchronous(datastore.putRelated(schema, getSMString(objectId).underlying, relation, relatedIdStrings.toList.asJava, _))
+      .get
+      .map(convertSMObject)
+      .mapFailure(convert)
+      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
@@ -226,7 +231,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: JList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    //TODO: implement
+    //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
 
@@ -237,7 +242,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: SMList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    //TODO: implement
+    //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
 
