@@ -205,16 +205,18 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
                             id: String): JBoolean = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    synchronous(datastore.delete(schema, id, _))
+      .get
+      .map { resultStr =>
+        json.read[Boolean](resultStr)
+      }.mapFailure(convert).getOrThrow
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
                             id: SMValue[_]): JBoolean = {
-    //TODO: implement
-    throw new DatastoreException("not yet implemented")
+    deleteObject(schema, getSMString(id))
   }
 
   @throws(classOf[DatastoreException])
