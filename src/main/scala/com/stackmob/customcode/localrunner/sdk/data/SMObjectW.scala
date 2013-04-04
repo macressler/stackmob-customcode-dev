@@ -1,6 +1,6 @@
 package com.stackmob.customcode.localrunner.sdk.data
 
-import com.stackmob.sdkapi.SMObject
+import com.stackmob.sdkapi.{SMValue, SMObject}
 import net.liftweb.json._
 
 /**
@@ -25,7 +25,7 @@ trait SMObjectW {
     compact(render(toJValue))
   }
 
-  def toSMValueMap: Map[String, SMValueWildcard] = {
+  def toSMValueMap: Map[String, SMValue[_]] = {
     //TODO: implement this
     sys.error("not yet implemented")
   }
@@ -34,5 +34,4 @@ trait SMObjectW {
     //TODO: implement this
     sys.error("not yet implemented")
   }
-
 }

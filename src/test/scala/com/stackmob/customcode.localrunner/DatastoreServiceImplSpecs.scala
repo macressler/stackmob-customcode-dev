@@ -22,8 +22,8 @@ import com.stackmob.sdkapi.DatastoreService
 import org.specs2.Specification
 import com.stackmob.customcode.localrunner.sdk.data.{DataServiceImpl, DatastoreServiceImpl}
 import com.stackmob.sdk.api.StackMobDatastore
-import org.mockito.Mockito._
 import collection.JavaConverters._
+import org.mockito.Mockito.mock
 
 class DatastoreServiceImplSpecs extends Specification { def is =
   "DatastoreService".title                                                                                              ^ end ^
