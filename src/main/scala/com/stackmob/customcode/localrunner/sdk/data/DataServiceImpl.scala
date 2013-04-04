@@ -244,7 +244,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
     val relatedIdStrings = relatedIds.underlying.asScala.map { smValue =>
       getSMString(smValue)
     }
-    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId), relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
+    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId).underlying, relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
       .get
       .mapFailure(convert)
       .getOrThrow
