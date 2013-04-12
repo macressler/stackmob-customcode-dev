@@ -30,7 +30,7 @@ package object localrunner {
     try {
       t.success[Throwable]
     } catch {
-      case t => t.fail[T]
+      case t: Throwable => t.fail[T]
     }
   }
 

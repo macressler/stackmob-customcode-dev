@@ -13,5 +13,5 @@ import com.stackmob.sdkapi.SMValue
  */
 trait SMValueW[T] {
   protected def smValue: SMValue[T]
-  def underlying = smValue.getValue
+  def underlying: T = smValue.getValue
 }
