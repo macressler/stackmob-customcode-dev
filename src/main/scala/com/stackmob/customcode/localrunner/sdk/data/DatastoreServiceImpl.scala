@@ -22,6 +22,8 @@ import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import com.stackmob.sdkapi._
 import java.net.ConnectException
 import collection.JavaConverters._
+import SMValueUtils._
+import SMObjectUtils._
 
 class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
@@ -30,7 +32,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
   @throws(classOf[DatastoreException])
   override def createObject(modelName: String, toCreate: JMap[String, Object]): JMap[String, Object] = {
     val smObjectToCreate = smObject(toCreate.asScala.toMap)
-    dataService.createObject(modelName, smObjectToCreate).toObjectMap.asJava
+    dataService.createObject(modelName, smObjectToCreate).toObjectMap().asJava
   }
 
 
@@ -49,7 +51,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
     val smObjectList: List[SMObject] = dataService.readObjects(modelName, conditions).asScala.toList
     val mapList: List[JMap[String, Object]] = smObjectList.map { smObject =>
-      smObject.toObjectMap.asJava
+      smObject.toObjectMap().asJava
     }
     getArrayList(mapList.toList.asJava)
   }
@@ -65,7 +67,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
         l
     }).toList.asJava
 
-    dataService.updateObject(modelName, objectId, smUpdates).toObjectMap.asJava
+    dataService.updateObject(modelName, objectId, smUpdates).toObjectMap().asJava
   }
 
   @throws(classOf[InvalidSchemaException])

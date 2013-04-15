@@ -15,22 +15,6 @@ import collection.JavaConverters._
  * Time: 4:16 PM
  */
 package object data {
-  implicit def smValueToW[T](s: SMValue[T]): SMValueW[T] = new SMValueW[T] {
-    override protected lazy val smValue = s
-  }
-
-  implicit def stackMobQueryToW(q: StackMobQuery): StackMobQueryW = new StackMobQueryW {
-    override protected lazy val query = q
-  }
-
-  implicit def smObjectToW(s: SMObject): SMObjectW = new SMObjectW {
-    override protected lazy val smObject = s
-  }
-
-  implicit def smUpdateToW(u: SMUpdate): SMUpdateW = new SMUpdateW {
-    override protected lazy val update = u
-  }
-
 //  def smOptions(expandDepth: Int,
 //                mbStart: Option[Int] = None,
 //                mbEnd: Option[Int] = None,
