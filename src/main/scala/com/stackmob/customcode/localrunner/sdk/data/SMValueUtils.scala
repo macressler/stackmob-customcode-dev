@@ -1,10 +1,14 @@
-package com.stackmob.customcode.localrunner.sdk.data
+package com.stackmob.customcode
+package localrunner
+package sdk
+package data
 
 import com.stackmob.sdkapi._
 import net.liftweb.json._
 import java.math.BigInteger
 import com.stackmob.customcode.localrunner.sdk._
 import collection.JavaConverters._
+
 /**
  * Created by IntelliJ IDEA.
  *
@@ -63,6 +67,10 @@ object SMValueUtils {
           JObject(jFields.toList)
         }
       }
+    }
+
+    def toJsonString: String = {
+      compact(render(toJValue()))
     }
 
     def toObject(depth: Int = 0): Object = {

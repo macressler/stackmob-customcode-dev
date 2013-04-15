@@ -13,6 +13,7 @@ import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import java.util.concurrent.LinkedBlockingQueue
 import collection.JavaConverters._
 import SMValueUtils._
+import SMObjectUtils._
 
 /**
  * Created by IntelliJ IDEA.
@@ -72,7 +73,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relatedObjectsToCreate: JList[SMObject]): BulkResult = {
     val objectIdString = getSMString(objectId).underlying
     val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
-      relatedObj.toObjectMap()
+      relatedObj.toObjectMap
     }.toList
     synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
       .get

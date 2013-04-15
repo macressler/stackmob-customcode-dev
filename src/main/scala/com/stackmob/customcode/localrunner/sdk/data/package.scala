@@ -1,9 +1,12 @@
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode
+package localrunner
 package sdk
 
 import com.stackmob.sdkapi._
 import com.stackmob.sdk.api.{StackMobOptions, StackMobQueryField, StackMobQuery}
 import collection.JavaConverters._
+import data.SMUpdateUtils._
+import data.StackMobQueryUtils._
 
 /**
  * Created by IntelliJ IDEA.

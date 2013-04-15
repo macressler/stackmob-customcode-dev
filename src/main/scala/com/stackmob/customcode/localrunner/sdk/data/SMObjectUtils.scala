@@ -1,4 +1,7 @@
-package com.stackmob.customcode.localrunner.sdk.data
+package com.stackmob.customcode
+package localrunner
+package sdk
+package data
 
 import com.stackmob.sdkapi.SMObject
 import net.liftweb.json._
@@ -17,16 +20,13 @@ import SMValueUtils._
 object SMObjectUtils {
 
   implicit class SMObjectW(smObject: SMObject) {
-    //TODO: check for graph cycles in smObject
-    def toJValue(depth: Int = 0): JValue = {
-      sys.error("not yet implemented")
-    }
-
     def toObjectMap: Map[String, Object] = {
-      smObject.getValue.asScala.map { tup =>
+      val scalaMap = smObject.getValue.asScala
+      scalaMap.map { tup =>
         val (key, smValue) = tup
-        key -> smValue.toObject
-      }
+        val obj = smValue.toObject()
+        key -> obj
+      }.toMap
     }
   }
 
