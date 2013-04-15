@@ -8,6 +8,7 @@ import net.liftweb.json._
 import java.math.BigInteger
 import com.stackmob.customcode.localrunner.sdk._
 import collection.JavaConverters._
+import SMObjectUtils._
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,7 +21,8 @@ import collection.JavaConverters._
  */
 object SMValueUtils {
   implicit class SMValueW[T](smValue: SMValue[T]) {
-    def underlying: T = smValue.getValue
+
+    def underlying: T = smValue.getValue.asInstanceOf[T]
 
     private def jInt(l: Long): JInt = {
       JInt(new BigInt(new BigInteger(l.toString)))
@@ -59,8 +61,8 @@ object SMValueUtils {
           JArray(jValues)
         }
         case smObj: SMObject => {
-          val m = smObj.getValue.asInstanceOf[JMap[String, SMValue[_]]]
-          val jFields = m.asScala.map { tup =>
+          val scalaMap = smObj.toScalaMap
+          val jFields = scalaMap.map { tup =>
             val (key, smValue) = tup
             JField(key, smValue.toJValue(depth + 1))
           }
@@ -70,7 +72,8 @@ object SMValueUtils {
     }
 
     def toJsonString: String = {
-      compact(render(toJValue()))
+      val jValue = toJValue()
+      compact(render(jValue))
     }
 
     def toObject(depth: Int = 0): Object = {
