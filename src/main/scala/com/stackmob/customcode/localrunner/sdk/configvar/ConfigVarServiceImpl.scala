@@ -14,7 +14,9 @@ import com.stackmob.core.ConfigVarServiceException
  */
 class ConfigVarServiceImpl extends ConfigVarService {
 
-  //TODO: maybe open a public interface to skywarp to the outside world
+
+  //TODO: keep the app ID so we can calculate the app hash to use to get real config vars
+  //(https://github.com/stackmob/lucid/blob/master/provisioning.md#get)
 
   @throws(classOf[ConfigVarServiceException])
   override def get(key: String): String = {
