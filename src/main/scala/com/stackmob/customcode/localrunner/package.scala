@@ -14,6 +14,14 @@ import java.util.UUID
  * Time: 4:53 PM
  */
 package object localrunner {
+  lazy val maxDepth = 2
+  class DepthLimitReached(depth: Int) extends Exception("the maximum depth of %d has been reached".format(depth))
+  object DepthLimitReached {
+    def apply(depth: Int) = {
+      new DepthLimitReached(depth)
+    }
+  }
+
   lazy val uuid = UUID.randomUUID()
 
   private def fmt(s: String) = "cc-localrunner-%s-%s".format(s, uuid)

@@ -71,7 +71,7 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     objectId: SMValue[_],
                                     relatedField: String,
                                     relatedObjectsToCreate: JList[SMObject]): BulkResult = {
-    val objectIdString = getSMString(objectId).underlying
+    val objectIdString = getSMString(objectId).getValue
     val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
       relatedObj.toObjectMap
     }.toList
@@ -198,10 +198,10 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                  objectId: SMValue[_],
                                  relation: String,
                                  relatedIds: SMList[_ <: SMValue[_]]): SMObject = {
-    val relatedIdStrings = relatedIds.underlying.asScala.map { relatedIdSMValue =>
+    val relatedIdStrings = relatedIds.getValue.asScala.map { relatedIdSMValue =>
       getSMString(relatedIdSMValue)
     }
-    synchronous(datastore.putRelated(schema, getSMString(objectId).underlying, relation, relatedIdStrings.toList.asJava, _))
+    synchronous(datastore.putRelated(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, _))
       .get
       .map(convertSMObject)
       .mapFailure(convert)
@@ -243,10 +243,10 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: SMList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    val relatedIdStrings = relatedIds.underlying.asScala.map { smValue =>
+    val relatedIdStrings = relatedIds.getValue.asScala.map { smValue =>
       getSMString(smValue)
     }
-    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId).underlying, relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
+    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
       .get
       .mapFailure(convert)
       .getOrThrow

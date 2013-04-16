@@ -22,15 +22,14 @@ import SMObjectUtils._
 object SMValueUtils {
   implicit class SMValueW[T](smValue: SMValue[T]) {
 
-    def underlying: T = smValue.getValue.asInstanceOf[T]
-
     private def jInt(l: Long): JInt = {
       JInt(new BigInt(new BigInteger(l.toString)))
     }
 
-    //TODO: enforce maximum expand depths
-
     def toJValue(depth: Int = 0): JValue = {
+      if(depth > maxDepth) {
+        throw DepthLimitReached(maxDepth)
+      }
       smValue match {
         case smInt: SMInt => {
           val i = smInt.getValue.asInstanceOf[Long]

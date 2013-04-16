@@ -21,7 +21,7 @@ object StackMobQueryUtils {
     def addSMCondition(cond: SMCondition): StackMobQuery = {
       cond match {
         case f: SMIsNull => {
-          val bool: Boolean = f.getValue.underlying
+          val bool: Boolean = f.getValue.getValue
           if (bool) {
             query.fieldIsNull(f.getField)
           }

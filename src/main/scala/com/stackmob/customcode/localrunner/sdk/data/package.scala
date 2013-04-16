@@ -106,14 +106,12 @@ package object data {
 
   private def smValueMap(rawMap: Map[String, Object]): Map[String, SMValue[_]] = {
     rawMap.map { tup =>
-    //TODO: check for recursive definitions and excessive depth
       tup._1 -> smValue(tup._2)
     }.toMap
   }
 
   private def smValueList(rawList: List[Object]): List[SMValue[_]] = {
     rawList.map { elt =>
-      //TODO: check for recursive definitions and excessive depth
       smValue(elt)
     }
   }
@@ -128,7 +126,10 @@ package object data {
     }
   }
 
-  def smValue(obj: Any): SMValue[_] = {
+  def smValue(obj: Any, depth: Int = 0): SMValue[_] = {
+    if(depth > maxDepth) {
+      throw DepthLimitReached(depth)
+    }
     obj match {
       case b: Boolean => new SMBoolean(b)
       case l: Long => new SMInt(l)

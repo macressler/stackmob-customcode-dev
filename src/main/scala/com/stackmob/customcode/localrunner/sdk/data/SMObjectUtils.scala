@@ -26,7 +26,7 @@ object SMObjectUtils {
       val mutableMap = MutableMap[String, SMValue[_]]()
 
       /**
-       * we have to build the map manually intead of calling toMap on a sequence of tuples
+       * we have to build the map manually instead of calling toMap on a sequence of tuples
        * because we don't have a <pre><:<</pre> available for A <:< (String, SMValue[_])
        */
       keys.map { key =>

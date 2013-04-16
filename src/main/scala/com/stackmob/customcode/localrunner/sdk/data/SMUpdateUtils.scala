@@ -16,8 +16,8 @@ object SMUpdateUtils {
   implicit class SMUpdateW(update: SMUpdate) {
     def tup: (String, String) = {
       update match {
-        case inc: SMIncrement => "%s[inc]".format(inc.getField) -> inc.getValue.underlying.toString
-        case set: SMSet => set.getField -> set.getValue.underlying.toString
+        case inc: SMIncrement => "%s[inc]".format(inc.getField) -> inc.getValue.getValue.toString
+        case set: SMSet => set.getField -> set.getValue.getValue.toString
       }
     }
 
