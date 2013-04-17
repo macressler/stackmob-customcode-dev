@@ -23,7 +23,7 @@ class Frequency(val number: Int, val every: Duration)
 class ErrorSimulator(freq: Frequency,
                      rand: Random = new Random(System.currentTimeMillis())) {
   private var count = 0
-  private var lastRollover = Time.fromMilliseconds(0)
+  private var lastRollover = Time.now
   private val lock = new Object
 
   def getCount = {
