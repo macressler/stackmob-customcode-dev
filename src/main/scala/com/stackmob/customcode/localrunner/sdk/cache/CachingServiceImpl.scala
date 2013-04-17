@@ -1,10 +1,12 @@
 package com.stackmob.customcode.localrunner.sdk.cache
 
 import com.stackmob.sdkapi.caching.{Operation, CachingService}
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
 import com.stackmob.sdkapi.caching.exceptions.{RateLimitedException, TTLTooBigException, DataSizeException, TimeoutException}
 import scalaz.{Validation, Success, Failure}
 import java.lang.{Boolean => JBoolean}
+import com.stackmob.customcode.localrunner.sdk.{Frequency, ErrorSimulator}
+import com.twitter.util.Duration
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,7 +19,7 @@ import java.lang.{Boolean => JBoolean}
  */
 class CachingServiceImpl extends CachingService {
 
-  //TODO: simulate timeouts
+  private lazy val timeoutSimulator = new ErrorSimulator(new Frequency(1, Duration(1, TimeUnit.MINUTES)))
 
   private val maxKeySizeBytes = 1025 //1kb
   private val maxValueSizeBytes = 16384 //16kb
@@ -74,24 +76,26 @@ class CachingServiceImpl extends CachingService {
   @throws(classOf[RateLimitedException])
   @throws(classOf[DataSizeException])
   override def getBytes(key: String): Array[Byte] = cache.synchronized {
-    val v = for {
-      _ <- checkKeySize(Operation.GET, key)
-      value <- optionToValidation(Option(cache.get(key)), NoSuchKeyException(key))
-      _ <- checkKeyNeedsRemoval(key, value._2)
-      _ <- checkValueSize(Operation.SET, value._1)
-    } yield {
-      value
-    }
-
-    v.map { value =>
-      value._1
-    } ||| {
-      case t: NoSuchKeyException => null
-      case t: NeedsRemovalException => {
-        cache.remove(key)
-        null
+    timeoutSimulator.simulate(new TimeoutException(Operation.GET)) {
+      val v = for {
+        _ <- checkKeySize(Operation.GET, key)
+        value <- optionToValidation(Option(cache.get(key)), NoSuchKeyException(key))
+        _ <- checkKeyNeedsRemoval(key, value._2)
+        _ <- checkValueSize(Operation.SET, value._1)
+      } yield {
+        value
       }
-      case t => throw t
+
+      v.map { value =>
+        value._1
+      } ||| {
+        case t: NoSuchKeyException => null
+        case t: NeedsRemovalException => {
+          cache.remove(key)
+          null
+        }
+        case t => throw t
+      }
     }
   }
 
@@ -100,20 +104,22 @@ class CachingServiceImpl extends CachingService {
   @throws(classOf[DataSizeException])
   @throws(classOf[TTLTooBigException])
   override def setBytes(key: String, value: Array[Byte], ttlMilliseconds: Long): JBoolean = cache.synchronized {
-    val v = for {
-      _ <- checkKeySize(Operation.SET, key)
-      _ <- checkCacheSize
-      _ <- checkValueSize(Operation.SET, value)
-      expTime <- Success(System.currentTimeMillis() + ttlMilliseconds)
-      _ <- Success(cache.put(key, value -> expTime))
-    } yield {
-      ()
-    }
-    v.map { _ =>
-      true: JBoolean
-    } ||| {
-      case t: CacheTooBigException => false
-      case t => throw t
+    timeoutSimulator.simulate(new TimeoutException(Operation.SET)) {
+      val v = for {
+        _ <- checkKeySize(Operation.SET, key)
+        _ <- checkCacheSize
+        _ <- checkValueSize(Operation.SET, value)
+        expTime <- Success(System.currentTimeMillis() + ttlMilliseconds)
+        _ <- Success(cache.put(key, value -> expTime))
+      } yield {
+        ()
+      }
+      v.map { _ =>
+        true: JBoolean
+      } ||| {
+        case t: CacheTooBigException => false
+        case t => throw t
+      }
     }
   }
 

@@ -15,11 +15,24 @@ import com.twitter.util.{Time, Duration}
 
 class Frequency(val number: Int, val every: Duration)
 
-class ErrorSimulator(freq: Frequency) {
+/**
+ * this class simulates errors given a specific frequency
+ * @param freq the frequency which to trigger errors
+ * @param rand the implementation of random. defaults to the built in Scala implementation
+ */
+class ErrorSimulator(freq: Frequency,
+                     rand: Random = new Random(System.currentTimeMillis())) {
   private var count = 0
   private var lastRollover = Time.fromMilliseconds(0)
   private val lock = new Object
-  private val rand = new Random(System.currentTimeMillis())
+
+  def getCount = {
+    count
+  }
+
+  def getLastRollover = {
+    lastRollover
+  }
 
   def simulate[T](err: Throwable)(op: => T): T = {
     lock.synchronized {
