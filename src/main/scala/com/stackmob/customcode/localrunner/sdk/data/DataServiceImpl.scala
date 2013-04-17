@@ -1,10 +1,11 @@
-package com.stackmob.customcode.localrunner
+package com.stackmob.customcode
+package localrunner
 package sdk
 package data
 
-import scalaz._
-import scalaz.Scalaz._
-import scalaz.concurrent._
+import _root_.scalaz._
+import _root_.scalaz.Scalaz._
+import _root_.scalaz.concurrent._
 import com.stackmob.sdkapi._
 import com.stackmob.sdk.api.{StackMobOptions, StackMobDatastore}
 import com.stackmob.sdk.callback.StackMobCallback
@@ -14,6 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import collection.JavaConverters._
 import SMValueUtils._
 import SMObjectUtils._
+import net.liftweb.json._
 
 /**
  * Created by IntelliJ IDEA.
@@ -58,7 +60,10 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def createObject(schema: String, toCreate: SMObject): SMObject = {
-    synchronous(datastore.post(schema, toCreate.toJsonString, _))
+    val jobj = toCreate.toJObject()
+    val jsonString = compact(render(jobj))
+
+    synchronous(datastore.post(schema, jsonString, _))
       .get
       .map(convertSMObject)
       .mapFailure(convert)

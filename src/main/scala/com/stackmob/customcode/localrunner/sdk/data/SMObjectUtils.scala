@@ -8,6 +8,7 @@ import collection.JavaConverters._
 import collection.mutable.{Map => MutableMap}
 import SMValueUtils._
 import net.liftweb.json._
+import com.stackmob.customcode.sdk.SMObjectConverter
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,25 +22,27 @@ import net.liftweb.json._
 object SMObjectUtils {
   implicit class SMObjectW(smObject: SMObject) {
 
-    def toScalaMap = {
-      val keys = smObject.getValue.keySet().asScala
-      val mutableMap = MutableMap[String, SMValue[_]]()
-
-      /**
-       * we have to build the map manually instead of calling toMap on a sequence of tuples
-       * because we don't have a <pre><:<</pre> available for A <:< (String, SMValue[_])
-       */
-      keys.map { key =>
-
-      /**
-       * the asInstanceOf call is necessary because the scala compiler thinks that the result of the get
-       * call is an SMValue instead of an SMValue[_]. the result of SMObject being defined as
-       * <pre>Map<String, SMValue></pre> instead of <pre>Map<String, SMValue<?>></pre>
-       */
-        val smValue = smObject.getValue.get(key).asInstanceOf[SMValue[_]]
-        mutableMap += (key -> smValue)
+    /**
+     * convert this SMObject to a lift-json JObject. note that this method should be used directly on an SMObject,
+     * rather than the more generic toJValue method, since toJValue will cause a cryptic compiler error
+     * @param depth the depth that we're currently at in the recursion
+     * @return the new JObject
+     */
+    def toJObject(depth: Int = 0): JObject = {
+      if(depth > maxDepth) {
+        throw DepthLimitReached(maxDepth)
       }
-      mutableMap.toMap
+
+      val scalaMap: Map[String, SMValue[_]] = smObject.toScalaMap
+      val jFields = scalaMap.map { tup =>
+        val (key, smValue) = tup
+        JField(key, smValue.toJValue(depth + 1))
+      }
+      JObject(jFields.toList)
+    }
+
+    def toScalaMap: Map[String, SMValue[_]] = {
+      SMObjectConverter.getMap(smObject).asScala.toMap
     }
 
     def toObjectMap: Map[String, Object] = {

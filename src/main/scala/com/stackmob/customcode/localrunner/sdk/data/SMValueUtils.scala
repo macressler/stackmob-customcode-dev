@@ -60,19 +60,9 @@ object SMValueUtils {
           JArray(jValues)
         }
         case smObj: SMObject => {
-          val scalaMap = smObj.toScalaMap
-          val jFields = scalaMap.map { tup =>
-            val (key, smValue) = tup
-            JField(key, smValue.toJValue(depth + 1))
-          }
-          JObject(jFields.toList)
+          smObj.toJObject(depth)
         }
       }
-    }
-
-    def toJsonString: String = {
-      val jValue = toJValue()
-      compact(render(jValue))
     }
 
     def toObject(depth: Int = 0): Object = {
