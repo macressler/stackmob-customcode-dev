@@ -43,6 +43,7 @@ object Dependencies {
   private lazy val customCodeVsn = "0.5.6"
   private lazy val jettyVsn = "7.5.4.v20111024"
   lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
+  lazy val twitterUtil = "com.twitter" %% "util-core" % "6.3.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.3" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
@@ -71,7 +72,8 @@ object LocalRunnerBuild extends Build {
         liftJsonScalaz,
         slf4j,
         logbackClassic,
-        mockito),
+        mockito,
+        twitterUtil),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )

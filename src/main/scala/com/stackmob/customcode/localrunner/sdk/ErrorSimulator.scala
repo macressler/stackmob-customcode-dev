@@ -1,10 +1,7 @@
 package com.stackmob.customcode.localrunner.sdk
 
 import scala.util.Random
-import com.twitter.concurrent._
-import com.twitter.util.{Await, Future, Time, Duration}
-import scalaz.concurrent.{Promise, Strategy}
-import java.util.concurrent.Executors
+import com.twitter.util.{Time, Duration}
 
 /**
  * Created by IntelliJ IDEA.

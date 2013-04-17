@@ -17,7 +17,7 @@ import java.lang.{Boolean => JBoolean}
  */
 class CachingServiceImpl extends CachingService {
 
-  //TODO: simulate timeouts and rate limits
+  //TODO: simulate timeouts
 
   private val maxKeySizeBytes = 1025 //1kb
   private val maxValueSizeBytes = 16384 //16kb
