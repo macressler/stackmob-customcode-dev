@@ -69,23 +69,7 @@ make sure your code can handle those cases.
 so make sure your code can handle those cases.
 * `LoggerService`: All logs go to the console on which you run your server.
 
-## TODOs for v1
 
-* Method timeouts
-* Implement `TwitterService` and `FacebookService`
-* Put API key, API secret, server port into a config file
-* Run everything inside a security manager
-* Log to a file
-* A way to disable error simulations
-* A way to tune error simulations in `DataService`
-* Log to a file (ie provide a `logback.xml` file)
-* More tests obviously
-* Put this in the SDK proper, separate module, or something else.
+## TODOs / Future Features
 
-## Future Features / Open Questions
-
-* Use class-loader to load a JAR (so people can check if they did stuff correctly)
-* Add a profiler for memory usage, to automatically look for obvious problems
-* Make `DataService` run a local (persistent) datastore, instead of using the REST API
-* Use the real config var service at partner.stackmob.com
-* Make `CachingService` cache to a file, instead of memory
+See https://github.com/stackmob/stackmob-customcode-localrunner/issues/
