@@ -1,4 +1,5 @@
-package com.stackmob.customcode.dev.test
+package com.stackmob.customcode.dev
+package test
 
 import org.specs2.Specification
 import com.stackmob.core.customcode.CustomCodeMethod
@@ -8,8 +9,6 @@ import collection.JavaConverters._
 import concurrent.duration._
 import org.specs2.mock.Mockito
 import concurrent.TimeoutException
-import localrunner.CustomCodeMethodExecutor
-import com.stackmob.customcode.dev.localrunner.CustomCodeMethodExecutor
 
 /**
  * Created by IntelliJ IDEA.

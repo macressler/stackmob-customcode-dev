@@ -1,4 +1,5 @@
-package com.stackmob.customcode.dev.localrunner
+package com.stackmob.customcode.dev
+package localrunner
 
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.server.Request
@@ -16,6 +17,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import org.slf4j.LoggerFactory
 import scala.util.Try
+import com.stackmob.customcode.dev.CustomCodeMethodExecutor
 
 /**
  * Created by IntelliJ IDEA.
@@ -79,8 +81,8 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
   private lazy val apiKey = "cc-test-api-key"
   private lazy val apiSecret = "cc-test-api-secret"
 
-  private lazy val stackMob = new StackMob(OAuthVersion.One, 0, apiKey, apiSecret)
-  private lazy val stackMobPush = new StackMobPush(0, apiKey, apiSecret)
+  private lazy val stackMob = stackMobClient(apiKey, apiSecret)
+  private lazy val stackMobPush = stackMobPushClient(apiKey, apiSecret)
 
   override def handle(target: String,
                       baseRequest: Request,

@@ -1,4 +1,4 @@
-package com.stackmob.customcode.dev.localrunner
+package com.stackmob.customcode.dev
 
 import com.stackmob.core.customcode.CustomCodeMethod
 import com.stackmob.core.rest.{ResponseToProcess, ProcessedAPIRequest}
@@ -18,6 +18,7 @@ import scala.util.Try
  * Time: 2:50 PM
  */
 object CustomCodeMethodExecutor {
+  val DefaultMaxMethodDuration = 25.seconds
   val DefaultExecutionContext = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor())
 
   def apply(method: CustomCodeMethod,
