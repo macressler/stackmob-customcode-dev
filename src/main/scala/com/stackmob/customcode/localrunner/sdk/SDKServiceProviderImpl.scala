@@ -37,7 +37,7 @@ class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) ext
   override lazy val getTwitterService: TwitterService = new TwitterServiceImpl
   override lazy val getFacebookService: FacebookService = new FacebookServiceImpl
   override lazy val isSandbox: Boolean = true
-  override lazy val getVersion: String = "scalaCCExample"
+  override lazy val getVersion: String = "localRunnerVersion"
   override lazy val getConfigVarService: ConfigVarService = new ConfigVarServiceImpl
   override lazy val getCachingService: CachingService = new CachingServiceImpl
   override lazy val getHttpService: HttpService = new HttpServiceImpl
