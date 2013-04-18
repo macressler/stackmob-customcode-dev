@@ -24,7 +24,7 @@ in the local runner, so that you can fix them before you upload them to StackMob
 
 ## Use
 
-Use the CustomCodeMethodServer class to create a REST API out of your custom code. Here's how:
+Use the CustomCodeMethodServer class to run a server with your custom code endpoints in it.
 
 ###In Java
 
@@ -80,6 +80,7 @@ so make sure your code can handle those cases.
 * A way to tune error simulations in `DataService`
 * Log to a file (ie provide a `logback.xml` file)
 * More tests obviously
+* Put this in the SDK proper, separate module, or something else.
 
 ## Future Features / Open Questions
 
