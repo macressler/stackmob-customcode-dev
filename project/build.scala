@@ -47,7 +47,6 @@ object Dependencies {
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.3" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
-  lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.1.2"
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
   lazy val newman = "com.stackmob" %% "newman" % "0.14.0" exclude("commons-codec", "commons-codec")
@@ -74,8 +73,7 @@ object LocalRunnerBuild extends Build {
         slf4j,
         logbackClassic,
         mockito,
-        twitterUtil,
-        akka),
+        twitterUtil),
       name := "stackmob-customcode-localrunner",
       publish := {}
     )
