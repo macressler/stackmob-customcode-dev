@@ -4,6 +4,13 @@ import scalaz.{Validation, Success, Failure}
 import scalaz.Scalaz._
 import java.util.UUID
 import java.io.BufferedReader
+import org.eclipse.jetty.server.Request
+import javax.servlet.http.HttpServletRequest
+import com.stackmob.core.rest.ProcessedAPIRequest
+import com.stackmob.core.MethodVerb
+import collection.JavaConverters._
+import scala.util.Try
+import org.eclipse.jetty.http.HttpURI
 
 /**
  * Created by IntelliJ IDEA.
@@ -66,6 +73,49 @@ package object localrunner {
       Option(reader.readLine()).map { line =>
         exhaust(builder.append(line))
       }.getOrElse(builder)
+    }
+  }
+
+  def getQueryParams(httpURI: HttpURI): Map[String, String] = {
+    val mbQueryString = Option(httpURI.getQuery)
+    mbQueryString.map { queryString =>
+      queryString.split("&").toList.foldLeft(Map[String, String]()) { (agg, cur) =>
+        cur.split("=").toList match {
+          case key :: value :: Nil => agg ++ Map(key -> value)
+          case _ => agg
+        }
+      }
+    }.getOrElse(Map[String, String]())
+  }
+
+  /**
+   * create a ProcessedAPIRequest
+   * @param methodName the name of the method to execute
+   * @param baseReq the Request
+   * @param servletReq the servlet request
+   * @param body the entire body of the request
+   * @return the new ProcessedAPIRequest
+   */
+  def processedAPIRequest(methodName: String,
+                          baseReq: Request,
+                          servletReq: HttpServletRequest,
+                          body: String): Try[ProcessedAPIRequest] = {
+    for {
+      requestedVerb <- Try(MethodVerb.valueOf(servletReq.getMethod))
+      httpURI <- Try(baseReq.getUri)
+      queryParams <-Try(getQueryParams(httpURI))
+      apiVersion <- Try(0)
+      counter <- Try(0)
+    } yield {
+      new ProcessedAPIRequest(requestedVerb,
+        httpURI.toString,
+        loggedInUser,
+        queryParams.asJava,
+        body,
+        appName,
+        apiVersion,
+        methodName,
+        counter)
     }
   }
 }

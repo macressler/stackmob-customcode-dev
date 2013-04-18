@@ -7,12 +7,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import com.stackmob.core.jar.JarEntryObject
 import collection.JavaConverters._
 import com.stackmob.core.customcode.CustomCodeMethod
-import com.stackmob.core.rest.ProcessedAPIRequest
-import com.stackmob.core.MethodVerb
 import sdk.SDKServiceProviderImpl
-import com.stackmob.sdk.api.StackMob
-import com.stackmob.sdk.api.StackMob.OAuthVersion
-import com.stackmob.sdk.push.StackMobPush
 import scala.concurrent._
 import scala.concurrent.duration._
 import org.slf4j.LoggerFactory
@@ -39,44 +34,6 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
     running ++ Map(method.getMethodName -> method)
   }
 
-  /**
-   * create a ProcessedAPIRequest
-   * @param methodName the name of the method to execute
-   * @param baseReq the Request
-   * @param servletReq the servlet request
-   * @param body the entire body of the request
-   * @return the new ProcessedAPIRequest
-   */
-  private def processedAPIRequest(methodName: String, baseReq: Request, servletReq: HttpServletRequest, body: String): ProcessedAPIRequest = {
-    val requestedVerb = MethodVerb.valueOf(servletReq.getMethod)
-    val httpURI = baseReq.getUri
-    val mbQueryString = Option(httpURI.getQuery)
-    val mbQueryParams = for {
-      queryString <- mbQueryString
-    } yield {
-      queryString.split("&").toList.foldLeft(Map[String, String]()) { (agg, cur) =>
-        cur.split("=").toList match {
-          case key :: value :: Nil => agg ++ Map(key -> value)
-          case _ => agg
-        }
-      }
-    }
-    val queryParams = mbQueryParams.getOrElse(Map[String, String]())
-
-    val apiVersion = 0
-    val counter = 0
-
-    new ProcessedAPIRequest(requestedVerb,
-      httpURI.toString,
-      loggedInUser,
-      queryParams.asJava,
-      body,
-      appName,
-      apiVersion,
-      methodName,
-      counter)
-  }
-
   //TODO: get these from config file
   private lazy val apiKey = "cc-test-api-key"
   private lazy val apiSecret = "cc-test-api-secret"
@@ -93,10 +50,10 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
 
     methods.get(realPath).map { method =>
       val body = baseRequest.getReader.exhaust().toString()
-      val apiReq = processedAPIRequest(realPath, baseRequest, servletRequest, body)
       val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
 
       val resTry = for {
+        apiReq <- processedAPIRequest(realPath, baseRequest, servletRequest, body)
         resp <- CustomCodeMethodExecutor(method,
           apiReq,
           sdkServiceProvider,
@@ -123,6 +80,8 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
         }
       }
     }.getOrElse {
+      logger.debug(s"unknown custom code method $realPath. attempting to proxy the request to v0 of your API")
+      //TODO: proxy to API
       writer.println("unknown custom code method %s".format(realPath))
       response.setStatus(404)
     }
