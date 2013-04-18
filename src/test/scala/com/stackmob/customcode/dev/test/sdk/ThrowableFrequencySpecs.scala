@@ -1,4 +1,5 @@
 package com.stackmob.customcode.dev
+package test
 package sdk
 
 import org.specs2.Specification

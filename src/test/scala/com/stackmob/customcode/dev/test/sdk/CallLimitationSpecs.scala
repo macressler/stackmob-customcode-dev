@@ -1,4 +1,5 @@
-package com.stackmob.customcode.localrunner.sdk
+package com.stackmob.customcode.dev.test
+package sdk
 
 import org.specs2.Specification
 

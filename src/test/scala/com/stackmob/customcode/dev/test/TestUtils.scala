@@ -1,4 +1,4 @@
-package com.stackmob.customcode.dev
+package com.stackmob.customcode.dev.test
 
 /**
  * Created by IntelliJ IDEA.
