@@ -1,10 +1,12 @@
 # Stackmob Custom Code Local Runner
 
-The StackMob Custom Code Local Runner allows you to run your StackMob custom code locally for simple testing purposes.
+The StackMob Custom Code Local Runner provides a server to run your custom code in a local debugging environment,
+so you can test before uploading to the StackMob servers. We attempt to check your code for possible problems
+in the local runner, so that you can fix them before you upload them to StackMob's servers.
 
 ## Setup
 
-Add a dependency in your code:
+### Maven:
 
 ```xml
 <dependency>
@@ -12,6 +14,12 @@ Add a dependency in your code:
   <artifactId>customcode-localrunner</artifactId>
   <version>0.1.0</version>
 </dependency>
+```
+
+### SBT:
+
+```scala
+"com.stackmob" % "customcode-localrunner" % "0.1.0"
 ```
 
 ## Use
@@ -63,10 +71,11 @@ so make sure your code can handle those cases.
 
 ## TODOs for v1
 
+* Method timeouts
+* Implement `TwitterService` and `FacebookService`
 * Put API key, API secret, server port into a config file
 * Run everything inside a security manager
 * Log to a file
-* Implement `TwitterService` and `FacebookService`
 * A way to disable error simulations
 * A way to tune error simulations in `DataService`
 * Log to a file (ie provide a `logback.xml` file)
