@@ -6,26 +6,34 @@ The StackMob Custom Code Local Runner allows you to run your StackMob custom cod
 
 Add a dependency in your code:
 
+```xml
 <dependency>
   <groupId>com.stackmob</groupId>
   <artifactId>customcode-localrunner</artifactId>
   <version>0.1.0</version>
 </dependency>
+```
 
 ## Use
 
 Use the CustomCodeMethodServer class to create a REST API out of your custom code. Here's how:
 
 ###In Java
-    JarEntryObject jeo = new YourJarEntryObjectSubclass();
-    CustomCodeServer server = new CustomCodeServer(jeo);
-    server.serve();
+
+```java
+JarEntryObject jeo = new YourJarEntryObjectSubclass();
+CustomCodeServer server = new CustomCodeServer(jeo);
+server.serve();
+```
 
 
 ###In Scala
-    val jeo = new YourJarEntryObjectSubclass()
-    val server = new CustomCodeMethodServer(jeo)
-    server.serve
+
+```scala
+val jeo = new YourJarEntryObjectSubclass()
+val server = new CustomCodeMethodServer(jeo)
+server.serve
+```
 
 
 ## Details
