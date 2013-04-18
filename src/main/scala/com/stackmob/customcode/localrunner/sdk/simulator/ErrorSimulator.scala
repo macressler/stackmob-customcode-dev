@@ -4,7 +4,7 @@ package com.stackmob.customcode.localrunner.sdk.simulator
  * simulates 0 or more errors with a specific frequency for each error.
  * Example usage:
  *
- * <pre>
+ * {{{
  * //throw ex1 once every 2 minutes
  * val ex1 = new Exception("ex1")
  * val ex1Freq = ThrowableFrequency(ex1, Frequency(1, Duration(2, TimeUnit.MINUTES)))
@@ -18,8 +18,7 @@ package com.stackmob.customcode.localrunner.sdk.simulator
  * //run a simulation
  * simulator.simulate {
  *   println("hello world")
- * }
- * </pre>
+ * }}}
  * @param errs the sequence of ThrowableFrequencies to run through on each simulate call
  */
 class ErrorSimulator(val errs: Seq[ThrowableFrequency]) {
