@@ -3,6 +3,7 @@ package com.stackmob.customcode
 import scalaz.{Validation, Success, Failure}
 import scalaz.Scalaz._
 import java.util.UUID
+import java.io.BufferedReader
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,6 +58,14 @@ package object localrunner {
       validation ||| { t: Throwable =>
         throw t
       }
+    }
+  }
+
+  implicit class BufferedReaderW(val reader: BufferedReader) {
+    def exhaust(builder: StringBuilder = new StringBuilder): StringBuilder = {
+      Option(reader.readLine()).map { line =>
+        exhaust(builder.append(line))
+      }.getOrElse(builder)
     }
   }
 }
