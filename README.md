@@ -38,8 +38,6 @@ server.serve
 
 ## Details
 
-*(TODO: configuration file details)*
-
 The custom code localrunner implements a local HTTP server that parses incoming HTTP requests into `ProcessedAPIRequest`
 objects, and passes them along to the appropriate `CustomCodeMethod` for that request. It also includes local
 implementations of all of `SDKServiceProvider`'s methods, including the objects that it returns.
@@ -58,7 +56,25 @@ provided in the configuration file. Please ensure that you have valid push crede
 * `getVersion`: always returns `localRunnerVersion`.
 * `ConfigVarService`: All methods currently return constant values that are computed from `key` and `moduleName`, where applicable.
 * `CachingService`: All methods cache locally, in memory. Calls to each method will simulate `TimeoutException`s and `RateLimitedException`s, so
-make sure your code can handle those cases. *TODO: make a way to disable error simulations*
+make sure your code can handle those cases.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will simulate `AccessDeniedException`s and `TimeoutException`s,
-so make sure your code can handle those cases. *TODO: make a way to disable this error simulations*
-* `LoggerService`: All logs go to the console on which you run your server. *TODO: log to a file*
+so make sure your code can handle those cases.
+* `LoggerService`: All logs go to the console on which you run your server.
+
+## TODOs for v1
+
+* Put API key, API secret, server port into a config file
+* Run everything inside a security manager
+* Log to a file
+* Implement `TwitterService` and `FacebookService`
+* A way to disable error simulations
+* Log to a file (ie provide a `logback.xml` file)
+* More tests obviously
+
+## Future Features / Open Questions
+
+* Use class-loader to load a JAR (so people can check if they did stuff correctly)
+* Add a profiler for memory usage, to automatically look for obvious problems
+* Make `DataService` run a local (persistent) datastore, instead of using the REST API
+* Use the real config var service at partner.stackmob.com
+* Make `CachingService` cache to a file, instead of memory
