@@ -5,8 +5,8 @@ import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
 import com.stackmob.sdkapi.caching.exceptions.{RateLimitedException, TTLTooBigException, DataSizeException, TimeoutException}
 import scalaz.{Validation, Success, Failure}
 import java.lang.{Boolean => JBoolean}
-import com.stackmob.customcode.localrunner.sdk.{Frequency, ErrorSimulator}
 import com.twitter.util.Duration
+import com.stackmob.customcode.localrunner.sdk.simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,8 +18,6 @@ import com.twitter.util.Duration
  * Time: 6:37 PM
  */
 class CachingServiceImpl extends CachingService {
-
-  private lazy val timeoutSimulator = new ErrorSimulator(new Frequency(1, Duration(1, TimeUnit.MINUTES)))
 
   private val maxKeySizeBytes = 1025 //1kb
   private val maxValueSizeBytes = 16384 //16kb
@@ -72,11 +70,16 @@ class CachingServiceImpl extends CachingService {
     }
   }
 
+  private lazy val getRateLimitThrowableFreq = ThrowableFrequency(new RateLimitedException(Operation.GET), Frequency(1, Duration(1, TimeUnit.MINUTES)))
+  private lazy val setRateLimitThrowableFreq = ThrowableFrequency(new RateLimitedException(Operation.SET), Frequency(1, Duration(1, TimeUnit.MINUTES)))
+  private lazy val getTimeoutThrowableFreq = ThrowableFrequency(new TimeoutException(Operation.GET), Frequency(1, Duration(1, TimeUnit.MINUTES)))
+  private lazy val setTimeoutThrowableFreq = ThrowableFrequency(new TimeoutException(Operation.SET), Frequency(1, Duration(1, TimeUnit.MINUTES)))
+
   @throws(classOf[TimeoutException])
   @throws(classOf[RateLimitedException])
   @throws(classOf[DataSizeException])
   override def getBytes(key: String): Array[Byte] = cache.synchronized {
-    timeoutSimulator.simulate(new TimeoutException(Operation.GET)) {
+    ErrorSimulator(getRateLimitThrowableFreq :: getTimeoutThrowableFreq :: Nil) {
       val v = for {
         _ <- checkKeySize(Operation.GET, key)
         value <- optionToValidation(Option(cache.get(key)), NoSuchKeyException(key))
@@ -104,7 +107,7 @@ class CachingServiceImpl extends CachingService {
   @throws(classOf[DataSizeException])
   @throws(classOf[TTLTooBigException])
   override def setBytes(key: String, value: Array[Byte], ttlMilliseconds: Long): JBoolean = cache.synchronized {
-    timeoutSimulator.simulate(new TimeoutException(Operation.SET)) {
+    ErrorSimulator(setRateLimitThrowableFreq :: setTimeoutThrowableFreq :: Nil) {
       val v = for {
         _ <- checkKeySize(Operation.SET, key)
         _ <- checkCacheSize

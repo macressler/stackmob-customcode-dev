@@ -3,32 +3,20 @@ package localrunner
 package sdk
 package data
 
-import _root_.scalaz._
-import _root_.scalaz.Scalaz._
-import _root_.scalaz.concurrent._
+import scalaz.Scalaz._
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.{StackMobOptions, StackMobDatastore}
-import com.stackmob.sdk.callback.StackMobCallback
+import com.stackmob.sdk.api.StackMobDatastore
 import com.stackmob.sdk.exception.{StackMobHTTPResponseException, StackMobException}
 import com.stackmob.core.{InvalidSchemaException, DatastoreException}
-import java.util.concurrent.LinkedBlockingQueue
 import collection.JavaConverters._
-import SMValueUtils._
 import SMObjectUtils._
 import net.liftweb.json._
+import com.stackmob.customcode.localrunner.sdk.simulator.CallLimitation
 
-/**
- * Created by IntelliJ IDEA.
- * 
- * com.stackmob.customcode.localrunner.sdk.data
- * 
- * User: aaron
- * Date: 3/27/13
- * Time: 5:03 PM
- */
-class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
+class DataServiceImpl(datastore: StackMobDatastore, maxCallsPerRequest: Int = 5) extends DataService {
   override def getUserSchema = userSchemaName
 
+  private val allCallsLimiter = CallLimitation(maxCallsPerRequest, TooManyDataServiceCallsException(maxCallsPerRequest, _))
 
   private def convertSMObjectList(s: String): JList[SMObject] = {
     smObjectList(json.read[RawMapList](s)).asJava
@@ -60,14 +48,16 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def createObject(schema: String, toCreate: SMObject): SMObject = {
-    val jobj = toCreate.toJObject()
-    val jsonString = compact(render(jobj))
+    allCallsLimiter("createObject") {
+      val jobj = toCreate.toJObject()
+      val jsonString = compact(render(jobj))
 
-    synchronous(datastore.post(schema, jsonString, _))
-      .get
-      .map(convertSMObject)
-      .mapFailure(convert)
-      .getOrThrow
+      synchronous(datastore.post(schema, jsonString, _))
+        .get
+        .map(convertSMObject)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -76,30 +66,34 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     objectId: SMValue[_],
                                     relatedField: String,
                                     relatedObjectsToCreate: JList[SMObject]): BulkResult = {
-    val objectIdString = getSMString(objectId).getValue
-    val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
-      relatedObj.toObjectMap
-    }.toList
-    synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
-      .get
-      .mapFailure(convert)
-      .map { responseStr =>
-        //TODO: fix this decoding
-        json.read[BulkResult](responseStr)
-      }
-      .getOrThrow
+    allCallsLimiter("createRelatedObjects") {
+      val objectIdString = getSMString(objectId).getValue
+      val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
+        relatedObj.toObjectMap
+      }.toList
+      synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
+        .get
+        .mapFailure(convert)
+        .map { responseStr =>
+          //TODO: fix this decoding
+          json.read[BulkResult](responseStr)
+        }
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def readObjects(schema: String,
                            conditions: JList[SMCondition]): JList[SMObject]= {
-    val query = smQuery(schema, conditions.asScala.toList)
-    synchronous(datastore.get(query, _))
-      .get
-      .map(convertSMObjectList)
-      .mapFailure(convert)
-      .getOrThrow
+    allCallsLimiter("readObjects") {
+      val query = smQuery(schema, conditions.asScala.toList)
+      synchronous(datastore.get(query, _))
+        .get
+        .map(convertSMObjectList)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -107,12 +101,14 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def readObjects(schema: String,
                            conditions: JList[SMCondition],
                            fields: JList[String]): JList[SMObject] = {
-    val query = smQuery(schema, conditions.asScala.toList, fields.asScala.toList.some)
-    synchronous(datastore.get(query, _))
-      .get
-      .map(convertSMObjectList)
-      .mapFailure(convert)
-      .getOrThrow
+    allCallsLimiter("readObjects") {
+      val query = smQuery(schema, conditions.asScala.toList, fields.asScala.toList.some)
+      synchronous(datastore.get(query, _))
+        .get
+        .map(convertSMObjectList)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -120,13 +116,15 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def readObjects(schema: String,
                            conditions: JList[SMCondition],
                            expandDepth: Int): JList[SMObject] = {
-    val query = smQuery(schema, conditions.asScala.toList)
-    val options = smOptions(expandDepth)
-    synchronous(datastore.get(query, options, _))
-      .get
-      .map(convertSMObjectList)
-      .mapFailure(convert)
-      .getOrThrow
+    allCallsLimiter("readObjects") {
+      val query = smQuery(schema, conditions.asScala.toList)
+      val options = smOptions(expandDepth)
+      synchronous(datastore.get(query, options, _))
+        .get
+        .map(convertSMObjectList)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -135,18 +133,20 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                            conditions: JList[SMCondition],
                            expandDepth: Int,
                            resultFilters: ResultFilters): JList[SMObject] = {
-    val query = smQuery(schema,
-      conditions.asScala.toList,
-      mbFields = resultFilters.getFields.asScala.toList.some,
-      mbRange = (resultFilters.getStart -> resultFilters.getEnd).some,
-      mbOrderings = resultFilters.getOrderings.asScala.toList.some)
-    val options = smOptions(expandDepth, resultFilters.getFields.asScala.toList.some)
+    allCallsLimiter("readObjects") {
+      val query = smQuery(schema,
+        conditions.asScala.toList,
+        mbFields = resultFilters.getFields.asScala.toList.some,
+        mbRange = (resultFilters.getStart -> resultFilters.getEnd).some,
+        mbOrderings = resultFilters.getOrderings.asScala.toList.some)
+      val options = smOptions(expandDepth, resultFilters.getFields.asScala.toList.some)
 
-    synchronous(datastore.get(query, options, _))
-      .get
-      .map(convertSMObjectList)
-      .mapFailure(convert)
-      .getOrThrow
+      synchronous(datastore.get(query, options, _))
+        .get
+        .map(convertSMObjectList)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -154,11 +154,13 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
   override def updateObject(schema: String,
                             id: String,
                             updateActions: JList[SMUpdate]): SMObject = {
-    synchronous(datastore.put(schema, id, smBody(updateActions.asScala.toList).asJava, _))
-      .get
-      .map(convertSMObject)
-      .mapFailure(convert)
-      .getOrThrow
+    allCallsLimiter("updateObject") {
+      synchronous(datastore.put(schema, id, smBody(updateActions.asScala.toList).asJava, _))
+        .get
+        .map(convertSMObject)
+        .mapFailure(convert)
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -203,25 +205,29 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                  objectId: SMValue[_],
                                  relation: String,
                                  relatedIds: SMList[_ <: SMValue[_]]): SMObject = {
-    val relatedIdStrings = relatedIds.getValue.asScala.map { relatedIdSMValue =>
-      getSMString(relatedIdSMValue)
+    allCallsLimiter("addRelatedObjects") {
+      val relatedIdStrings = relatedIds.getValue.asScala.map { relatedIdSMValue =>
+        getSMString(relatedIdSMValue)
+      }
+      synchronous(datastore.putRelated(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, _))
+        .get
+        .map(convertSMObject)
+        .mapFailure(convert)
+        .getOrThrow
     }
-    synchronous(datastore.putRelated(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, _))
-      .get
-      .map(convertSMObject)
-      .mapFailure(convert)
-      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
                             id: String): JBoolean = {
-    synchronous(datastore.delete(schema, id, _))
-      .get
-      .map { resultStr =>
-        json.read[Boolean](resultStr)
-      }.mapFailure(convert).getOrThrow
+    allCallsLimiter("deleteObject") {
+      synchronous(datastore.delete(schema, id, _))
+        .get
+        .map { resultStr =>
+          json.read[Boolean](resultStr)
+        }.mapFailure(convert).getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
@@ -248,30 +254,36 @@ class DataServiceImpl(datastore: StackMobDatastore) extends DataService {
                                     relation: String,
                                     relatedIds: SMList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
-    val relatedIdStrings = relatedIds.getValue.asScala.map { smValue =>
-      getSMString(smValue)
+    allCallsLimiter("removeRelatedObjects") {
+      val relatedIdStrings = relatedIds.getValue.asScala.map { smValue =>
+        getSMString(smValue)
+      }
+      synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
+        .get
+        .mapFailure(convert)
+        .getOrThrow
     }
-    synchronous(datastore.deleteIdsFrom(schema, getSMString(objectId).getValue, relation, relatedIdStrings.toList.asJava, cascadeDelete, _))
-      .get
-      .mapFailure(convert)
-      .getOrThrow
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def countObjects(schema: String): Long = {
-    synchronous(datastore.count(schema, _))
-      .get
-      .mapFailure(convert).map { respString =>
-        json.read[Long](respString)
-      }
-      .getOrThrow
+    allCallsLimiter("countObjects") {
+      synchronous(datastore.count(schema, _))
+        .get
+        .mapFailure(convert).map { respString =>
+          json.read[Long](respString)
+        }
+        .getOrThrow
+    }
   }
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def getObjectModelNames: JSet[String] = {
-    //TODO: implement with listapi
-    throw new DatastoreException("not yet implemented")
+    allCallsLimiter("getObjectModelNames") {
+      //TODO: implement with listapi
+      throw new DatastoreException("not yet implemented")
+    }
   }
 }
