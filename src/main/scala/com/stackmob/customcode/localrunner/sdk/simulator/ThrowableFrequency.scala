@@ -2,6 +2,11 @@ package com.stackmob.customcode.localrunner.sdk.simulator
 
 import com.twitter.util.Time
 import scala.util.Random
+import akka.actor.{Props, Actor, ActorSystem}
+import akka.pattern.ask
+import scala.concurrent.{ExecutionContext, Await, Promise}
+import scala.concurrent.duration.Duration
+import java.util.concurrent.{Executors, ExecutorService}
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,11 +27,37 @@ import scala.util.Random
 class ThrowableFrequency(val err: Throwable,
                          val freq: Frequency,
                          val rand: Random = DefaultRandom) {
-  private var count = 0
-  private var lastRollover = Time.now
-  private val lock = new Object
-  def getCount = count
-  def getLastRollover = lastRollover
+
+  private case class Execute[T](op: => T)
+  private class Executor extends Actor {
+    private var count = 0
+    private var lastRollover = Time.now
+    def receive = {
+      case Execute(op) => {
+        if(lastRollover + freq.every <= Time.now) {
+          //if a rollover happened, reset stuff
+          lastRollover = Time.now
+          count = 0
+          sender ! op
+        } else if(count >= freq.number) {
+          //if the counter is at max, run the op normally
+          count += 1
+          sender ! op
+        } else {
+          //if the counter is not at max, randomly decide if there's an error
+          val shouldErr = rand.nextBoolean()
+          if(shouldErr) {
+            count += 1
+            sender ! err
+          } else {
+            sender ! op
+          }
+        }
+      }
+    }
+  }
+  private val system = ActorSystem("ThrowableFrequency")
+  private val executorActor = system.actorOf(Props[Executor])
 
   /**
    * simulate a call to op, randomly selecting when to throw based on freq
@@ -35,26 +66,10 @@ class ThrowableFrequency(val err: Throwable,
    * @return the result of executing op (assuming this method didn't throw)
    */
   def simulate[T](op: => T): T = {
-    lock.synchronized {
-      if(lastRollover + freq.every <= Time.now) {
-        //if a rollover happened, reset stuff
-        lastRollover = Time.now
-        count = 0
-        op
-      } else if(count >= freq.number) {
-        //if the counter is at max, run the op normally
-        count += 1
-        op
-      } else {
-        //if the counter is not at max, randomly decide if there's an error
-        val shouldErr = rand.nextBoolean()
-        if(shouldErr) {
-          count += 1
-          throw err
-        } else {
-          op
-        }
-      }
+    val ex = Execute(op)
+    Await.result(executorActor ? ex, Duration.Inf) match {
+      case t: T => t
+      case t: Throwable => throw t
     }
   }
 }
