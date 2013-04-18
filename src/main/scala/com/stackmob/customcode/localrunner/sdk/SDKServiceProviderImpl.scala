@@ -31,7 +31,10 @@ import com.stackmob.sdk.push.StackMobPush
 import twitter.TwitterServiceImpl
 
 class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) extends SDKServiceProvider {
-  override lazy val getDatastoreService: DatastoreService = new DatastoreServiceImpl(getDataService)
+  override lazy val getDatastoreService: DatastoreService = {
+    //TODO: throw here unless overridden in config file
+    new DatastoreServiceImpl(getDataService)
+  }
   override lazy val getDataService: DataService = new DataServiceImpl(stackmob.getDatastore)
   override lazy val getPushService: PushService = new PushServiceImpl(stackmobPush)
   override lazy val getTwitterService: TwitterService = new TwitterServiceImpl

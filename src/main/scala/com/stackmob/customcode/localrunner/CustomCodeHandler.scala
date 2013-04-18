@@ -10,11 +10,13 @@ import com.stackmob.core.rest.ProcessedAPIRequest
 import com.stackmob.core.MethodVerb
 import java.io.BufferedReader
 import sdk.SDKServiceProviderImpl
-import net.liftweb.json.{NoTypeHints, Serialization}
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdk.api.StackMob.OAuthVersion
-import json._
 import com.stackmob.sdk.push.StackMobPush
+import scala.concurrent._
+import scala.concurrent.duration._
+import java.util.concurrent.Executors
+import org.slf4j.LoggerFactory
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,7 +27,13 @@ import com.stackmob.sdk.push.StackMobPush
  * Date: 3/27/13
  * Time: 2:47 PM
  */
-class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
+class CustomCodeHandler(jarEntry: JarEntryObject,
+                        maxMethodDuration: Duration = 25.seconds,
+                        executionContext: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor()))
+  extends AbstractHandler {
+
+  private lazy val logger = LoggerFactory.getLogger(classOf[CustomCodeHandler])
+
   private val methods = jarEntry.methods.asScala.foldLeft(Map[String, CustomCodeMethod]()) { (running, method) =>
     running ++ Map(method.getMethodName -> method)
   }
@@ -91,12 +99,21 @@ class CustomCodeHandler(jarEntry: JarEntryObject) extends AbstractHandler {
       val body = exhaustBufferedReader(baseRequest.getReader).toString()
       val apiReq = processedAPIRequest(realPath, baseRequest, servletRequest, body)
       val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
-      val resp = method.execute(apiReq, sdkServiceProvider)
-      val respMap = resp.getResponseMap
-      val respJSON = json.write(respMap.asScala)
+      val respFuture = future(method.execute(apiReq, sdkServiceProvider))
+      try {
+        val resp = Await.result(respFuture, maxMethodDuration)
+        val respMap = resp.getResponseMap
+        val respJSON = json.write(respMap.asScala)
 
-      response.setStatus(resp.getResponseCode)
-      writer.print(respJSON)
+        response.setStatus(resp.getResponseCode)
+        writer.print(respJSON)
+      } catch {
+        case t: TimeoutException => {
+          //note - if the future is in an infinite loop, it will continue to take up the thread on which it's executing until the server is killed
+          logger.warn(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds to execute")
+          writer.print(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds) to execute. Please shorten its execution time")
+        }
+      }
 
     }.getOrElse {
       writer.println("unknown custom code method %s".format(realPath))
