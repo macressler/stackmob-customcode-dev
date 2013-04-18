@@ -8,15 +8,14 @@ import collection.JavaConverters._
 import com.stackmob.core.customcode.CustomCodeMethod
 import com.stackmob.core.rest.ProcessedAPIRequest
 import com.stackmob.core.MethodVerb
-import java.io.BufferedReader
 import sdk.SDKServiceProviderImpl
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdk.api.StackMob.OAuthVersion
 import com.stackmob.sdk.push.StackMobPush
 import scala.concurrent._
 import scala.concurrent.duration._
-import java.util.concurrent.Executors
 import org.slf4j.LoggerFactory
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,20 +27,14 @@ import org.slf4j.LoggerFactory
  * Time: 2:47 PM
  */
 class CustomCodeHandler(jarEntry: JarEntryObject,
-                        maxMethodDuration: Duration = 25.seconds,
-                        executionContext: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor()))
+                        maxMethodDuration: Duration = 25.seconds)
+                       (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext)
   extends AbstractHandler {
 
   private lazy val logger = LoggerFactory.getLogger(classOf[CustomCodeHandler])
 
   private val methods = jarEntry.methods.asScala.foldLeft(Map[String, CustomCodeMethod]()) { (running, method) =>
     running ++ Map(method.getMethodName -> method)
-  }
-
-  private def exhaustBufferedReader(reader: BufferedReader, builder: StringBuilder = new StringBuilder): StringBuilder = {
-    Option(reader.readLine()).map { line =>
-      exhaustBufferedReader(reader, builder.append(line))
-    }.getOrElse(builder)
   }
 
   /**
@@ -88,6 +81,7 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
 
   private lazy val stackMob = new StackMob(OAuthVersion.One, 0, apiKey, apiSecret)
   private lazy val stackMobPush = new StackMobPush(0, apiKey, apiSecret)
+
   override def handle(target: String,
                       baseRequest: Request,
                       servletRequest: HttpServletRequest,
@@ -96,25 +90,36 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
     val realPath = baseRequest.getPathInfo.replaceFirst("/", "")
 
     methods.get(realPath).map { method =>
-      val body = exhaustBufferedReader(baseRequest.getReader).toString()
+      val body = baseRequest.getReader.exhaust().toString()
       val apiReq = processedAPIRequest(realPath, baseRequest, servletRequest, body)
       val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
-      val respFuture = future(method.execute(apiReq, sdkServiceProvider))
-      try {
-        val resp = Await.result(respFuture, maxMethodDuration)
-        val respMap = resp.getResponseMap
-        val respJSON = json.write(respMap.asScala)
 
-        response.setStatus(resp.getResponseCode)
-        writer.print(respJSON)
+      val resTry = for {
+        resp <- CustomCodeMethodExecutor(method,
+          apiReq,
+          sdkServiceProvider,
+          maxMethodDuration)(executionContext)
+        respJSON <- Try {
+          val respMap = resp.getResponseMap
+          json.write(respMap.asScala)
+        }
+        _ <- Try(response.setStatus(resp.getResponseCode))
+        _ <- Try(writer.print(respJSON))
+      } yield ()
+
+      try {
+        resTry.get
       } catch {
         case t: TimeoutException => {
           //note - if the future is in an infinite loop, it will continue to take up the thread on which it's executing until the server is killed
           logger.warn(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds to execute")
           writer.print(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds) to execute. Please shorten its execution time")
         }
+        case t: Throwable => {
+          logger.warn(s"${method.getMethodName} threw ${t.getMessage}", t)
+          writer.print(s"${method.getMethodName} threw ${t.getMessage}. see logs for details")
+        }
       }
-
     }.getOrElse {
       writer.println("unknown custom code method %s".format(realPath))
       response.setStatus(404)

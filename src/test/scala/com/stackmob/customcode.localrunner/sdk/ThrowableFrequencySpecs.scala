@@ -1,10 +1,12 @@
-package com.stackmob.customcode.localrunner.sdk
+package com.stackmob.customcode.localrunner
+package sdk
 
 import org.specs2.Specification
 import com.twitter.util.{Time, Duration}
 import org.specs2.mock.Mockito
 import scala.util.Random
 import com.stackmob.customcode.localrunner.sdk.simulator.{ThrowableFrequency, Frequency}
+import TestUtils._
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,13 +35,6 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val r = mock[Random]
     r.nextBoolean() returns bool
     r
-  }
-  private def either[T](op: => T): Either[Throwable, T] = {
-    try {
-      Right(op)
-    } catch {
-      case t: Throwable => Left(t)
-    }
   }
 
   private def getFunctions = {
