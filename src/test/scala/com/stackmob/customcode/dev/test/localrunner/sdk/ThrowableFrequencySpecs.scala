@@ -1,5 +1,6 @@
 package com.stackmob.customcode.dev
 package test
+package localrunner
 package sdk
 
 import org.specs2.Specification
@@ -7,7 +8,7 @@ import com.twitter.util.{Time, Duration}
 import org.specs2.mock.Mockito
 import scala.util.Random
 import com.stackmob.customcode.dev.localrunner.sdk.simulator.{ThrowableFrequency, Frequency}
-import TestUtils._
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,7 +50,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   private def maxCounter = {
     val duration = Duration.fromNanoseconds(0)
     val freq = ThrowableFrequency(exception, Frequency(0, duration))
-    val exRes = either(freq.simulate(op)) must beRight.like {
+    val exRes = Try(freq.simulate(op)).toEither must beRight.like {
       case r => r must beEqualTo(op)
     }
     val countRes = freq.getCount must beEqualTo(0)
@@ -61,9 +62,9 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val duration = Duration.fromMilliseconds(100)
     val freq = ThrowableFrequency(exception, Frequency(100, duration), rand = random)
     //trigger a rollover
-    either(freq.simulate(op))
+    Try(freq.simulate(op))
     //then execute the real thing
-    val exRes = either(freq.simulate(op)) must beLeft.like {
+    val exRes = Try(freq.simulate(op)).toEither must beLeft.like {
       case t => t.getMessage must beEqualTo(exception.getMessage)
     }
 
@@ -74,7 +75,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val random = rand(false)
     val duration = Duration.fromMilliseconds(1000)
     val freq = ThrowableFrequency(exception, Frequency(1, duration), rand = random)
-    val exRes = either(freq.simulate(op)) must beRight.like {
+    val exRes = Try(freq.simulate(op)).toEither must beRight.like {
       case r => r must beEqualTo(op)
     }
 
