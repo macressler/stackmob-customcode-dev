@@ -93,9 +93,15 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
       } yield {
         ()
       }
-      respTry.failed.map { t: Throwable =>
-        logger.warn(s"proxy failed with ${t.getMessage}", t)
-        writer.print(s"proxy failed with ${t.getMessage}")
+
+      try {
+        respTry.get
+      }
+      catch {
+        case t: Throwable => {
+          logger.warn(s"proxy failed with ${t.getMessage}", t)
+          writer.print(s"proxy failed with ${t.getMessage}")
+        }
       }
     }
 

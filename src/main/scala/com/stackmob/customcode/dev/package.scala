@@ -3,6 +3,7 @@ package com.stackmob.customcode
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdk.api.StackMob.OAuthVersion
 import com.stackmob.sdk.push.StackMobPush
+import scala.util.{Failure, Success, Try}
 
 /**
  * Created by IntelliJ IDEA.
