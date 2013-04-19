@@ -5,12 +5,15 @@ import scalaz.Scalaz._
 import java.util.UUID
 import java.io.BufferedReader
 import org.eclipse.jetty.server.Request
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import com.stackmob.core.rest.ProcessedAPIRequest
 import com.stackmob.core.MethodVerb
 import collection.JavaConverters._
 import scala.util.Try
 import org.eclipse.jetty.http.HttpURI
+import com.stackmob.newman.request.HttpRequestType
+import com.stackmob.newman.Headers
+import java.net.URL
 
 /**
  * Created by IntelliJ IDEA.
@@ -76,16 +79,67 @@ package object localrunner {
     }
   }
 
-  def getQueryParams(httpURI: HttpURI): Map[String, String] = {
-    val mbQueryString = Option(httpURI.getQuery)
-    mbQueryString.map { queryString =>
-      queryString.split("&").toList.foldLeft(Map[String, String]()) { (agg, cur) =>
-        cur.split("=").toList match {
-          case key :: value :: Nil => agg ++ Map(key -> value)
-          case _ => agg
+  implicit class HttpURIW(val httpURI: HttpURI) {
+    def getQueryParams: Map[String, String] = {
+      val mbQueryString = Option(httpURI.getQuery)
+      mbQueryString.map { queryString =>
+        queryString.split("&").toList.foldLeft(Map[String, String]()) { (agg, cur) =>
+          cur.split("=").toList match {
+            case key :: value :: Nil => agg ++ Map(key -> value)
+            case _ => agg
+          }
         }
+      }.getOrElse(Map[String, String]())
+    }
+  }
+
+  implicit class HttpServletRequestW(val servletReq: HttpServletRequest) {
+    def getMethodVerb: Try[MethodVerb] = {
+      Try(MethodVerb.valueOf(servletReq.getMethod))
+    }
+
+    def getNewmanVerb: Option[HttpRequestType] = {
+      val stringRep = servletReq.getMethod.toUpperCase
+      stringRep match {
+        case HttpRequestType.GET.stringVal => Some(HttpRequestType.GET)
+        case HttpRequestType.POST.stringVal => Some(HttpRequestType.POST)
+        case HttpRequestType.PUT.stringVal => Some(HttpRequestType.PUT)
+        case HttpRequestType.DELETE.stringVal => Some(HttpRequestType.DELETE)
+        case HttpRequestType.HEAD.stringVal => Some(HttpRequestType.HEAD)
+        case _ => None
       }
-    }.getOrElse(Map[String, String]())
+    }
+  }
+
+  implicit class HttpServletResponseW(val servletRes: HttpServletResponse) {
+    def setHeaders(headers: Headers) {
+      val headerList = headers.map { headersNel =>
+        headersNel.list
+      }.getOrElse(List[(String, String)]())
+      headerList.foreach { tup =>
+        val (name, value) = tup
+        servletRes.setHeader(name, value)
+      }
+    }
+  }
+
+  implicit class RequestW(val req: Request) {
+    def getAllHeaders: List[(String, String)] = {
+      val allHeaderNames = req.getHeaderNames.asScala.map(_.asInstanceOf[String])
+      allHeaderNames.foldLeft(List[(String, String)]()) { (agg, cur) =>
+        agg ++ List(cur -> req.getHeader(cur))
+      }
+    }
+
+    def getURL: Try[URL] = {
+      Try(new URL(req.getRequestURL.toString))
+    }
+
+    def getBody: String = {
+      Option(req.getReader).map { reader =>
+        reader.exhaust().toString()
+      }.getOrElse("")
+    }
   }
 
   /**
@@ -101,9 +155,9 @@ package object localrunner {
                           servletReq: HttpServletRequest,
                           body: String): Try[ProcessedAPIRequest] = {
     for {
-      requestedVerb <- Try(MethodVerb.valueOf(servletReq.getMethod))
+      requestedVerb <- servletReq.getMethodVerb
       httpURI <- Try(baseReq.getUri)
-      queryParams <-Try(getQueryParams(httpURI))
+      queryParams <-Try(httpURI.getQueryParams)
       apiVersion <- Try(0)
       counter <- Try(0)
     } yield {

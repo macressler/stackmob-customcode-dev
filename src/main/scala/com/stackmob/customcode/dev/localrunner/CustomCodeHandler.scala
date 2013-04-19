@@ -13,6 +13,7 @@ import scala.concurrent.duration._
 import org.slf4j.LoggerFactory
 import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
+import com.stackmob.newman.ApacheHttpClient
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,12 +49,15 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
     val writer = response.getWriter
     val realPath = baseRequest.getPathInfo.replaceFirst("/", "")
 
+    val body = baseRequest.getBody
+
     methods.get(realPath).map { method =>
-      val body = baseRequest.getReader.exhaust().toString()
+
+      val processedAPIRequestTry = processedAPIRequest(realPath, baseRequest, servletRequest, body)
       val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
 
       val resTry = for {
-        apiReq <- processedAPIRequest(realPath, baseRequest, servletRequest, body)
+        apiReq <- processedAPIRequestTry
         resp <- CustomCodeMethodExecutor(method,
           apiReq,
           sdkServiceProvider,
@@ -81,9 +85,18 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
       }
     }.getOrElse {
       logger.debug(s"unknown custom code method $realPath. attempting to proxy the request to v0 of your API")
-      //TODO: proxy to API
-      writer.println("unknown custom code method %s".format(realPath))
-      response.setStatus(404)
+      val respTry = for {
+        newmanResp <- APIRequestProxy(baseRequest)
+        _ <- Try(response.setStatus(newmanResp.code.code))
+        _ <- Try(response.setHeaders(newmanResp.headers))
+        _ <- Try(writer.print(newmanResp.bodyString))
+      } yield {
+        ()
+      }
+      respTry.failed.map { t: Throwable =>
+        logger.warn(s"proxy failed with ${t.getMessage}", t)
+        writer.print(s"proxy failed with ${t.getMessage}")
+      }
     }
 
     baseRequest.setHandled(true)
