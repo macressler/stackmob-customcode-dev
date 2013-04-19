@@ -3,14 +3,7 @@ package test
 package localrunner
 
 import org.specs2.Specification
-import com.stackmob.core.customcode.CustomCodeMethod
-import com.stackmob.core.rest.{ResponseToProcess, ProcessedAPIRequest}
-import com.stackmob.sdkapi.SDKServiceProvider
-import collection.JavaConverters._
-import concurrent.duration._
 import org.specs2.mock.Mockito
-import concurrent.TimeoutException
-import com.stackmob.newman.test.DummyHttpClient
 
 /**
  * Created by IntelliJ IDEA.
