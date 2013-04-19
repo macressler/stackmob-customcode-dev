@@ -9,6 +9,7 @@ import collection.JavaConverters._
 import concurrent.duration._
 import org.specs2.mock.Mockito
 import concurrent.TimeoutException
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +25,7 @@ class CustomCodeMethodExecutorSpecs extends Specification with Mockito { def is 
   "CustomCodeMethodExecutor executes CustomCodeMethods"                                                                  ^ end ^
   "The handler should fail if a method takes too long to execute"                                                       ! timeout ^ end ^
                                                                                                                         end
+  implicit private val session = UUID.randomUUID()
   private val method = new CustomCodeMethod {
     override def getMethodName: String = "testMethod"
 

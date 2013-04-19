@@ -13,7 +13,7 @@ import scala.concurrent.duration._
 import org.slf4j.LoggerFactory
 import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
-import com.stackmob.newman.ApacheHttpClient
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,9 +24,12 @@ import com.stackmob.newman.ApacheHttpClient
  * Date: 3/27/13
  * Time: 2:47 PM
  */
-class CustomCodeHandler(jarEntry: JarEntryObject,
+class CustomCodeHandler(apiKey: String,
+                        apiSecret: String,
+                        jarEntry: JarEntryObject,
                         maxMethodDuration: Duration = 25.seconds)
-                       (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext)
+                       (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext,
+                        session: UUID)
   extends AbstractHandler {
 
   private lazy val logger = LoggerFactory.getLogger(classOf[CustomCodeHandler])
@@ -34,10 +37,6 @@ class CustomCodeHandler(jarEntry: JarEntryObject,
   private val methods = jarEntry.methods.asScala.foldLeft(Map[String, CustomCodeMethod]()) { (running, method) =>
     running ++ Map(method.getMethodName -> method)
   }
-
-  //TODO: get these from config file
-  private lazy val apiKey = "cc-test-api-key"
-  private lazy val apiSecret = "cc-test-api-secret"
 
   private lazy val stackMob = stackMobClient(apiKey, apiSecret)
   private lazy val stackMobPush = stackMobPushClient(apiKey, apiSecret)

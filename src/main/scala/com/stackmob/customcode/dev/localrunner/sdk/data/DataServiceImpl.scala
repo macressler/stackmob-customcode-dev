@@ -12,8 +12,11 @@ import collection.JavaConverters._
 import SMObjectUtils._
 import net.liftweb.json._
 import simulator.CallLimitation
+import java.util.UUID
 
-class DataServiceImpl(datastore: StackMobDatastore, maxCallsPerRequest: Int = 5) extends DataService {
+class DataServiceImpl(datastore: StackMobDatastore,
+                      maxCallsPerRequest: Int = 5)
+                     (implicit session: UUID) extends DataService {
   override def getUserSchema = userSchemaName
 
   private val allCallsLimiter = CallLimitation(maxCallsPerRequest, TooManyDataServiceCallsException(maxCallsPerRequest, _))

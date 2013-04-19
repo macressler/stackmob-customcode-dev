@@ -6,6 +6,7 @@ import com.stackmob.core.rest.{ResponseToProcess, ProcessedAPIRequest}
 import com.stackmob.customcode.dev.localrunner.sdk.SDKServiceProviderImpl
 import java.util.concurrent.{TimeoutException => JavaTimeoutException}
 import concurrent.{TimeoutException => ScalaTimeoutException}
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,6 +31,7 @@ object LocalTester {
                     req: ProcessedAPIRequest,
                     apiKey: String,
                     apiSecret: String): ResponseToProcess = {
+    implicit val session = UUID.randomUUID()
     val stackMob = stackMobClient(apiKey, apiSecret)
     val stackMobPush = stackMobPushClient(apiKey, apiSecret)
     val provider = new SDKServiceProviderImpl(stackMob, stackMobPush)

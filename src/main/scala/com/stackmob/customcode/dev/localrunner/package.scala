@@ -33,17 +33,15 @@ package object localrunner {
     }
   }
 
-  lazy val uuid = UUID.randomUUID()
+  private def fmt(s: String)(implicit session: UUID) = "cc-localrunner-%s-%s".format(s, session)
 
-  private def fmt(s: String) = "cc-localrunner-%s-%s".format(s, uuid)
-
-  lazy val appName = fmt("app")
-  lazy val userSchemaName = fmt("user-schema")
-  lazy val userName = fmt("user")
-  lazy val loggedInUser = fmt("logged-in-user")
-  lazy val testFBUser = fmt("facebook-user")
-  lazy val testFBMessageID = fmt("facebook-message")
-  lazy val testTwitterUser = fmt("twitter-user")
+  def appName(implicit session: UUID) = fmt("app")
+  def userSchemaName(implicit session: UUID) = fmt("user-schema")
+  def userName(implicit session: UUID) = fmt("user")
+  def loggedInUser(implicit session: UUID) = fmt("logged-in-user")
+  def testFBUser(implicit session: UUID) = fmt("facebook-user")
+  def testFBMessageID(implicit session: UUID) = fmt("facebook-message")
+  def testTwitterUser(implicit session: UUID) = fmt("twitter-user")
 
   def validating[T](t: => T): Validation[Throwable, T] = {
     try {
@@ -153,7 +151,8 @@ package object localrunner {
   def processedAPIRequest(methodName: String,
                           baseReq: Request,
                           servletReq: HttpServletRequest,
-                          body: String): Try[ProcessedAPIRequest] = {
+                          body: String)
+                         (implicit session: UUID): Try[ProcessedAPIRequest] = {
     for {
       requestedVerb <- servletReq.getMethodVerb
       httpURI <- Try(baseReq.getUri)

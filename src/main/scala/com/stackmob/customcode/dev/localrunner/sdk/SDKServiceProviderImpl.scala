@@ -31,8 +31,10 @@ import com.stackmob.sdkapi.http.HttpService
 import push.PushServiceImpl
 import com.stackmob.sdk.push.StackMobPush
 import twitter.TwitterServiceImpl
+import java.util.UUID
 
-class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush) extends SDKServiceProvider {
+class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush)
+                            (implicit session: UUID) extends SDKServiceProvider {
   override lazy val getDatastoreService: DatastoreService = {
     //TODO: throw here unless overridden in config file
     new DatastoreServiceImpl(getDataService)

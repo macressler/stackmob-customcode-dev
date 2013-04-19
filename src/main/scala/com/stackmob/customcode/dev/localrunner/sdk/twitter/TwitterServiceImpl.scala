@@ -6,6 +6,7 @@ package twitter
 import com.stackmob.sdkapi.TwitterService
 import com.stackmob.core.TwitterServiceException
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory
  * Date: 4/2/13
  * Time: 3:58 PM
  */
-class TwitterServiceImpl extends TwitterService {
+class TwitterServiceImpl(implicit session: UUID) extends TwitterService {
   private lazy val logger = LoggerFactory.getLogger(classOf[TwitterService])
 
   @throws(classOf[TwitterServiceException])

@@ -23,12 +23,14 @@ import com.stackmob.customcode.dev.localrunner.sdk.data.{DataServiceImpl, Datast
 import com.stackmob.sdk.api.StackMobDatastore
 import collection.JavaConverters._
 import org.mockito.Mockito.mock
+import java.util.UUID
 
 class DatastoreServiceImplSpecs extends Specification { def is =
   "DatastoreService".title                                                                                              ^ end ^
   """DatastoreService is a (deprecated) custom code interface to access the StackMob datastore"""                       ^ end ^
   "crud should work properly"                                                                                           ! crud() ^ end ^
                                                                                                                         end
+  implicit private val uuid = UUID.randomUUID()
 
   private val dataService = new DataServiceImpl(mock(classOf[StackMobDatastore]))
   private val datastoreService:DatastoreService = new DatastoreServiceImpl(dataService)

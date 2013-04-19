@@ -6,6 +6,7 @@ package facebook
 import com.stackmob.sdkapi.FacebookService
 import org.slf4j.LoggerFactory
 import com.stackmob.core.FacebookServiceException
+import java.util.UUID
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +17,7 @@ import com.stackmob.core.FacebookServiceException
  * Date: 4/2/13
  * Time: 3:46 PM
  */
-class FacebookServiceImpl extends FacebookService {
+class FacebookServiceImpl(implicit session: UUID) extends FacebookService {
   private lazy val logger = LoggerFactory.getLogger(classOf[FacebookService])
 
   @throws(classOf[FacebookServiceException])
