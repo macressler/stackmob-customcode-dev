@@ -1,7 +1,7 @@
 package com.stackmob.customcode.dev
 package example
 
-import localrunner.CustomCodeServer
+import server.CustomCodeServer
 
 object ExampleServer {
   def main(args: Array[String]) {

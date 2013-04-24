@@ -58,11 +58,11 @@ object Dependencies {
   lazy val mockito = "org.mockito" % "mockito-core" % "1.9.5" % "test"
 }
 
-object LocalRunnerBuild extends Build {
+object CustomCodeDevBuild extends Build {
   import BuildSettings._
   import Dependencies._
 
-  lazy val localRunner = Project("stackmob-customcode-localrunner", file("."),
+  lazy val customCodeDev = Project("stackmob-customcode-dev", file("."),
     settings = standardSettings ++ Seq(
       libraryDependencies ++= Seq(javaClientSDK,
         customcode,
@@ -77,7 +77,7 @@ object LocalRunnerBuild extends Build {
         logbackClassic,
         mockito,
         twitterUtil),
-      name := "stackmob-customcode-localrunner",
+      name := "stackmob-customcode-dev",
       publish := {}
     )
   )
