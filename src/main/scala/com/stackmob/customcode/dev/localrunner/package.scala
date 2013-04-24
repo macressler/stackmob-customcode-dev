@@ -33,16 +33,6 @@ package object localrunner {
     }
   }
 
-  private def fmt(s: String)(implicit session: UUID) = "cc-localrunner-%s-%s".format(s, session)
-
-  def appName(implicit session: UUID) = fmt("app")
-  def userSchemaName(implicit session: UUID) = fmt("user-schema")
-  def userName(implicit session: UUID) = fmt("user")
-  def loggedInUser(implicit session: UUID) = fmt("logged-in-user")
-  def testFBUser(implicit session: UUID) = fmt("facebook-user")
-  def testFBMessageID(implicit session: UUID) = fmt("facebook-message")
-  def testTwitterUser(implicit session: UUID) = fmt("twitter-user")
-
   def validating[T](t: => T): Validation[Throwable, T] = {
     try {
       t.success[Throwable]
