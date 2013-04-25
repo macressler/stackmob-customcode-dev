@@ -1,3 +1,8 @@
 package com.stackmob.customcode.dev.server.sdk.data
 
-case class NoSMValueFoundException[T](t: T) extends Exception("no SMValue found for %s".format(t.getClass.toString))
+class NoSMValueFoundException[T](t: T) extends Exception(s"no SMValue found for ${t.getClass.toString}")
+object NoSMValueFoundException {
+  def apply[T](t: T): NoSMValueFoundException[T] = {
+    new NoSMValueFoundException[T](t)
+  }
+}
