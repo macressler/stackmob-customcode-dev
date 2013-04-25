@@ -47,6 +47,7 @@ object Dependencies {
   lazy val twitterUtil = "com.twitter" %% "util-core" % "6.3.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.3" % "test"
+  lazy val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
@@ -68,6 +69,7 @@ object CustomCodeDevBuild extends Build {
         customcode,
         scalaz,
         specs2,
+        scalacheck,
         jettyServer,
         liftJson,
         newman,

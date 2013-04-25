@@ -16,10 +16,17 @@ import collection.JavaConverters._
  * Date: 4/15/13
  * Time: 2:07 PM
  */
+
 object StackMobQueryUtils {
+
+
+
   implicit class StackMobQueryW(query: StackMobQuery) {
 
-    def addSMCondition(cond: SMCondition): StackMobQuery = {
+    def addSMCondition(cond: SMCondition, depth: Int = 0): StackMobQuery = {
+      if(depth >= maxDepth) {
+        throw SMConditionDepthLimitReached(maxDepth)
+      }
       cond match {
         case f: SMIsNull => {
           val bool: Boolean = f.getValue.getValue
@@ -53,21 +60,15 @@ object StackMobQueryUtils {
           query.fieldIsLessThan(f.getField, f.getValue.toString)
         }
         case f: SMLessOrEqual => {
-          validating {
-            query.fieldIsLessThanOrEqualTo(f.getField, f.getValue.toString.toInt)
-          } | {
-            query
-          }
+          query.fieldIslessThanOrEqualTo(f.getField, f.getValue.toString)
         }
         case f: SMNear => {
           val point = new StackMobGeoPoint(f.getLon.getValue, f.getLat.getValue)
-          if (StackMobGeoPoint.radiansToKm(f.getDist.getValue) == 0.0) {
+          val km = StackMobGeoPoint.radiansToKm(f.getDist.getValue)
+          if (km == 0.0) {
             query.fieldIsNear(f.getField, point)
           } else {
-            val km = StackMobGeoPoint.radiansToKm(f.getDist.getValue)
-            query.fieldIsNearWithinKm(f.getField,
-              point,
-              km)
+            query.fieldIsNearWithinKm(f.getField, point, km)
           }
         }
         case f: SMWithin => {
@@ -79,6 +80,15 @@ object StackMobQueryUtils {
           val lowerLeft = new StackMobGeoPoint(f.getLonLL.getValue, f.getLatLL.getValue)
           val upperRight = new StackMobGeoPoint(f.getLonUR.getValue, f.getLatUR.getValue)
           query.fieldIsWithinBox(f.getField, lowerLeft, upperRight)
+        }
+        case f: SMOr => {
+          throw new UnsupportedOperationException("SMOr is not currently supported")
+        }
+        case f: SMAnd => {
+          val clauses = f.getClauses.asScala
+          clauses.foldLeft(query) { (curQuery, clause) =>
+            curQuery.addSMCondition(clause, depth + 1)
+          }
         }
         case _ => query
       }

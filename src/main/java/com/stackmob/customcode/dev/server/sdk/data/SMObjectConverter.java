@@ -1,4 +1,4 @@
-package com.stackmob.customcode.sdk;
+package com.stackmob.customcode.dev.server.sdk.data;
 
 import java.util.Map;
 import java.util.HashMap;

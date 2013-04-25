@@ -27,7 +27,7 @@ object SMValueUtils {
 
     def toJValue(depth: Int = 0): JValue = {
       if(depth > maxDepth) {
-        throw DepthLimitReached(maxDepth)
+        throw SMValueDepthLimitReached(maxDepth)
       }
       smValue match {
         case smInt: SMInt => {

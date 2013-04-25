@@ -128,7 +128,7 @@ package object data {
 
   def smValue(obj: Any, depth: Int = 0): SMValue[_] = {
     if(depth > maxDepth) {
-      throw DepthLimitReached(depth)
+      throw SMValueDepthLimitReached(depth)
     }
     obj match {
       case b: Boolean => new SMBoolean(b)

@@ -5,10 +5,8 @@ package data
 
 import com.stackmob.sdkapi.{SMValue, SMObject}
 import collection.JavaConverters._
-import collection.mutable.{Map => MutableMap}
 import SMValueUtils._
 import net.liftweb.json._
-import com.stackmob.customcode.sdk.SMObjectConverter
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,7 +28,7 @@ object SMObjectUtils {
      */
     def toJObject(depth: Int = 0): JObject = {
       if(depth > maxDepth) {
-        throw DepthLimitReached(maxDepth)
+        throw SMValueDepthLimitReached(maxDepth)
       }
 
       val scalaMap: Map[String, SMValue[_]] = smObject.toScalaMap

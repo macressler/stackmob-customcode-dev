@@ -26,12 +26,20 @@ import java.net.URL
  */
 package object server {
   lazy val maxDepth = 2
-  class DepthLimitReached(depth: Int) extends Exception("the maximum depth of %d has been reached".format(depth))
-  object DepthLimitReached {
+  class SMValueDepthLimitReached(depth: Int) extends Exception(s"the maximum SMValue depth of $depth has been reached")
+  object SMValueDepthLimitReached {
     def apply(depth: Int) = {
-      new DepthLimitReached(depth)
+      new SMValueDepthLimitReached(depth)
     }
   }
+
+  class SMConditionDepthLimitReached(depth: Int) extends Exception(s"the maximum SMCondition depth of $depth has been reached")
+  object SMConditionDepthLimitReached {
+    def apply(depth: Int) = {
+      new SMConditionDepthLimitReached(depth)
+    }
+  }
+
 
   private def fmt(s: String)(implicit session: UUID) = "cc-server-%s-%s".format(s, session)
 
