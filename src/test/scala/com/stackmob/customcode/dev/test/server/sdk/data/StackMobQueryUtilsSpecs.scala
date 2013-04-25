@@ -46,11 +46,15 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
                                                                                                                         end
 
   private sealed trait Base {
-    protected lazy val origQuery = {
-      val q = mock[StackMobQuery].as("mock StackMobQuery").defaultAnswer { i =>
-        new StackMobQuery()
+    protected lazy val origQuery1: StackMobQuery = {
+      mock[StackMobQuery].as("mock StackMobQuery").defaultAnswer { i =>
+        origQuery2
       }
-      q
+    }
+    protected val origQuery2: StackMobQuery = {
+      mock[StackMobQuery].as("mock2 StackMobQuery").defaultAnswer { i =>
+        origQuery1
+      }
     }
 
     protected val field = "field-name"
@@ -66,27 +70,21 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
     protected val isNull = new SMIsNull(field, new SMBoolean(true))
     protected val isEqual = new SMEquals(field, new SMString(value))
     protected val clauses = List(isNull, isEqual)
-
-    protected def ensureClauses = {
-      val nullCalled = there was one(origQuery).fieldIsNull(field)
-      val equalCalled = there was one(origQuery).fieldIsEqualTo(field, value)
-      nullCalled and equalCalled
-    }
   }
 
   private case class AddCondition() extends Base {
     def smIsNull = {
       val isNull = new SMIsNull(field, new SMBoolean(true))
-      origQuery.addSMCondition(isNull)
-      (there was one(origQuery).fieldIsNull(field)) and
-      (there was no(origQuery).fieldIsNotNull(field))
+      origQuery1.addSMCondition(isNull)
+      (there was one(origQuery1).fieldIsNull(field)) and
+      (there was no(origQuery1).fieldIsNotNull(field))
     }
 
     def smIsNotNull = {
       val isNotNull = new SMIsNull(field, new SMBoolean(false))
-      origQuery.addSMCondition(isNotNull)
-      (there was no(origQuery).fieldIsNull(field)) and
-      (there was one(origQuery).fieldIsNotNull(field))
+      origQuery1.addSMCondition(isNotNull)
+      (there was no(origQuery1).fieldIsNull(field)) and
+      (there was one(origQuery1).fieldIsNotNull(field))
     }
 
     def smIn = {
@@ -94,59 +92,59 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
       val smBool = new SMBoolean(true)
       val valuesList = List(smString, smBool)
       val smIn = new SMIn(field, valuesList.asJava)
-      origQuery.addSMCondition(smIn)
-      there was one(origQuery).fieldIsIn(mockitoEq(field), any[JList[String]])
+      origQuery1.addSMCondition(smIn)
+      there was one(origQuery1).fieldIsIn(mockitoEq(field), any[JList[String]])
     }
 
     def smEquals = {
       val smEquals = new SMEquals(field, new SMString(value))
-      origQuery.addSMCondition(smEquals)
-      there was one(origQuery).fieldIsEqualTo(field, value)
+      origQuery1.addSMCondition(smEquals)
+      there was one(origQuery1).fieldIsEqualTo(field, value)
     }
 
     def smNotEqual = {
       val smNotEqual = new SMNotEqual(field, new SMString(value))
-      origQuery.addSMCondition(smNotEqual)
-      there was one(origQuery).fieldIsNotEqual(field, value)
+      origQuery1.addSMCondition(smNotEqual)
+      there was one(origQuery1).fieldIsNotEqual(field, value)
     }
 
     def smGreater = {
       val smGreater = new SMGreater(field, new SMString(value))
-      origQuery.addSMCondition(smGreater)
-      there was one(origQuery).fieldIsGreaterThan(field, value)
+      origQuery1.addSMCondition(smGreater)
+      there was one(origQuery1).fieldIsGreaterThan(field, value)
     }
 
     def smGreaterOrEqual = {
       val smGreaterOrEqual = new SMGreaterOrEqual(field, new SMString(value))
-      origQuery.addSMCondition(smGreaterOrEqual)
-      there was one(origQuery).fieldIsGreaterThanOrEqualTo(field, value)
+      origQuery1.addSMCondition(smGreaterOrEqual)
+      there was one(origQuery1).fieldIsGreaterThanOrEqualTo(field, value)
     }
 
     def smLess = {
       val smLess = new SMLess(field, new SMString(value))
-      origQuery.addSMCondition(smLess)
-      there was one(origQuery).fieldIsLessThan(field, value)
+      origQuery1.addSMCondition(smLess)
+      there was one(origQuery1).fieldIsLessThan(field, value)
     }
 
     def smLessOrEqual = {
       val smLessOrEqual = new SMLessOrEqual(field, new SMString(value))
-      origQuery.addSMCondition(smLessOrEqual)
-      there was one(origQuery).fieldIslessThanOrEqualTo(field, value)
+      origQuery1.addSMCondition(smLessOrEqual)
+      there was one(origQuery1).fieldIslessThanOrEqualTo(field, value)
     }
 
     def smNear = forAll(genLatitude, genLongitude, genDistance) { (latitude, longitude, distance) =>
       val smNear = new SMNear(field, new SMDouble(latitude), new SMDouble(longitude), new SMDouble(distance))
-      origQuery.addSMCondition(smNear)
+      origQuery1.addSMCondition(smNear)
       val expectedGeoPoint = new StackMobGeoPoint(smNear.getLon.getValue, smNear.getLat.getValue)
-      there was one(origQuery).fieldIsNear(field, expectedGeoPoint)
+      there was one(origQuery1).fieldIsNear(field, expectedGeoPoint)
     }
 
     def smWithin = forAll(genLatitude, genLongitude, genDistance) { (latitude, longitude, distance) =>
       val smWithin = new SMWithin(field, new SMDouble(latitude), new SMDouble(longitude), new SMDouble(distance))
-      origQuery.addSMCondition(smWithin)
+      origQuery1.addSMCondition(smWithin)
       val expectedGeoPoint = new StackMobGeoPoint(smWithin.getLon.getValue, smWithin.getLat.getValue)
       val km = StackMobGeoPoint.radiansToKm(distance)
-      there was one(origQuery).fieldIsWithinRadiusInKm(field, expectedGeoPoint, km)
+      there was one(origQuery1).fieldIsWithinRadiusInKm(field, expectedGeoPoint, km)
     }
 
     def smWithinBox = forAll(genLatitude, genLongitude, genLatitude, genDistance) {
@@ -156,23 +154,25 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
         new SMDouble(lonLL),
         new SMDouble(latUR),
         new SMDouble(distance))
-      origQuery.addSMCondition(smWithinBox)
+      origQuery1.addSMCondition(smWithinBox)
       val expectedLL = new StackMobGeoPoint(smWithinBox.getLonLL.getValue, smWithinBox.getLatLL.getValue)
       val expectedUR = new StackMobGeoPoint(smWithinBox.getLonUR.getValue, smWithinBox.getLatUR.getValue)
-      there was one(origQuery).fieldIsWithinBox(field, expectedLL, expectedUR)
+      there was one(origQuery1).fieldIsWithinBox(field, expectedLL, expectedUR)
     }
 
     def smAnd = {
       val smAnd = new SMAnd(clauses.asJava)
-      origQuery.addSMCondition(smAnd)
-      ensureClauses
+      origQuery1.addSMCondition(smAnd)
+      val nullCalled = there was one(origQuery1).fieldIsNull(field)
+      val equalCalled = there was one(origQuery2).fieldIsEqualTo(field, value)
+      nullCalled and equalCalled
     }
   }
 
   private case class Throw() extends Base {
     def smOr = {
       val smOr = new SMOr(clauses.asJava)
-      Try(origQuery.addSMCondition(smOr)).toEither must beLeft.like {
+      Try(origQuery1.addSMCondition(smOr)).toEither must beLeft.like {
         case t => t must beAnInstanceOf[UnsupportedOperationException]
       }
     }
@@ -182,7 +182,7 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
       val nestedSMAnd = (0 until depth).foldLeft(startingSMAnd) { (agg, cur) =>
         new SMAnd(List[SMCondition](agg).asJava)
       }
-      Try(origQuery.addSMCondition(nestedSMAnd)).toEither must beLeft.like {
+      Try(origQuery1.addSMCondition(nestedSMAnd)).toEither must beLeft.like {
         case t => t must beAnInstanceOf[SMConditionDepthLimitReached]
       }
     }
