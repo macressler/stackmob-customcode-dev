@@ -14,6 +14,7 @@ import org.scalacheck.Gen
 import StackMobQueryUtils._
 import scala.util.Try
 import com.stackmob.customcode.dev.server.{SMConditionDepthLimitReached, maxDepth}
+import org.mockito.Matchers.{eq => mockitoEq}
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,7 +46,13 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
                                                                                                                         end
 
   private sealed trait Base {
-    protected lazy val origQuery = mock[StackMobQuery]
+    protected lazy val origQuery = {
+      val q = mock[StackMobQuery].as("mock StackMobQuery").defaultAnswer { i =>
+        new StackMobQuery()
+      }
+      q
+    }
+
     protected val field = "field-name"
     protected val value = "field-value"
     protected val genLatitude = Gen.posNum[Double]
@@ -88,7 +95,7 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
       val valuesList = List(smString, smBool)
       val smIn = new SMIn(field, valuesList.asJava)
       origQuery.addSMCondition(smIn)
-      there was one(origQuery).fieldIsIn(field, any[JList[String]])
+      there was one(origQuery).fieldIsIn(mockitoEq(field), any[JList[String]])
     }
 
     def smEquals = {
