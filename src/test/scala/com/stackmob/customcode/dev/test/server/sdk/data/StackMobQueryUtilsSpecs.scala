@@ -63,10 +63,6 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
     protected val genLongitude = Gen.posNum[Double]
     protected val genDistance = Gen.oneOf(Gen.posNum[Double], Gen.value(0D))
 
-    //don't use large numbers here because they'll affect how deep the nested SMAnds will be generated.
-    //affects runtime & space
-    protected val genOverMaxDepth = Gen.choose(maxDepth + 1, maxDepth + 10)
-
     protected val isNull = new SMIsNull(field, new SMBoolean(true))
     protected val isEqual = new SMEquals(field, new SMString(value))
     protected val clauses = List(isNull, isEqual)
