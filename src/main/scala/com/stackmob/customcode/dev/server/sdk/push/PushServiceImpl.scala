@@ -23,7 +23,7 @@ import net.liftweb.json.scalaz.JsonScalaz._
 class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @throws(classOf[PushServiceException])
-  override def sendPushToTokens(tokens: JList[CCTokenAndType], pairs: JMap[String, String]) {
+  override def sendPushToTokens(tokens: JavaList[CCTokenAndType], pairs: JavaMap[String, String]) {
     val stackmobPushTokens = tokens.asScala.map { t =>
       stackmobPushToken(t)
     }.toList.asJava
@@ -31,12 +31,12 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[PushServiceException])
-  override def sendPushToUsers(users: JList[String], pairs: JMap[String, String]) {
+  override def sendPushToUsers(users: JavaList[String], pairs: JavaMap[String, String]) {
     synchronous(stackmobPush.pushToUsers(pairs, users, _))
   }
 
   @throws(classOf[PushServiceException])
-  def broadcastPush(pairs: JMap[String, String]) {
+  def broadcastPush(pairs: JavaMap[String, String]) {
     synchronous(stackmobPush.broadcastPushNotification(pairs, _)).map { validation =>
       validation.mapFailure { t =>
         new PushServiceException(t.getMessage)
@@ -51,7 +51,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  def getAllTokensForUsers(users: JList[String]): JMap[String, JList[CCTokenAndType]] = {
+  def getAllTokensForUsers(users: JavaList[String]): JavaMap[String, JavaList[CCTokenAndType]] = {
     val validation = for {
       respString <- synchronous(stackmobPush.getTokensForUsers(users, _)).get.mapFailure { t =>
         new DatastoreException(t.getMessage)
@@ -77,7 +77,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[PushServiceException])
-  override def getSendableDevicesForPayload(pairs: JMap[String, String]): JSet[TokenType] = {
+  override def getSendableDevicesForPayload(pairs: JavaMap[String, String]): JavaSet[TokenType] = {
     val serialized = json.write(pairs)
     val numBytes = serialized.getBytes.length
     Set(
@@ -98,20 +98,20 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   }
 
   @throws(classOf[DatastoreException])
-  override def getAllExpiredTokens(clear: Boolean): JMap[CCTokenAndType, JLong] = {
+  override def getAllExpiredTokens(clear: Boolean): JavaMap[CCTokenAndType, JavaLong] = {
     //TODO: endpoint for this in push API
-    JMap[CCTokenAndType, JLong]()
+    JavaMap[CCTokenAndType, JavaLong]()
   }
 
   @Deprecated
   @throws(classOf[PushServiceException])
-  override def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String) {
+  override def sendPush(recipients: JavaList[String], badge: Int, sound: String, alert: String) {
     sendPushToTokens(iosList(recipients), iosMap(badge, sound, alert))
   }
 
   @Deprecated
   @throws(classOf[PushServiceException])
-  override def sendPush(recipients: JList[String], badge: Int, sound: String, alert: String, recipientsAreTokens: Boolean) {
+  override def sendPush(recipients: JavaList[String], badge: Int, sound: String, alert: String, recipientsAreTokens: Boolean) {
     if(recipientsAreTokens) {
       sendPushToTokens(iosList(recipients), iosMap(badge, sound, alert))
     } else {
@@ -122,14 +122,14 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   @Deprecated
   @throws(classOf[PushServiceException])
   override def broadcastPush(badge: Int, sound: String, alert: String) {
-    broadcastPush(JMap("badge" -> badge.toString, "sound" -> sound, "alert" -> alert))
+    broadcastPush(JavaMap("badge" -> badge.toString, "sound" -> sound, "alert" -> alert))
   }
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  override def getExpiredTokens(clear: Boolean): JMap[String, JLong] = {
+  override def getExpiredTokens(clear: Boolean): JavaMap[String, JavaLong] = {
     //TODO: endpoint for this in push API
-    JMap[String, JLong]()
+    JavaMap[String, JavaLong]()
   }
 
   @Deprecated
@@ -140,7 +140,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
 
   @Deprecated
   @throws(classOf[DatastoreException])
-  override def getTokensForUsers(users: JList[String]): JMap[String, String] = {
+  override def getTokensForUsers(users: JavaList[String]): JavaMap[String, String] = {
     val map = getAllTokensForUsers(users).asScala.flatMap { tup =>
       val (user, tokensAndTypes) = tup
       tokensAndTypes.asScala.map { tokenAndType =>

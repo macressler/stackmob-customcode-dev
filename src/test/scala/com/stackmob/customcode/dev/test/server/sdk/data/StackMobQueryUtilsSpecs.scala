@@ -89,7 +89,7 @@ class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck
       val valuesList = List(smString, smBool)
       val smIn = new SMIn(field, valuesList.asJava)
       origQuery1.addSMCondition(smIn)
-      there was one(origQuery1).fieldIsIn(mockitoEq(field), any[JList[String]])
+      there was one(origQuery1).fieldIsIn(mockitoEq(field), any[JavaList[String]])
     }
 
     def smEquals = {

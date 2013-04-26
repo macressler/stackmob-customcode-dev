@@ -36,11 +36,11 @@ package object push extends JsonReaders {
     new StackMobPushToken(t.getToken, tokenType(t.getType))
   }
 
-  def iosMap(badge: Int, sound: String, alert: String): JMap[String, String] = {
-    JMap("badge" -> badge.toString, "sound" -> sound, "alert" -> alert)
+  def iosMap(badge: Int, sound: String, alert: String): JavaMap[String, String] = {
+    JavaMap("badge" -> badge.toString, "sound" -> sound, "alert" -> alert)
   }
 
-  def iosList(list: JList[String]): JList[TokenAndType] = {
+  def iosList(list: JavaList[String]): JavaList[TokenAndType] = {
     list.asScala.map { token =>
       tokenAndType(token, TokenType.iOS)
     }.toList.asJava

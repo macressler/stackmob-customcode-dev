@@ -32,14 +32,14 @@ package object sdk {
     Promise(q.take)
   }
 
-  type JList[T] = java.util.List[T]
-  type JArrayList[T] = java.util.ArrayList[T]
+  type JavaList[T] = java.util.List[T]
+  type JavaArrayList[T] = java.util.ArrayList[T]
 
-  type JMap[K, V] = java.util.Map[K, V]
-  type JHashMap[K, V] = java.util.HashMap[K, V]
-  object JMap {
-    def apply[K, V](pairs: (K, V)*): JMap[K, V] = {
-      val m = new JHashMap[K, V]
+  type JavaMap[K, V] = java.util.Map[K, V]
+  type JavaHashMap[K, V] = java.util.HashMap[K, V]
+  object JavaMap {
+    def apply[K, V](pairs: (K, V)*): JavaMap[K, V] = {
+      val m = new JavaHashMap[K, V]
       pairs.toList.foreach { tup =>
         m.put(tup._1, tup._2)
       }
@@ -47,16 +47,16 @@ package object sdk {
     }
   }
 
-  type JBoolean = java.lang.Boolean
+  type JavaBoolean = java.lang.Boolean
+  type JavaLong = java.lang.Long
+  type JavaDouble = java.lang.Double
 
-  type JLong = java.lang.Long
-
-  type JSet[T] = java.util.Set[T]
-  type JHashSet[T] = java.util.HashSet[T]
-  object JSet {
-    def apply[T](elts: T*): JSet[T] = {
-      val s = new JHashSet[T]
-      elts.toList.foreach { elt =>
+  type JavaSet[T] = java.util.Set[T]
+  type JavaHashSet[T] = java.util.HashSet[T]
+  object JavaSet {
+    def apply[T](elements: T*): JavaSet[T] = {
+      val s = new JavaHashSet[T]
+      elements.toList.foreach { elt =>
         s.add(elt)
       }
       s

@@ -51,7 +51,7 @@ object SMValueUtils {
           JString(s)
         }
         case smList: SMList[T] => {
-          val l = smList.getValue.asInstanceOf[JList[T]]
+          val l = smList.getValue.asInstanceOf[JavaList[T]]
           val jValues = l.asScala.map { rawT =>
             val smValue = rawT.asInstanceOf[SMValue[T]]
             smValue.toJValue(depth + 1)
@@ -69,7 +69,7 @@ object SMValueUtils {
         case primitive: SMPrimitive[T] => primitive.getValue.asInstanceOf[Object]
         case str: SMString => str
         case list: SMList[T] => {
-          val javaList = list.getValue.asInstanceOf[JList[T]]
+          val javaList = list.getValue.asInstanceOf[JavaList[T]]
           val objects = javaList.asScala.map { rawT =>
             val smValue = rawT.asInstanceOf[SMValue[T]]
             smValue.toObject(depth + 1)
@@ -77,7 +77,7 @@ object SMValueUtils {
           objects.asJava
         }
         case obj: SMObject => {
-          val javaMap = obj.getValue.asInstanceOf[JMap[String, SMValue[_]]]
+          val javaMap = obj.getValue.asInstanceOf[JavaMap[String, SMValue[_]]]
           javaMap.asScala.map { tup =>
             val (key, smValue) = tup
             key -> smValue.toObject(depth + 1)

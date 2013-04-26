@@ -25,17 +25,17 @@ package object http {
     NewmanHeaders(ccHeaderList.toList)
   }
 
-  def ccHeaders(headers: NewmanHeaders): JSet[CCHeader] = {
+  def ccHeaders(headers: NewmanHeaders): JavaSet[CCHeader] = {
     headers.map { headerList =>
       headerList.map { header =>
         new CCHeader(header._1, header._2)
       }.list.toSet.asJava
     }.getOrElse {
-      new JHashSet[CCHeader]()
+      new JavaHashSet[CCHeader]()
     }
   }
 
-  case class CustomCCHttpResponse(code: Int, headers: JSet[CCHeader], body: String) extends CCHttpResponse(code, headers, body)
+  case class CustomCCHttpResponse(code: Int, headers: JavaSet[CCHeader], body: String) extends CCHttpResponse(code, headers, body)
 
   def ccHttpResponse(resp: NewmanHttpResponse): CCHttpResponse = {
     val code = resp.code.code

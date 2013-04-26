@@ -33,8 +33,8 @@ class SMValueUtilsSpecs extends Specification with ScalaCheck { def is =
     "work properly for SMString"                                                                                        ! ToJValue().smString ^
     "work properly for SMList"                                                                                          ! ToJValue().smList ^
     "throw for a deeply nested SMList"                                                                                  ! ToJValue().smListThrow ^
-    "work properly for SMObject"                                                                                        ! ToJValue().smObject ^
-    "throw for a deeply nested SMObject"                                                                                ! ToJValue().smObjectThrow ^
+//    "work properly for SMObject"                                                                                        ! ToJValue().smObject ^
+//    "throw for a deeply nested SMObject"                                                                                ! ToJValue().smObjectThrow ^
   end ^
   "toObject should"                                                                                                     ^
     "work properly for any SMPrimitive"                                                                                 ! pending ^
@@ -92,26 +92,26 @@ class SMValueUtilsSpecs extends Specification with ScalaCheck { def is =
         case t => t must beAnInstanceOf[SMValueDepthLimitReached]
       }
     }
-    def smObject = {
-      val smString = new SMString("abc")
-      val smBoolean = new SMBoolean(true)
-      val smValueMap = Map[String, SMValue[_]]("string" -> smString, "boolean" -> smBoolean)
-      val jValueMap = Map("string" -> JString(smString.getValue), "boolean" -> JBool(smBoolean.getValue))
-      val smObject = new SMObject(smValueMap.asJava)
-      val expectedJObject = {
-        val expectedFields = jValueMap.map { tup =>
-          val (key, value) = tup
-          JField(key, value)
-        }.toList
-        JObject(expectedFields)
-      }
-      smObject.toJValue() must beInstanceAndEqual[JObject](expectedJObject)
-    }
-    def smObjectThrow = forAll(genOverMaxDepth) { depth =>
-      val nested = SMObjectTestUtils.createNested(depth)
-      Try(nested.toJValue()).toEither must beLeft.like {
-        case t => t must beAnInstanceOf[SMValueDepthLimitReached]
-      }
-    }
+//    def smObject = {
+//      val smString = new SMString("abc")
+//      val smBoolean = new SMBoolean(true)
+//      val smValueMap = Map[String, SMValue[_]]("string" -> smString, "boolean" -> smBoolean)
+//      val jValueMap = Map("string" -> JString(smString.getValue), "boolean" -> JBool(smBoolean.getValue))
+//      val smObject = new SMObject(smValueMap.asJava)
+//      val expectedJObject = {
+//        val expectedFields = jValueMap.map { tup =>
+//          val (key, value) = tup
+//          JField(key, value)
+//        }.toList
+//        JObject(expectedFields)
+//      }
+//      smObject.toJValue() must beInstanceAndEqual[JObject](expectedJObject)
+//    }
+//    def smObjectThrow = forAll(genOverMaxDepth) { depth =>
+//      val nested = SMObjectTestUtils.createNested(depth)
+//      Try(nested.toJValue()).toEither must beLeft.like {
+//        case t => t must beAnInstanceOf[SMValueDepthLimitReached]
+//      }
+//    }
   }
 }

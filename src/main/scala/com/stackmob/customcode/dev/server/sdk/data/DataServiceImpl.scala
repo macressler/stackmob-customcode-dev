@@ -21,7 +21,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
 
   private val allCallsLimiter = CallLimitation(maxCallsPerRequest, TooManyDataServiceCallsException(maxCallsPerRequest, _))
 
-  private def convertSMObjectList(s: String): JList[SMObject] = {
+  private def convertSMObjectList(s: String): JavaList[SMObject] = {
     smObjectList(json.read[RawMapList](s)).asJava
   }
 
@@ -68,7 +68,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   override def createRelatedObjects(schema: String,
                                     objectId: SMValue[_],
                                     relatedField: String,
-                                    relatedObjectsToCreate: JList[SMObject]): BulkResult = {
+                                    relatedObjectsToCreate: JavaList[SMObject]): BulkResult = {
     allCallsLimiter("createRelatedObjects") {
       val objectIdString = getSMString(objectId).getValue
       val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
@@ -88,7 +88,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def readObjects(schema: String,
-                           conditions: JList[SMCondition]): JList[SMObject]= {
+                           conditions: JavaList[SMCondition]): JavaList[SMObject]= {
     allCallsLimiter("readObjects") {
       val query = smQuery(schema, conditions.asScala.toList)
       synchronous(datastore.get(query, _))
@@ -102,8 +102,8 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def readObjects(schema: String,
-                           conditions: JList[SMCondition],
-                           fields: JList[String]): JList[SMObject] = {
+                           conditions: JavaList[SMCondition],
+                           fields: JavaList[String]): JavaList[SMObject] = {
     allCallsLimiter("readObjects") {
       val query = smQuery(schema, conditions.asScala.toList, fields.asScala.toList.some)
       synchronous(datastore.get(query, _))
@@ -117,8 +117,8 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def readObjects(schema: String,
-                           conditions: JList[SMCondition],
-                           expandDepth: Int): JList[SMObject] = {
+                           conditions: JavaList[SMCondition],
+                           expandDepth: Int): JavaList[SMObject] = {
     allCallsLimiter("readObjects") {
       val query = smQuery(schema, conditions.asScala.toList)
       val options = smOptions(expandDepth)
@@ -133,9 +133,9 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def readObjects(schema: String,
-                           conditions: JList[SMCondition],
+                           conditions: JavaList[SMCondition],
                            expandDepth: Int,
-                           resultFilters: ResultFilters): JList[SMObject] = {
+                           resultFilters: ResultFilters): JavaList[SMObject] = {
     allCallsLimiter("readObjects") {
       val query = smQuery(schema,
         conditions.asScala.toList,
@@ -156,7 +156,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[InvalidSchemaException])
   override def updateObject(schema: String,
                             id: String,
-                            updateActions: JList[SMUpdate]): SMObject = {
+                            updateActions: JavaList[SMUpdate]): SMObject = {
     allCallsLimiter("updateObject") {
       synchronous(datastore.put(schema, id, smBody(updateActions.asScala.toList).asJava, _))
         .get
@@ -170,7 +170,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[InvalidSchemaException])
   override def updateObject(schema: String,
                             id: SMValue[_],
-                            updateActions: JList[SMUpdate]): SMObject = {
+                            updateActions: JavaList[SMUpdate]): SMObject = {
     updateObject(schema, getSMString(id), updateActions)
   }
 
@@ -178,8 +178,8 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[InvalidSchemaException])
   override def updateObject(schema: String,
                             id: SMValue[_],
-                            conditions: JList[SMCondition],
-                            updateActions: JList[SMUpdate]): SMObject = {
+                            conditions: JavaList[SMCondition],
+                            updateActions: JavaList[SMUpdate]): SMObject = {
     //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
@@ -187,8 +187,8 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def updateObjects(schema: String,
-                             conditions: JList[SMCondition],
-                             updateActions: JList[SMUpdate]) {
+                             conditions: JavaList[SMCondition],
+                             updateActions: JavaList[SMUpdate]) {
     //TODO: implement, needs java SDK functionality
     throw new DatastoreException("not yet implemented")
   }
@@ -198,7 +198,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   override def addRelatedObjects(schema: String,
                                  objectId: SMValue[_],
                                  relation: String,
-                                 relatedIds: JList[_ <: SMValue[_]]): SMObject = {
+                                 relatedIds: JavaList[_ <: SMValue[_]]): SMObject = {
     addRelatedObjects(schema, objectId, relation, new SMList(relatedIds))
   }
 
@@ -223,7 +223,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
-                            id: String): JBoolean = {
+                            id: String): JavaBoolean = {
     allCallsLimiter("deleteObject") {
       synchronous(datastore.delete(schema, id, _))
         .get
@@ -236,7 +236,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
-                            id: SMValue[_]): JBoolean = {
+                            id: SMValue[_]): JavaBoolean = {
     deleteObject(schema, getSMString(id))
   }
 
@@ -245,7 +245,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   override def removeRelatedObjects(schema: String,
                                     objectId: SMValue[_],
                                     relation: String,
-                                    relatedIds: JList[_ <: SMValue[_]],
+                                    relatedIds: JavaList[_ <: SMValue[_]],
                                     cascadeDelete: Boolean) {
     removeRelatedObjects(schema, objectId, relation, new SMList(relatedIds), cascadeDelete)
   }
@@ -283,7 +283,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
-  override def getObjectModelNames: JSet[String] = {
+  override def getObjectModelNames: JavaSet[String] = {
     allCallsLimiter("getObjectModelNames") {
       //TODO: implement with listapi
       throw new DatastoreException("not yet implemented")
