@@ -4,7 +4,7 @@ package server.sdk.data
 
 import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.sdkapi._
-import com.stackmob.customcode.dev.server.sdk.data.SMValueUtils._
+import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import net.liftweb.json._
 import org.specs2.matcher.{MatchResult, Matcher, Expectable}
 import scala.reflect.ClassTag
@@ -109,7 +109,8 @@ class SMValueUtilsSpecs extends Specification with ScalaCheck { def is =
 //    }
 //    def smObjectThrow = forAll(genOverMaxDepth) { depth =>
 //      val nested = SMObjectTestUtils.createNested(depth)
-//      Try(nested.toJValue()).toEither must beLeft.like {
+//      val resultJValue = nested.toJValue()
+//      Try(resultJValue).toEither must beLeft.like {
 //        case t => t must beAnInstanceOf[SMValueDepthLimitReached]
 //      }
 //    }

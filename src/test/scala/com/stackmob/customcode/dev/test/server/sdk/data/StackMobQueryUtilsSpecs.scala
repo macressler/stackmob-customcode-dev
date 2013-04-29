@@ -4,16 +4,15 @@ package server.sdk.data
 
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.mock.Mockito
-import com.stackmob.customcode.dev.server.sdk.data.StackMobQueryUtils
 import com.stackmob.sdk.api.{StackMobGeoPoint, StackMobQuery}
 import com.stackmob.sdkapi._
 import collection.JavaConverters._
 import com.stackmob.customcode.dev.server.sdk._
+import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import org.scalacheck.Prop._
 import org.scalacheck.Gen
-import StackMobQueryUtils._
 import scala.util.Try
-import com.stackmob.customcode.dev.server.{SMConditionDepthLimitReached, maxDepth}
+import com.stackmob.customcode.dev.server.SMConditionDepthLimitReached
 import org.mockito.Matchers.{eq => mockitoEq}
 
 /**

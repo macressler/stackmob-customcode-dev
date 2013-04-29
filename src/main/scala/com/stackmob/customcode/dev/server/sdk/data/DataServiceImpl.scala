@@ -9,7 +9,7 @@ import com.stackmob.sdk.api.StackMobDatastore
 import com.stackmob.sdk.exception.{StackMobHTTPResponseException, StackMobException}
 import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import collection.JavaConverters._
-import SMObjectUtils._
+import extensions._
 import net.liftweb.json._
 import simulator.CallLimitation
 import java.util.UUID
@@ -52,7 +52,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[InvalidSchemaException])
   override def createObject(schema: String, toCreate: SMObject): SMObject = {
     allCallsLimiter("createObject") {
-      val jobj = toCreate.toJObject()
+      val jobj = toCreate.toJValue()
       val jsonString = compact(render(jobj))
 
       synchronous(datastore.post(schema, jsonString, _))
@@ -72,7 +72,7 @@ class DataServiceImpl(datastore: StackMobDatastore,
     allCallsLimiter("createRelatedObjects") {
       val objectIdString = getSMString(objectId).getValue
       val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
-        relatedObj.toObjectMap
+        relatedObj.toObjectMap()
       }.toList
       synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
         .get

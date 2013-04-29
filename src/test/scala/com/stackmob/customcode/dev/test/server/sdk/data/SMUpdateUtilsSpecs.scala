@@ -1,7 +1,11 @@
-package com.stackmob.customcode.dev.test.server.sdk.data
+package com.stackmob.customcode.dev
+package test
+package server
+package sdk
+package data
 
 import org.specs2.Specification
-import com.stackmob.customcode.dev.server.sdk.data.SMUpdateUtils._
+import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import com.stackmob.sdkapi.{SMSet, SMInt, SMIncrement}
 
 /**

@@ -1,26 +1,11 @@
-package com.stackmob.customcode.dev
-package server
-package sdk
-package data
+package com.stackmob.customcode.dev.server.sdk.data.extensions
 
 import com.stackmob.sdk.api.{StackMobGeoPoint, StackMobQuery}
 import com.stackmob.sdkapi._
+import com.stackmob.customcode.dev.server._
 import collection.JavaConverters._
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk.data
- *
- * User: aaron
- * Date: 4/15/13
- * Time: 2:07 PM
- */
-
-object StackMobQueryUtils {
-
-
-
+trait StackMobQueryExtensions {
   implicit class StackMobQueryW(query: StackMobQuery) {
 
     def addSMCondition(cond: SMCondition, depth: Int = 0): StackMobQuery = {

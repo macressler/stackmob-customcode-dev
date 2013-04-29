@@ -5,8 +5,7 @@ package sdk
 import com.stackmob.sdkapi._
 import com.stackmob.sdk.api.{StackMobOptions, StackMobQueryField, StackMobQuery}
 import collection.JavaConverters._
-import data.SMUpdateUtils._
-import data.StackMobQueryUtils._
+import data.extensions._
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,6 +17,7 @@ import data.StackMobQueryUtils._
  * Time: 4:16 PM
  */
 package object data {
+
 //  def smOptions(expandDepth: Int,
 //                mbStart: Option[Int] = None,
 //                mbEnd: Option[Int] = None,

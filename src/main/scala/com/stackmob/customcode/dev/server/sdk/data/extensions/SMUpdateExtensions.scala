@@ -1,19 +1,9 @@
-package com.stackmob.customcode.dev.server.sdk.data
+package com.stackmob.customcode.dev.server.sdk.data.extensions
 
 import com.stackmob.sdkapi.{SMSet, SMIncrement, SMUpdate}
-import SMValueUtils._
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk.data
- *
- * User: aaron
- * Date: 4/15/13
- * Time: 2:05 PM
- */
-object SMUpdateUtils {
-  implicit class SMUpdateW(update: SMUpdate) {
+trait SMUpdateExtensions {
+  implicit class SMUpdateExtensions(update: SMUpdate) {
     def tup: (String, String) = {
       update match {
         case inc: SMIncrement => s"${inc.getField}[inc]" -> inc.getValue.getValue.toString
