@@ -22,8 +22,8 @@ import com.stackmob.customcode.dev.server.SMValueDepthLimitReached
  * Date: 4/25/13
  * Time: 4:26 PM
  */
-class SMValueUtilsSpecs extends Specification with ScalaCheck { def is =
-  "SMValueUtilsSpecs".title                                                                                             ^ end ^
+class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
+  "SMValueExtensionsSpecs".title                                                                                             ^ end ^
   "SMValueUtils is a class extension to convert SMValues to other formats (Object, JValue, etc)"                        ^ end ^
   "toJValue should"                                                                                                     ^
     "work properly for SMInt"                                                                                           ! ToJValue().smInt ^

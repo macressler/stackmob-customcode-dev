@@ -9,6 +9,6 @@ package com.stackmob.customcode.dev.test.server.sdk.data
  * Date: 4/25/13
  * Time: 4:26 PM
  */
-class SMObjectUtilsSpecs {
+class SMObjectExtensionsSpecs {
 
 }

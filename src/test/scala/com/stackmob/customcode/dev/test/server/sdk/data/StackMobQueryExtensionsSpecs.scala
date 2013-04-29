@@ -24,8 +24,8 @@ import org.mockito.Matchers.{eq => mockitoEq}
  * Date: 4/24/13
  * Time: 2:21 PM
  */
-class StackMobQueryUtilsSpecs extends Specification with Mockito with ScalaCheck { def is =
-  "StackMobQueryUtilsSpecs".title                                                                                       ^ end ^
+class StackMobQueryExtensionsSpecs extends Specification with Mockito with ScalaCheck { def is =
+  "StackMobQueryExtensionsSpecs".title                                                                                       ^ end ^
   "StackMobQueryUtils has implicit classes to support building StackMobQuery objects from SMConditions"                 ^ end ^
   "addCondition should work correctly with"                                                                             ^
     "SMNull(true)"                                                                                                      ! AddCondition().smIsNull ^

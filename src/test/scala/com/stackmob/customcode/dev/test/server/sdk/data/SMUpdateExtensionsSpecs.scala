@@ -17,8 +17,8 @@ import com.stackmob.sdkapi.{SMSet, SMInt, SMIncrement}
  * Date: 4/25/13
  * Time: 4:06 PM
  */
-class SMUpdateUtilsSpecs extends Specification { def is =
-  "SMUpdateUtilsSpecs".title                                                                                            ^ end ^
+class SMUpdateExtensionsSpecs extends Specification { def is =
+  "SMUpdateExtensionsSpecs".title                                                                                            ^ end ^
   "SMUpdateUtils is a class extension designed to convert an SMUpdate to a tuple representing a PUT body"               ^ end ^
   "an SMIncrement should work properly"                                                                                 ! smIncrement ^ end ^
   "an SMSet should work properly"                                                                                       ! smSet ^ end ^
