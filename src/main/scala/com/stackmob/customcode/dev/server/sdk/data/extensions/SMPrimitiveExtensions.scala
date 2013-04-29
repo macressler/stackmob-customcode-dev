@@ -6,7 +6,7 @@ import net.liftweb.json.Implicits._
 import net.liftweb.json._
 
 trait SMPrimitiveExtensions {
-  implicit class SMPrimitiveExtensions[T](val smPrimitive: SMPrimitive[T]) {
+  implicit class SMPrimitiveW[T](val smPrimitive: SMPrimitive[T]) {
     def toObject(depth: Int = 0): Object = checkDepth[Object](maxDepth) {
       smPrimitive match {
         case i: SMInt => java.lang.Long.valueOf((i: SMInt).getValue)

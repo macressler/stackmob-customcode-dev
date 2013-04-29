@@ -7,7 +7,7 @@ import net.liftweb.json._
 import collection.JavaConverters._
 
 trait SMObjectExtensions {
-  implicit class SMObjectExtensions(val smObject: SMObject) {
+  implicit class SMObjectW(val smObject: SMObject) {
     def toScalaMap: Map[String, SMValue[_]] = {
       SMObjectConverter.getMap(smObject).asScala.toMap
     }

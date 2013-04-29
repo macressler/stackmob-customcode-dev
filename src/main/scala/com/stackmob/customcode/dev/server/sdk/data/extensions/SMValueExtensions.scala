@@ -4,7 +4,7 @@ import com.stackmob.sdkapi._
 import net.liftweb.json._
 
 trait SMValueExtensions {
-  implicit class SMValueExtensions(val smValue: SMValue[_]) {
+  implicit class SMValueW(val smValue: SMValue[_]) {
     def fold[T](smPrimFn: SMPrimitive[_] => T,
                 smStringFn: SMString => T,
                 smListFn: SMList[_] => T,

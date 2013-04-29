@@ -5,7 +5,7 @@ import com.stackmob.customcode.dev.server._
 import net.liftweb.json._
 
 trait SMStringExtensions {
-  implicit class SMStringExtensions(val smString: SMString) {
+  implicit class SMStringW(val smString: SMString) {
     def toObject(depth: Int = 0): Object = checkDepth(maxDepth) {
       smString.getValue
     }

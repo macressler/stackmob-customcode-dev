@@ -6,7 +6,7 @@ import net.liftweb.json._
 import collection.JavaConverters._
 
 trait SMListExtensions {
-  implicit class SMListExtensions(val smList: SMList[_ <: SMValue[_]]) {
+  implicit class SMListW(val smList: SMList[_ <: SMValue[_]]) {
     def toObject(depth: Int = 0): Object = checkDepth(maxDepth) {
       val javaList = smList.getValue
       val objects = javaList.asScala.map { rawT =>
