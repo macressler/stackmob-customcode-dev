@@ -20,7 +20,7 @@ import java.util.UUID
 class DataServiceImplSpecs extends Specification with Mockito { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
-  "createObject should create the proper schema"                                                                        ! pending ^ end ^
+  "createObject should create the proper schema"                                                                        ! CreateObject().correctSchema ^ end ^
                                                                                                                         end
 
   private sealed trait Base {
@@ -34,10 +34,10 @@ class DataServiceImplSpecs extends Specification with Mockito { def is =
     def correctSchema = {
       val obj = smObject(Map("obj1" -> "obj1Value"))
       val res = dataService.createObject(schemaName, obj)
-//      val called = there was one(smDatastore).post(schemaName, any[String], any[StackMobRawCallback])
+      val called = there was one(smDatastore).post(schemaName, any[String], any[StackMobRawCallback])
 //      val returnCorrect = res must beEqualTo(obj)
 //      called and returnCorrect
-      true must beFalse
+      called
     }
   }
 
