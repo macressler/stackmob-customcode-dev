@@ -31,10 +31,10 @@ trait SMValueExtensions {
           str.toObject
         },
         smListFn = { lst =>
-          lst.toObject(depth + 1)
+          lst.toObject(depth)
         },
         smObjFn = { obj =>
-          obj.toObject(depth + 1)
+          obj.toObject(depth)
         }
       )
     }
