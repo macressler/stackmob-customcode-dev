@@ -5,6 +5,8 @@ package server.sdk.data
 import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.sdkapi._
 import com.stackmob.customcode.dev.server.sdk.data.extensions._
+import scalaz._
+import Scalaz._
 import net.liftweb.json._
 import collection.JavaConverters._
 import org.scalacheck.Prop.forAll
@@ -75,9 +77,14 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     }
     def smList = forAll(genUnderMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
-      val expectedJArray = createNestedJArray(depth, JArray(baseJValueList))
+      val expectedList = createNestedJArray(depth, JArray(baseJValueList)).toList
       val resJValue = smList.toJValue()
-      resJValue.values must beEqualTo(expectedJArray.values)
+      (resJValue.toList <|*|> expectedList) must beSome.like {
+        case tup => {
+          val (list1, list2) = tup
+          list1 must haveTheSameElementsAs(list2)
+        }
+      }
     }
     def smListThrow = forAll(genOverMaxDepth) { depth =>
       val nested = SMListTestUtils.createNested(depth, baseSMList)
@@ -91,12 +98,16 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
       val expectedJObject = createNestedJObject(depth, JObject(baseJFieldList), baseKey)
       val resJValue = smObject.toJValue()
-      resJValue.values must beEqualTo(expectedJObject.values)
+      (resJValue.toMap <|*|> expectedJObject.toMap) must beSome.like {
+        case tup => {
+          val (map1, map2) = tup
+          map1 must haveTheSameElementsAs(map2)
+        }
+      }
     }
     def smObjectThrow = forAll(genOverMaxDepth) { depth =>
       val nested = SMObjectTestUtils.createNested(depth, "test-base-key", baseSMObject)
-      val resultJValue = nested.toJValue()
-      Try(resultJValue).toEither must beLeft.like {
+      Try(nested.toJValue()).toEither must beLeft.like {
         case t => t must beAnInstanceOf[SMValueDepthLimitReached]
       }
     }

@@ -50,4 +50,19 @@ package object data {
       JArray(List(jValue))
     }
   }
+
+  private[data] implicit class JValueW(jValue: JValue) {
+    def toList: Option[List[Any]] = {
+      jValue match {
+        case j: JArray => Some(j.values)
+        case _ => None
+      }
+    }
+    def toMap: Option[Map[String, Any]] = {
+      jValue match {
+        case j: JObject => Some(j.values)
+        case _ => None
+      }
+    }
+  }
 }
