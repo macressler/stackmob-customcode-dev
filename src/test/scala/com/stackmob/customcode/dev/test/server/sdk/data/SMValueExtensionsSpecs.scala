@@ -134,6 +134,14 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       smStringValue.toObject must beEqualTo(smStringValue.getValue)
     }
 
+    /**
+     * unwind an Object into a java.util.List
+     * @param obj the object to unwind
+     * @param targetDepth the depth to which to unwind
+     * @param curDepth the current depth. used for recursive tracking
+     * @return Some(list) if there was a list at element 0 at each recursive depth. None otherwise. None is also
+     *         returned in cases where one or more of the recursive depths are not java.util.Lists
+     */
     private def unwindToList(obj: Object, targetDepth: Int, curDepth: Int = 0): Option[JavaList[_]] = {
       obj match {
         case lst: JavaList[_] if curDepth == targetDepth => {
@@ -155,6 +163,22 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       }
     }
 
+    /**
+     * unwind an object into a java.util.Map, if it contains maps {{targetDepth}}, each at key {{nestKey}}.
+     * the following example will return "abc" given "nest" as the nest key and 3 as the target depth
+     *
+     * {"nest": { "nest": {"nest": "abc"}}}
+     *
+     * @param obj the object to unwind
+     * @param nestKey the key to unwind on
+     * @param targetDepth the exact depth to which to unwind. the map must be no shallower than this depth
+     * @param curDepth the current depth. used for recursive tracking
+     * @return Some(map) if there was a map at each recursive depth, None otherwise. None will also be returned
+     *         in cases where one or more recursive depths don't contain a java.util.Map
+     * @note this method produces unchecked warnings, since some pattern matches use non-variable types that erasure
+     *       destroys (ie - the warnings contain "eliminated by erasure" in them). the type information is in there
+     *       so that the compiler expects String keys
+     */
     private def unwindToMap(obj: Object, nestKey: String, targetDepth: Int, curDepth: Int = 0): Option[JavaMap[String, _]] = {
       obj match {
         case map: JavaMap[String, _] if curDepth == targetDepth => {

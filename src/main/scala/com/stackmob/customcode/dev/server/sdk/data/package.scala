@@ -7,15 +7,6 @@ import com.stackmob.sdk.api.{StackMobOptions, StackMobQueryField, StackMobQuery}
 import collection.JavaConverters._
 import data.extensions._
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk.data
- *
- * User: aaron
- * Date: 3/27/13
- * Time: 4:16 PM
- */
 package object data {
 
 //  def smOptions(expandDepth: Int,
