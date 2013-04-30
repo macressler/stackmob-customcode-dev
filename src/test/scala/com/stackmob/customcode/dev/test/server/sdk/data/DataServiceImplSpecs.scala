@@ -26,9 +26,8 @@ class DataServiceImplSpecs extends Specification with Mockito { def is =
       val datastore = new MockStackMobDatastore(json.write(map).getBytes)
       val res = dataService(datastore).createObject(schemaName, obj)
       val called = datastore.numPostCalls.get must beEqualTo(1)
-//      val returnCorrect = res must beEqualTo(obj)
-//      called and returnCorrect
-      called
+      val returnCorrect = res must beEqualTo(obj)
+      called and returnCorrect
     }
   }
 
