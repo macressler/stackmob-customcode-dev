@@ -13,7 +13,6 @@ import org.scalacheck.Prop.forAll
 import scala.util.Try
 import com.stackmob.customcode.dev.server.SMValueDepthLimitReached
 import com.stackmob.customcode.dev.server.sdk.{JavaList, JavaMap}
-import scala.annotation.tailrec
 
 class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
   "SMValueExtensionsSpecs".title                                                                                             ^ end ^
@@ -55,10 +54,13 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     protected lazy val jStringValue = JString(stringValue)
 
     protected lazy val baseKey = "testBaseKey"
-    protected lazy val baseMap = Map[String, SMValue[_]](baseKey -> smBooleanValue, baseKey -> smStringValue)
-    protected lazy val baseList: List[SMValue[_]] = List(smBooleanValue, smStringValue)
-    protected lazy val baseSMObject = new SMObject(baseMap.asJava)
-    protected lazy val baseSMList = new SMList(baseList.asJava)
+    protected lazy val baseMap = Map(baseKey -> booleanValue)
+    protected lazy val baseList = List(longValue, doubleValue, booleanValue, stringValue)
+
+    protected lazy val baseSMValueMap = Map[String, SMValue[_]](baseKey -> smBooleanValue)
+    protected lazy val baseSMValueList: List[SMValue[_]] = List(smBooleanValue, smStringValue)
+    protected lazy val baseSMObject = new SMObject(baseSMValueMap.asJava)
+    protected lazy val baseSMList = new SMList(baseSMValueList.asJava)
     protected lazy val baseJValueList = List(jStringValue, jBoolValue)
     protected lazy val baseJFieldList = baseJValueList.map { jValue =>
       JField(baseKey, jValue)
@@ -156,7 +158,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       unwound must beSome.like {
         case lst => {
           val scalaList = lst.asScala.toList
-          val expectedList = baseList.map(_.getValue)
+          val expectedList = baseSMValueList.map(_.getValue)
           scalaList must haveTheSameElementsAs(expectedList)
         }
       }
