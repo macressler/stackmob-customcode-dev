@@ -41,9 +41,11 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     protected lazy val longValue = 1L
     protected lazy val smIntValue = new SMInt(longValue)
     protected lazy val smLongValue = new SMLong(longValue)
+    protected lazy val jIntValue = JInt(longValue)
 
     protected lazy val doubleValue = 1D
     protected lazy val smDoubleValue = new SMDouble(doubleValue)
+    protected lazy val jDoubleValue = JDouble(doubleValue)
 
     protected lazy val booleanValue = true
     protected lazy val smBooleanValue = new SMBoolean(booleanValue)
@@ -54,16 +56,17 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     protected lazy val jStringValue = JString(stringValue)
 
     protected lazy val baseKey = "testBaseKey"
-    protected lazy val baseMap = Map(baseKey -> booleanValue)
+    protected lazy val baseMap = Map[String, Any](baseKey -> booleanValue)
     protected lazy val baseList = List(longValue, doubleValue, booleanValue, stringValue)
 
     protected lazy val baseSMValueMap = Map[String, SMValue[_]](baseKey -> smBooleanValue)
-    protected lazy val baseSMValueList: List[SMValue[_]] = List(smBooleanValue, smStringValue)
+    protected lazy val baseSMValueList: List[SMValue[_]] = List(smLongValue, smDoubleValue, smBooleanValue, smStringValue)
     protected lazy val baseSMObject = new SMObject(baseSMValueMap.asJava)
     protected lazy val baseSMList = new SMList(baseSMValueList.asJava)
-    protected lazy val baseJValueList = List(jStringValue, jBoolValue)
-    protected lazy val baseJFieldList = baseJValueList.map { jValue =>
-      JField(baseKey, jValue)
+    protected lazy val expectedJArray = JArray(List(jIntValue, jDoubleValue, jBoolValue, jStringValue))
+    protected lazy val expectedJObject = {
+      val jFields = List(JField(baseKey, JBool(booleanValue)))
+      JObject(jFields)
     }
 
     protected def throwValueLimitReached = beLeft[Throwable].like {
@@ -89,9 +92,9 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     }
     def smList = forAll(genUnderMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
-      val expectedList = createNestedJArray(depth, JArray(baseJValueList)).toList
+      val nestedJArray = createNestedJArray(depth, expectedJArray)
       val resJValue = smList.toJValue()
-      (resJValue.toList <|*|> expectedList) must beSome.like {
+      (resJValue.toList <|*|> nestedJArray.toList) must beSome.like {
         case tup => {
           val (list1, list2) = tup
           list1 must haveTheSameElementsAs(list2)
@@ -104,9 +107,9 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     }
     def smObject = forAll(genUnderMaxDepth) { depth =>
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
-      val expectedJObject = createNestedJObject(depth, JObject(baseJFieldList), baseKey)
+      val nestedJObject = createNestedJObject(depth, expectedJObject, baseKey)
       val resJValue = smObject.toJValue()
-      (resJValue.toMap <|*|> expectedJObject.toMap) must beSome.like {
+      (resJValue.toMap <|*|> nestedJObject.toMap) must beSome.like {
         case tup => {
           val (map1, map2) = tup
           map1 must haveTheSameElementsAs(map2)
@@ -131,7 +134,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       smStringValue.toObject must beEqualTo(smStringValue.getValue)
     }
 
-    private def unwindSMList(obj: Object, targetDepth: Int, curDepth: Int = 0): Option[JavaList[_]] = {
+    private def unwindToList(obj: Object, targetDepth: Int, curDepth: Int = 0): Option[JavaList[_]] = {
       obj match {
         case lst: JavaList[_] if curDepth == targetDepth => {
           Some(lst)
@@ -140,7 +143,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
           Option(lst.get(0)).flatMap { firstElt =>
             firstElt match {
               case innerLst: JavaList[_] => {
-                unwindSMList(innerLst, targetDepth, curDepth + 1)
+                unwindToList(innerLst, targetDepth, curDepth + 1)
               }
               case _ => None
             }
@@ -152,13 +155,33 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       }
     }
 
+    private def unwindToMap(obj: Object, nestKey: String, targetDepth: Int, curDepth: Int = 0): Option[JavaMap[String, _]] = {
+      obj match {
+        case map: JavaMap[String, _] if curDepth == targetDepth => {
+          Some(map)
+        }
+        case map: JavaMap[String, _] => {
+          Option(map.get(nestKey)).flatMap { value =>
+            value match {
+              case innerMap: JavaMap[String, _] => {
+                unwindToMap(innerMap, nestKey, targetDepth, curDepth + 1)
+              }
+              case _ => None
+            }
+          }
+        }
+        case _ => None
+      }
+
+    }
+
     def smList = forAll(genUnderMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
-      val unwound = unwindSMList(smList.toObject(), depth)
+      val unwound = unwindToList(smList.toObject(), depth)
       unwound must beSome.like {
         case lst => {
           val scalaList = lst.asScala.toList
-          val expectedList = baseSMValueList.map(_.getValue)
+          val expectedList = baseList
           scalaList must haveTheSameElementsAs(expectedList)
         }
       }
@@ -169,8 +192,14 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     }
     def smObject = forAll(genUnderMaxDepth) { depth =>
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
-      //smObject.toObject() must beEqualTo(smObject.getValue)
-      true must beTrue
+      val unwound = unwindToMap(smObject.toObject(), baseKey, depth)
+      unwound must beSome.like {
+        case map => {
+          val scalaMap = map.asScala
+          val expectedMap = baseMap
+          scalaMap must haveTheSameElementsAs(expectedMap)
+        }
+      }
     }
     def smObjectThrow = forAll(genOverMaxDepth) { depth =>
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
