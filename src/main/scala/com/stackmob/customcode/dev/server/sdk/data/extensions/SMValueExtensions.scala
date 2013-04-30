@@ -48,10 +48,10 @@ trait SMValueExtensions {
           str.toJValue
         },
         smListFn = { lst =>
-          lst.toJValue(depth + 1)
+          lst.toJValue(depth)
         },
         smObjFn = { obj =>
-          obj.toJValue(depth + 1)
+          obj.toJValue(depth)
         }
       )
     }

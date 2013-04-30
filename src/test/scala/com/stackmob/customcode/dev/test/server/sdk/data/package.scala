@@ -23,7 +23,7 @@ import net.liftweb.json._
  */
 package object data {
   //don't use large numbers here because it may affect runtime of construction of nested structures
-  val genOverMaxDepth = Gen.choose(maxDepth + 1, maxDepth + 10)
+  val genOverMaxDepth = Gen.choose(maxDepth, maxDepth + 10)
   val genUnderMaxDepth = Gen.choose(0, maxDepth - 1)
 
   private[data] val datastoreExecutorService = Executors.newCachedThreadPool()

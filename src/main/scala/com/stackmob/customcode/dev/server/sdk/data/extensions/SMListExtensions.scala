@@ -19,8 +19,7 @@ trait SMListExtensions {
     def toJValue(depth: Int = 0): JValue = {
       checkDepth(depth) {
         val jValues = smList.getValue.asScala.map { rawT =>
-          val smValue = rawT.asInstanceOf[SMValue[_]]
-          smValue.toJValue(depth + 1)
+          rawT.toJValue(depth + 1)
         }.toList
         JArray(jValues)
       }

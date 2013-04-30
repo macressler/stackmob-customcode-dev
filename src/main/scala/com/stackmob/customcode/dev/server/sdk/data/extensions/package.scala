@@ -14,7 +14,7 @@ package object extensions
   with SMUpdateExtensions
   with StackMobQueryExtensions {
   private[extensions] def checkDepth[T](depth: Int)(fn: => T) = {
-    if(depth >= maxDepth) {
+    if(depth > maxDepth) {
       throw new SMValueDepthLimitReached(maxDepth)
     } else {
       fn
