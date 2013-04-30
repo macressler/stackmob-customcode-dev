@@ -12,6 +12,8 @@ import collection.JavaConverters._
 import org.scalacheck.Prop.forAll
 import scala.util.Try
 import com.stackmob.customcode.dev.server.SMValueDepthLimitReached
+import com.stackmob.customcode.dev.server.sdk.{JavaList, JavaMap}
+import scala.annotation.tailrec
 
 class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
   "SMValueExtensionsSpecs".title                                                                                             ^ end ^
@@ -126,9 +128,38 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     def smString = {
       smStringValue.toObject must beEqualTo(smStringValue.getValue)
     }
+
+    private def unwindSMList(obj: Object, targetDepth: Int, curDepth: Int = 0): Option[JavaList[_]] = {
+      obj match {
+        case lst: JavaList[_] if curDepth == targetDepth => {
+          Some(lst)
+        }
+        case lst: JavaList[_] => {
+          Option(lst.get(0)).flatMap { firstElt =>
+            firstElt match {
+              case innerLst: JavaList[_] => {
+                unwindSMList(innerLst, targetDepth, curDepth + 1)
+              }
+              case _ => None
+            }
+          }
+        }
+        case _ => {
+          None
+        }
+      }
+    }
+
     def smList = forAll(genUnderMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
-      smList.toObject() must beEqualTo(baseList)
+      val unwound = unwindSMList(smList.toObject(), depth)
+      unwound must beSome.like {
+        case lst => {
+          val scalaList = lst.asScala.toList
+          val expectedList = baseList.map(_.getValue)
+          scalaList must haveTheSameElementsAs(expectedList)
+        }
+      }
     }
     def smListThrow = forAll(genOverMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
