@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SMObjectTestUtils {
-    public static SMObject createNested(Integer depth) {
-        SMObject start = new SMObject(new HashMap<String, SMValue>());
+    private static SMObject nest(SMObject cur, String key) {
+        Map<String, SMValue> map = new HashMap<String, SMValue>();
+        map.put(key, cur);
+        return new SMObject(map);
+    }
+    public static SMObject createNested(Integer depth, String baseKey, SMObject baseObj) {
         for(int i = 0; i < depth; i++) {
-            Map<String, SMValue> newMap = new HashMap<String, SMValue>();
-            newMap.put(String.format("nested-%d", i), start);
-            start = new SMObject(newMap);
+            baseObj = nest(baseObj, baseKey);
         }
-        return start;
+        return baseObj;
     }
 }

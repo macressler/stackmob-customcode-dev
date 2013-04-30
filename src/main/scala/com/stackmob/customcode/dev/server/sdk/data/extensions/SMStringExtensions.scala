@@ -5,10 +5,10 @@ import net.liftweb.json._
 
 trait SMStringExtensions {
   implicit class SMStringW(val smString: SMString) {
-    def toObject(depth: Int = 0): Object = checkDepth(depth) {
+    def toObject: Object = {
       smString.getValue
     }
-    def toJValue(depth: Int = 0): JValue = checkDepth(depth) {
+    def toJValue: JValue = {
       JString(smString.getValue)
     }
   }

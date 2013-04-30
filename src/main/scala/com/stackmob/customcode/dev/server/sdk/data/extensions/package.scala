@@ -3,6 +3,8 @@ package server
 package sdk
 package data
 
+import com.stackmob.sdkapi.SMValue
+
 package object extensions
   extends SMValueExtensions
   with SMStringExtensions
@@ -18,4 +20,6 @@ package object extensions
       fn
     }
   }
+
+  class UnsupportedSMValueException(smValue: SMValue[_]) extends Exception(s"unsupported SMValue ${smValue.getClass.getName}")
 }

@@ -7,49 +7,51 @@ trait SMValueExtensions {
   implicit class SMValueW(val smValue: SMValue[_]) {
     def fold[T](smPrimFn: SMPrimitive[_] => T,
                 smStringFn: SMString => T,
-                smListFn: SMList[_] => T,
+                smListFn: SMList[_ <: SMValue[_]] => T,
                 smObjFn: SMObject => T): T = {
       if(smValue.isA(classOf[SMPrimitive[_]])) {
         smPrimFn(smValue.asA(classOf[SMPrimitive[_]]))
       } else if(smValue.isA(classOf[SMString])) {
         smStringFn(smValue.asA(classOf[SMString]))
-      } else if(smValue.isA(classOf[SMList[_]])) {
-        smListFn(smValue.asA(classOf[SMList[_]]))
-      } else {
+      } else if(smValue.isA(classOf[SMList[_ <: SMValue[_]]])) {
+        smListFn(smValue.asA(classOf[SMList[_ <: SMValue[_]]]))
+      } else if(smValue.isA(classOf[SMObject])) {
         smObjFn(smValue.asA(classOf[SMObject]))
+      } else {
+        throw new UnsupportedSMValueException(smValue)
       }
     }
 
     def toObject(depth: Int = 0): Object = checkDepth(depth) {
       fold(
-        smPrimFn = { prim: SMPrimitive[_] =>
-          prim.toObject(depth)
+        smPrimFn = { prim =>
+          prim.toObject
         },
-        smStringFn = { str: SMString =>
-          str.toObject(depth)
+        smStringFn = { str =>
+          str.toObject
         },
-        smListFn = { lst: SMList[_] =>
-          lst.toObject(depth)
+        smListFn = { lst =>
+          lst.toObject(depth + 1)
         },
-        smObjFn = { obj: SMObject =>
-          obj.toObject(depth)
+        smObjFn = { obj =>
+          obj.toObject(depth + 1)
         }
       )
     }
 
     def toJValue(depth: Int = 0): JValue = checkDepth(depth) {
       fold(
-        smPrimFn = { prim: SMPrimitive[_] =>
-          prim.toJValue(depth)
+        smPrimFn = { prim =>
+          prim.toJValue
         },
-        smStringFn = { str: SMString =>
-          str.toJValue(depth)
+        smStringFn = { str =>
+          str.toJValue
         },
-        smListFn = { lst: SMList[_] =>
-          lst.toJValue(depth)
+        smListFn = { lst =>
+          lst.toJValue(depth + 1)
         },
-        smObjFn = { obj: SMObject =>
-          obj.toJValue(depth)
+        smObjFn = { obj =>
+          obj.toJValue(depth + 1)
         }
       )
     }
