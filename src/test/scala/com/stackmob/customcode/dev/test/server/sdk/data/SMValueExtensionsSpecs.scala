@@ -13,15 +13,6 @@ import org.scalacheck.Prop.forAll
 import scala.util.Try
 import com.stackmob.customcode.dev.server.SMValueDepthLimitReached
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data
- *
- * User: aaron
- * Date: 4/25/13
- * Time: 4:26 PM
- */
 class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
   "SMValueExtensionsSpecs".title                                                                                             ^ end ^
   "SMValueUtils is a class extension to convert SMValues to other formats (Object, JValue, etc)"                        ^ end ^
