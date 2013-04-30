@@ -6,8 +6,6 @@ import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.sdkapi._
 import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import net.liftweb.json._
-import org.specs2.matcher.{MatchResult, Matcher, Expectable}
-import scala.reflect.ClassTag
 import collection.JavaConverters._
 import org.scalacheck.Prop.forAll
 import scala.util.Try
@@ -55,38 +53,31 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
   }
 
   private case class ToJValue() extends Base {
-    private def beInstanceAndEqual[T: ClassTag](value: T) = new Matcher[Any] {
-      override def apply[S <: Any](x: Expectable[S]): MatchResult[S] = {
-        val inst = x.value must beAnInstanceOf[T]
-        val equal = x.value must beEqualTo(value)
-        inst and equal
-      }
-    }
-
     def smInt = {
       val smInt = new SMInt(1L)
-      smInt.toJValue must beInstanceAndEqual[JInt](JInt(smInt.getValue.toInt))
+      smInt.toJValue.values must beEqualTo(smInt.getValue.toInt)
     }
     def smLong = {
       val smLong = new SMLong(1L)
-      smLong.toJValue must beInstanceAndEqual[JInt](JInt(smLong.getValue.toInt))
+      smLong.toJValue.values must beEqualTo(smLong.getValue.toInt)
     }
     def smDouble = {
       val smDouble = new SMDouble(1D)
-      smDouble.toJValue must beInstanceAndEqual[JDouble](JDouble(smDouble.getValue))
+      smDouble.toJValue.values must beEqualTo(smDouble.getValue)
     }
     def smBoolean = {
       val smBoolean = new SMBoolean(true)
-      smBoolean.toJValue must beInstanceAndEqual[JBool](JBool(smBoolean.getValue))
+      smBoolean.toJValue.values must beEqualTo(smBoolean.getValue)
     }
     def smString = {
       val smString = new SMString("abc")
-      smString.toJValue must beInstanceAndEqual[JString](JString(smString.getValue))
+      smString.toJValue.values must beEqualTo(smString.getValue)
     }
     def smList = forAll(genUnderMaxDepth) { depth =>
       val smList = SMListTestUtils.createNested(depth, baseSMList)
       val expectedJArray = createNestedJArray(depth, JArray(baseJValueList))
-      smList.toJValue() must beInstanceAndEqual[JArray](expectedJArray)
+      val resJValue = smList.toJValue()
+      resJValue.values must beEqualTo(expectedJArray.values)
     }
     def smListThrow = forAll(genOverMaxDepth) { depth =>
       val nested = SMListTestUtils.createNested(depth, baseSMList)
@@ -99,7 +90,8 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       val baseSMObject = new SMObject(baseMap.asJava)
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
       val expectedJObject = createNestedJObject(depth, JObject(baseJFieldList), baseKey)
-      smObject.toJValue() must beInstanceAndEqual[JObject](expectedJObject)
+      val resJValue = smObject.toJValue()
+      resJValue.values must beEqualTo(expectedJObject.values)
     }
     def smObjectThrow = forAll(genOverMaxDepth) { depth =>
       val nested = SMObjectTestUtils.createNested(depth, "test-base-key", baseSMObject)
