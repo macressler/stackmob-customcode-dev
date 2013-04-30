@@ -175,19 +175,16 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
      * @param curDepth the current depth. used for recursive tracking
      * @return Some(map) if there was a map at each recursive depth, None otherwise. None will also be returned
      *         in cases where one or more recursive depths don't contain a java.util.Map
-     * @note this method produces unchecked warnings, since some pattern matches use non-variable types that erasure
-     *       destroys (ie - the warnings contain "eliminated by erasure" in them). the type information is in there
-     *       so that the compiler expects String keys
      */
-    private def unwindToMap(obj: Object, nestKey: String, targetDepth: Int, curDepth: Int = 0): Option[JavaMap[String, _]] = {
+    private def unwindToMap(obj: Object, nestKey: String, targetDepth: Int, curDepth: Int = 0): Option[JavaMap[_, _]] = {
       obj match {
-        case map: JavaMap[String, _] if curDepth == targetDepth => {
+        case map: JavaMap[_, _] if curDepth == targetDepth => {
           Some(map)
         }
-        case map: JavaMap[String, _] => {
+        case map: JavaMap[_, _] => {
           Option(map.get(nestKey)).flatMap { value =>
             value match {
-              case innerMap: JavaMap[String, _] => {
+              case innerMap: JavaMap[_, _] => {
                 unwindToMap(innerMap, nestKey, targetDepth, curDepth + 1)
               }
               case _ => None
