@@ -14,7 +14,11 @@ import net.liftweb.json.{NoTypeHints, Serialization}
 package object json {
   private implicit val formats = Serialization.formats(NoTypeHints)
 
-  def read[T: Manifest](s: String) = Serialization.read[T](s)
-  def write[T <: AnyRef](t: T) = Serialization.write[T](t)
+  def read[T: Manifest](s: String) = {
+    Serialization.read[T](s)
+  }
+  def write[T <: AnyRef](t: T) = {
+    Serialization.write[T](t)
+  }
 
 }

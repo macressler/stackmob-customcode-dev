@@ -1,7 +1,6 @@
 package com.stackmob.customcode.dev.server
 
 import com.stackmob.sdk.callback.StackMobCallback
-import scalaz.concurrent.Promise
 import java.util.concurrent.LinkedBlockingQueue
 import com.stackmob.sdk.exception.StackMobException
 import scalaz.{Validation, Failure, Success}
@@ -21,15 +20,18 @@ package object sdk {
   def synchronous(fn: StackMobCallback => Unit): Promise[Validation[StackMobException, String]] = {
     val q = new LinkedBlockingQueue[Validation[StackMobException, String]](1)
     val callback = new StackMobCallback {
-      def failure(e: StackMobException) {
+      override def failure(e: StackMobException) {
         q.put(Failure(e))
       }
-      def success(responseBody: String) {
+      override def success(responseBody: String) {
         q.put(Success(responseBody))
       }
     }
-    Promise(fn(callback))
-    Promise(q.take)
+    Promise {
+      fn(callback)
+    }.map { _ =>
+      q.take
+    }
   }
 
   type JavaList[T] = java.util.List[T]
@@ -45,6 +47,7 @@ package object sdk {
       }
       m
     }
+    type Entry[X, Y] = java.util.Map.Entry[X, Y]
   }
 
   type JavaBoolean = java.lang.Boolean

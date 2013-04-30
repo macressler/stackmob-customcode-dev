@@ -7,7 +7,7 @@ import collection.JavaConverters._
 
 trait SMListExtensions {
   implicit class SMListW(val smList: SMList[_ <: SMValue[_]]) {
-    def toObject(depth: Int = 0): Object = checkDepth(maxDepth) {
+    def toObject(depth: Int = 0): Object = checkDepth(depth) {
       val javaList = smList.getValue
       val objects = javaList.asScala.map { rawT =>
         rawT.toObject(depth + 1)
@@ -15,7 +15,7 @@ trait SMListExtensions {
       objects.asJava
     }
 
-    def toJValue(depth: Int = 0): JValue = checkDepth(maxDepth) {
+    def toJValue(depth: Int = 0): JValue = checkDepth(depth) {
       val jValues = smList.getValue.asScala.map { rawT =>
         val smValue = rawT.asInstanceOf[SMValue[_]]
         smValue.toJValue(depth + 1)

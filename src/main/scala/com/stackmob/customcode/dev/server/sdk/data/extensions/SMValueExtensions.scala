@@ -21,11 +21,37 @@ trait SMValueExtensions {
     }
 
     def toObject(depth: Int = 0): Object = checkDepth(depth) {
-      fold(_.toObject(depth), _.toObject(depth), _.toObject(depth), _.toObject(depth))
+      fold(
+        smPrimFn = { prim: SMPrimitive[_] =>
+          prim.toObject(depth)
+        },
+        smStringFn = { str: SMString =>
+          str.toObject(depth)
+        },
+        smListFn = { lst: SMList[_] =>
+          lst.toObject(depth)
+        },
+        smObjFn = { obj: SMObject =>
+          obj.toObject(depth)
+        }
+      )
     }
 
     def toJValue(depth: Int = 0): JValue = checkDepth(depth) {
-      fold(_.toJValue(depth), _.toJValue(depth), _.toJValue(depth), _.toJValue(depth))
+      fold(
+        smPrimFn = { prim: SMPrimitive[_] =>
+          prim.toJValue(depth)
+        },
+        smStringFn = { str: SMString =>
+          str.toJValue(depth)
+        },
+        smListFn = { lst: SMList[_] =>
+          lst.toJValue(depth)
+        },
+        smObjFn = { obj: SMObject =>
+          obj.toJValue(depth)
+        }
+      )
     }
   }
 }

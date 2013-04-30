@@ -22,11 +22,14 @@ class DataServiceImpl(datastore: StackMobDatastore,
   private val allCallsLimiter = CallLimitation(maxCallsPerRequest, TooManyDataServiceCallsException(maxCallsPerRequest, _))
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
-    smObjectList(json.read[RawMapList](s)).asJava
+    val read = json.read[RawMapList](s)
+    val scalaObjList = smObjectList(read)
+    scalaObjList.asJava
   }
 
   private def convertSMObject(s: String): SMObject = {
-    smObject(json.read[RawMap](s))
+    val read = json.read[Map[String, String]](s)
+    smObject(read)
   }
 
   private def convert(s: StackMobException): Throwable = {
@@ -52,8 +55,8 @@ class DataServiceImpl(datastore: StackMobDatastore,
   @throws(classOf[InvalidSchemaException])
   override def createObject(schema: String, toCreate: SMObject): SMObject = {
     allCallsLimiter("createObject") {
-      val jobj = toCreate.toJValue()
-      val jsonString = compact(render(jobj))
+      val jObject = toCreate.toJValue()
+      val jsonString = compact(render(jObject))
 
       synchronous(datastore.post(schema, jsonString, _))
         .get

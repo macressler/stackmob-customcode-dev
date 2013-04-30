@@ -1,8 +1,11 @@
-package com.stackmob.customcode.dev.server.sdk.data.extensions
+package com.stackmob.customcode.dev
+package server
+package sdk
+package data
+package extensions
 
 import com.stackmob.sdkapi.{SMValue, SMObject}
 import com.stackmob.customcode.dev.server.sdk.data.SMObjectConverter
-import com.stackmob.customcode.dev.server._
 import net.liftweb.json._
 import collection.JavaConverters._
 
@@ -12,26 +15,31 @@ trait SMObjectExtensions {
       SMObjectConverter.getMap(smObject).asScala.toMap
     }
 
-    def toObject(depth: Int = 0): Object = checkDepth(maxDepth) {
+    def toObject(depth: Int = 0): Object = checkDepth(depth) {
       val javaMap = SMObjectConverter.getMap(smObject)
       javaMap.asScala.map { tup =>
         val (key, smValue) = tup
         key -> smValue.toObject(depth + 1)
       }.toMap.asJava
     }
-    def toJValue(depth: Int = 0): JValue = checkDepth(maxDepth) {
-      val scalaMap: Map[String, SMValue[_]] = smObject.toScalaMap
-      val jFields = scalaMap.map { tup =>
-        val (key, smValue) = tup
-        JField(key, smValue.toJValue(depth + 1))
+    def toJValue(depth: Int = 0): JValue = {
+      checkDepth(depth) {
+        val scalaMap: Map[String, SMValue[_]] = smObject.toScalaMap
+        val jFields = scalaMap.map { tup =>
+          val (key, smValue) = tup
+          val jValue = smValue.toJValue(depth + 1)
+          JField(key, jValue)
+        }
+        JObject(jFields.toList)
       }
-      JObject(jFields.toList)
     }
 
     def toObjectMap(depth: Int = 0): Map[String, Object] = {
-      toScalaMap.map { tup =>
-        tup._1 -> tup._2.toObject(depth + 1)
-      }.toMap
+      checkDepth(depth) {
+        toScalaMap.map { tup =>
+          tup._1 -> tup._2.toObject(depth + 1)
+        }.toMap
+      }
     }
   }
 

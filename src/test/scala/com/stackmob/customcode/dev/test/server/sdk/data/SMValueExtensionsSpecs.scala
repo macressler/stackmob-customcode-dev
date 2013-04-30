@@ -33,8 +33,8 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
     "work properly for SMString"                                                                                        ! ToJValue().smString ^
     "work properly for SMList"                                                                                          ! ToJValue().smList ^
     "throw for a deeply nested SMList"                                                                                  ! ToJValue().smListThrow ^
-//    "work properly for SMObject"                                                                                        ! ToJValue().smObject ^
-//    "throw for a deeply nested SMObject"                                                                                ! ToJValue().smObjectThrow ^
+    "work properly for SMObject"                                                                                        ! pending ^ //ToJValue().smObject ^
+    "throw for a deeply nested SMObject"                                                                                ! pending ^ //ToJValue().smObjectThrow ^
   end ^
   "toObject should"                                                                                                     ^
     "work properly for any SMPrimitive"                                                                                 ! pending ^

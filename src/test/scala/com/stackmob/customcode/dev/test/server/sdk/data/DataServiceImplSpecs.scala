@@ -4,18 +4,8 @@ import org.specs2.Specification
 import com.stackmob.sdk.api.StackMobDatastore
 import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.server.sdk.data._
-import com.stackmob.sdk.callback.StackMobRawCallback
+import com.stackmob.customcode.dev.server.json
 import java.util.UUID
-
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data
- *
- * User: aaron
- * Date: 4/24/13
- * Time: 1:57 PM
- */
 
 class DataServiceImplSpecs extends Specification with Mockito { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
@@ -24,17 +14,18 @@ class DataServiceImplSpecs extends Specification with Mockito { def is =
                                                                                                                         end
 
   private sealed trait Base {
-    protected lazy val smDatastore = mock[StackMobDatastore]
     protected implicit lazy val session = UUID.randomUUID()
-    protected lazy val dataService = new DataServiceImpl(smDatastore)
+    protected def dataService(smDatastore: StackMobDatastore) = new DataServiceImpl(smDatastore)
     protected lazy val schemaName = "test-schema"
   }
 
   private case class CreateObject() extends Base {
     def correctSchema = {
-      val obj = smObject(Map("obj1" -> "obj1Value"))
-      val res = dataService.createObject(schemaName, obj)
-      val called = there was one(smDatastore).post(schemaName, any[String], any[StackMobRawCallback])
+      val map = Map("key1" -> "val1")
+      val obj = smObject(map)
+      val datastore = new MockStackMobDatastore(json.write(map).getBytes)
+      val res = dataService(datastore).createObject(schemaName, obj)
+      val called = datastore.numPostCalls.get must beEqualTo(1)
 //      val returnCorrect = res must beEqualTo(obj)
 //      called and returnCorrect
       called
