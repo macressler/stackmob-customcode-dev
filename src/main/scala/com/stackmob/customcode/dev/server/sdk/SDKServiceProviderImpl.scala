@@ -35,7 +35,8 @@ import java.util.UUID
 
 class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush)
                             (implicit session: UUID) extends SDKServiceProvider {
-  override lazy val getDatastoreService: DatastoreService = {
+  @SuppressWarnings(Array("deprecation"))
+  override lazy val getDatastoreService = {
     //TODO: throw here unless overridden in config file
     new DatastoreServiceImpl(getDataService)
   }

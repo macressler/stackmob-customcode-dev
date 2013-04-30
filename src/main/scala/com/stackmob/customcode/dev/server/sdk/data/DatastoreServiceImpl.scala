@@ -26,7 +26,6 @@ import extensions._
 
 class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
-
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
   override def createObject(modelName: String, toCreate: JavaMap[String, Object]): JavaMap[String, Object] = {
