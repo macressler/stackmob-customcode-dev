@@ -13,13 +13,13 @@ import extensions._
 import net.liftweb.json._
 import simulator.CallLimitation
 import java.util.UUID
+import DataServiceImpl._
 
 class DataServiceImpl(datastore: StackMobDatastore,
-                      maxCallsPerRequest: Int = 5)
+                      maxCallsPerRequest: Int = DefaultMaxCallsPerRequest,
+                      allCallsLimiter: CallLimitation = DefaultCallLimitation)
                      (implicit session: UUID) extends DataService {
   override def getUserSchema = userSchemaName
-
-  private val allCallsLimiter = CallLimitation(maxCallsPerRequest, TooManyDataServiceCallsException(maxCallsPerRequest, _))
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
     val read = json.read[RawMapList](s)
@@ -291,5 +291,12 @@ class DataServiceImpl(datastore: StackMobDatastore,
       //TODO: implement with listapi
       throw new DatastoreException("not yet implemented")
     }
+  }
+}
+
+object DataServiceImpl {
+  val DefaultMaxCallsPerRequest = 5
+  val DefaultCallLimitation = {
+    CallLimitation(DefaultMaxCallsPerRequest, TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, _))
   }
 }

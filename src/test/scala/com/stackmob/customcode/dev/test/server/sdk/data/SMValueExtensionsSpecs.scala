@@ -14,8 +14,8 @@ import scala.util.Try
 import com.stackmob.customcode.dev.server.SMValueDepthLimitReached
 import com.stackmob.customcode.dev.server.sdk.{JavaList, JavaMap}
 
-class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
-  "SMValueExtensionsSpecs".title                                                                                             ^ end ^
+class SMValueExtensionsSpecs extends Specification with ScalaCheck with CustomMatchers { def is =
+  "SMValueExtensionsSpecs".title                                                                                        ^ end ^
   "SMValueUtils is a class extension to convert SMValues to other formats (Object, JValue, etc)"                        ^ end ^
   "toJValue should"                                                                                                     ^
     "work properly for SMInt"                                                                                           ! ToJValue().smInt ^
@@ -69,8 +69,8 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck { def is =
       JObject(jFields)
     }
 
-    protected def throwValueLimitReached = beLeft[Throwable].like {
-      case t => t must beAnInstanceOf[SMValueDepthLimitReached]
+    protected def throwValueLimitReached = {
+      beAThrowableLike[SMValueDepthLimitReached]
     }
   }
 
