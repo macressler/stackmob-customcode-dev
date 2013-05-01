@@ -10,19 +10,19 @@ import com.stackmob.customcode.dev.server.sdk.data._
 import com.stackmob.customcode.dev.server.json
 import java.util.UUID
 import com.stackmob.customcode.dev.server.sdk.simulator.CallLimitation
+import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import scala.util.Try
 import DataServiceImpl._
+import com.stackmob.sdkapi.SMObject
+import com.stackmob.core.{DatastoreException, InvalidSchemaException}
 
 class DataServiceImplSpecs extends Specification with Mockito with CustomMatchers { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
   "createObject should"                                                                                                 ^
-    "create the proper schema"                                                                                          ! CreateObject().correctSchema ^ end ^
-    "convert the response to an SMObject correctly"                                                                     ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
-//    "handle invalid schemas correctly"                                                                                  ! pending ^
-//    "handle other error codes correctly"                                                                                ! pending ^
-//    "throw properly when limited"                                                                                       ! CreateObject().limited ^
+    "create the proper schema"                                                                                          ! CreateObject().correctSchema ^
+    "convert the response to an SMObject correctly"                                                                     ! CreateObject().correctResponse ^
+    "handle common errors properly"                                                                                     ! CreateObject().commonErrors() ^
                                                                                                                         end ^
   "createRelatedObjects should"                                                                                         ^
     "throw if the given objectId isn't an SMString"                                                                     ! pending ^
@@ -97,27 +97,58 @@ class DataServiceImplSpecs extends Specification with Mockito with CustomMatcher
     }
 
     protected lazy val schemaName = "test-schema"
+
+    lazy val defaultSMObject = smObject(Map("a" -> "b"))
+
+    def commonErrors(obj: SMObject = defaultSMObject) = {
+      val limited = {
+        val ex = new Exception("hello world")
+        val callLim = CallLimitation(0, _ => ex)
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200))
+        val svc = dataService(datastore, maxCallsPerRequest = 1000, allCallsLimiter = callLim)
+        Try(svc.createObject(schemaName, obj)).toEither must beThrowable(ex)
+      }
+
+      val maxCallsPerReq = {
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200))
+        val svc = dataService(datastore, maxCallsPerRequest = 0)
+        //TODO: implement the calls per request limit
+        //Try(svc.createObject(schemaName, obj)).toEither must beThrowableInstance[CallsPerRequestLimitExceeded]
+        svc must beAnInstanceOf[DataServiceImpl]
+      }
+
+      val invalidSchema = {
+        val datastore = new MockStackMobDatastore(new ResponseDetails(400))
+        val svc = dataService(datastore)
+        Try(svc.createObject("invalid-schema", obj)).toEither must beThrowableInstance[InvalidSchemaException]
+      }
+
+      val otherErrCode = {
+        val datastore = new MockStackMobDatastore(new ResponseDetails(401))
+        val svc = dataService(datastore)
+        Try(svc.createObject(schemaName, obj)).toEither must beThrowableInstance[DatastoreException]
+      }
+
+      limited and maxCallsPerReq and invalidSchema and otherErrCode
+    }
   }
 
   private case class CreateObject() extends Base {
     val map = Map("key1" -> "val1")
     val obj = smObject(map)
-    val datastore = new MockStackMobDatastore(json.write(map).getBytes)
+    val datastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(map).getBytes))
 
     def correctSchema = {
       val res = dataService(datastore).createObject(schemaName, obj)
-      val called = datastore.numPostCalls.get must beEqualTo(1)
+      val called = datastore.numPostCalls must beEqualTo(1)
       val returnCorrect = res must beEqualTo(obj)
-      called and returnCorrect
+      val correctSchema = datastore.postCalls.get(0).schema must beEqualTo(schemaName)
+      called and returnCorrect and correctSchema
     }
 
-    def limited = {
-      val ex = new Exception("test ex")
-      val callLimitation = CallLimitation(0, _ => ex)
-      val svc = dataService(datastore, 0, callLimitation)
-      Try(svc.createObject(schemaName, obj)).toEither must beLeft.like {
-        case t => t must beEqualTo(ex)
-      }
+    def correctResponse = {
+      val createRes = dataService(datastore).createObject(schemaName, obj)
+      createRes.toObjectMap() must beEqualTo(map)
     }
   }
 

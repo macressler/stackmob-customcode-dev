@@ -299,4 +299,8 @@ object DataServiceImpl {
   val DefaultCallLimitation = {
     CallLimitation(DefaultMaxCallsPerRequest, TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, _))
   }
+
+  //TODO: actually throw this when a call limit is reached
+  class CallsPerRequestLimitExceeded(maxCalls: Int)
+    extends Exception(s"you tried to make more than $maxCalls datastore calls in a single custom code request")
 }

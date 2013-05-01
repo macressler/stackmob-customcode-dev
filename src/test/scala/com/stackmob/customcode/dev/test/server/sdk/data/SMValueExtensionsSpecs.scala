@@ -70,7 +70,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck with CustomMa
     }
 
     protected def throwValueLimitReached = {
-      beAThrowableLike[SMValueDepthLimitReached]
+      beThrowableInstance[SMValueDepthLimitReached]
     }
   }
 

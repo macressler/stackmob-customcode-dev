@@ -17,7 +17,7 @@ trait CustomMatchers { this: Specification =>
     case t: Throwable => t must beEqualTo(expected)
   }
 
-  protected def beAThrowableLike[T <: Throwable: ClassTag] = beLeft[Throwable].like {
+  protected def beThrowableInstance[T <: Throwable: ClassTag] = beLeft[Throwable].like {
     case t => t must beAnInstanceOf[T]
   }
 }
