@@ -67,7 +67,7 @@ class DataServiceImplSpecs extends Specification with Mockito with CustomMatcher
     "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
-  "removeRelatedObjects should"                                                                                         ! pending ^
+  "removeRelatedObjects should"                                                                                         ^
     "operate on the correct parent schema"                                                                              ! pending ^
     "throw if the given object id isn't an SMString"                                                                    ! pending ^
     "throw if any of the given related IDs aren't SMStrings"                                                            ! pending ^
