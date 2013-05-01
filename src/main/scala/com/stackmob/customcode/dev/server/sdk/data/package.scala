@@ -16,11 +16,17 @@ package object data {
 //                mbOrderings: Option[List[SMOrdering]] = None): StackMobOptions = {
 //    val opts = StackMobOptions.none().withDepthOf(expandDepth)
 //    val opts1 = mbStart.map { start => opts.mbFilters.map { filters =>
-//      opts1.withSelectedFields(filters.getFields)
-//    }.getOrElse(opts1)
-//    opts2
+//        opts1.withSelectedFields(filters.getFields)
+//      }.getOrElse(opts1)
+//      opts2
+//    }
 //  }
 
+  /**
+   * convert an OrderingDirection into a StackMobQuery.Ordering
+   * @param direction the direction from which to convert
+   * @return the resulting ordering
+   */
   private def smOrdering(direction: OrderingDirection): StackMobQuery.Ordering = {
     direction match {
       case OrderingDirection.ASCENDING => StackMobQuery.Ordering.ASCENDING
@@ -28,8 +34,11 @@ package object data {
     }
   }
 
-
-
+  /**
+   * create a body (to be used with PUT requests) from a list of SMUpdates
+   * @param updates the updates from which to create the body
+   * @return a Map representation of the body
+   */
   def smBody(updates: List[SMUpdate]): Map[String, String] = {
     updates.map { update =>
       update.tup
