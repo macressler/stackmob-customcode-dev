@@ -26,7 +26,7 @@ class DataServiceImplSpecs extends Specification with Mockito with CustomMatcher
                                                                                                                         end ^
   "createRelatedObjects should"                                                                                         ^
     "throw if the given objectId isn't an SMString"                                                                     ! pending ^
-    "decode the BulkResult correctly"                                                                                   ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "readObjects should"                                                                                                  ^
@@ -36,6 +36,7 @@ class DataServiceImplSpecs extends Specification with Mockito with CustomMatcher
     "read to the given expand depth properly"                                                                           ! pending ^
     "throw when the max expand depth is reached"                                                                        ! pending ^
     "honor all result filters properly"                                                                                 ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "updateObject should"                                                                                                 ^
@@ -43,19 +44,49 @@ class DataServiceImplSpecs extends Specification with Mockito with CustomMatcher
     "apply the right update actions"                                                                                    ! pending ^
     "only work when conditions are met"                                                                                 ! pending ^
     "throw if an SMString wasn't given"                                                                                 ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "updateObjects should"                                                                                                ^
     "work on the right schema"                                                                                          ! pending ^
     "only work when conditions are met"                                                                                 ! pending ^
     "apply the right update actions"                                                                                    ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "addRelatedObjects should"                                                                                            ^
     "work on the correct parent schema"                                                                                 ! pending ^
     "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
-    "throw if all the related IDs aren't SMStrings"                                                                     ! pending ^
+    "throw if any of the related IDs aren't SMStrings"                                                                  ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
+    "handle common errors properly"                                                                                     ! pending ^
+                                                                                                                        end ^
+  "deleteObject should"                                                                                                 ^
+    "operate on the correct schema"                                                                                     ! pending ^
+    "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
+    "handle common errors properly"                                                                                     ! pending ^
+                                                                                                                        end ^
+  "removeRelatedObjects should"                                                                                         ! pending ^
+    "operate on the correct parent schema"                                                                              ! pending ^
+    "throw if the given object id isn't an SMString"                                                                    ! pending ^
+    "throw if any of the given related IDs aren't SMStrings"                                                            ! pending ^
+    "honor the cascadeDelete flag"                                                                                      ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
+    "handle common errors properly"                                                                                     ! pending ^
+                                                                                                                        end ^
+  "countObjects should"                                                                                                 ^
+    "operate on the correct schema"                                                                                     ! pending ^
+    "decode the result properly"                                                                                        ! pending ^
+    "handle common errors properly"                                                                                     ! pending ^
+                                                                                                                        end ^
+  "getObjectModelNames should"                                                                                          ^
+    "decode the result properly"                                                                                        ! pending ^
+    "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end
+
+
+
 
   private sealed trait Base {
     protected implicit lazy val session = UUID.randomUUID()
