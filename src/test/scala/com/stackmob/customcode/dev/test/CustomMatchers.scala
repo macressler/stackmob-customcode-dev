@@ -1,6 +1,7 @@
 package com.stackmob.customcode.dev.test
 
 import org.specs2.Specification
+import scala.reflect.ClassTag
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +17,7 @@ trait CustomMatchers { this: Specification =>
     case t: Throwable => t must beEqualTo(expected)
   }
 
-  protected def beAThrowableLike[T <: Throwable] = beLeft[Throwable].like {
+  protected def beAThrowableLike[T <: Throwable: ClassTag] = beLeft[Throwable].like {
     case t => t must beAnInstanceOf[T]
   }
 }
