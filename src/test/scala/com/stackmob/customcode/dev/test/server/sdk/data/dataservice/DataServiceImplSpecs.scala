@@ -16,7 +16,8 @@ class DataServiceImplSpecs
   with Mockito
   with CustomMatchers
   with CreateObject
-  with CreateRelatedObjects { def is =
+  with CreateRelatedObjects
+  with ReadObjects { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
   "createObject should"                                                                                                 ^
@@ -34,7 +35,7 @@ class DataServiceImplSpecs
     } ^
   end ^
   "readObjects should"                                                                                                  ^
-    "read all objects correctly"                                                                                        ! pending ^
+    "read all objects correctly"                                                                                        ! ReadObjects().readsAllCorrectly ^
     "read all objects given conditions"                                                                                 ! pending ^
     "read only the requested fields"                                                                                    ! pending ^
     "read to the given expand depth properly"                                                                           ! pending ^

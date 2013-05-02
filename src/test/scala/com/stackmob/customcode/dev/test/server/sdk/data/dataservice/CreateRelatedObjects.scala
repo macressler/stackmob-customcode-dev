@@ -16,9 +16,9 @@ import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.server.sdk.data.DataServiceImpl.PostRelatedResponse
 
 private [dataservice] trait CreateRelatedObjects
-  extends Base { this: Specification with CustomMatchers with Mockito =>
+  extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
 
-  protected case class CreateRelatedObjects() extends Base {
+  protected case class CreateRelatedObjects() extends BaseTestContext {
     private lazy val (_, _, _, svc) = defaults
     private lazy val relatedObjectsToCreate = List(smObject(Map("hello" -> "world"))).asJava
     def throwNotSMString = {
@@ -31,7 +31,7 @@ private [dataservice] trait CreateRelatedObjects
       val successIdList = List(1.toString, 2.toString, 3.toString)
       val failIdList = List(4.toString, 5.toString, 6.toString)
       val bulkRes = PostRelatedResponse(successIdList, failIdList)
-      val datastore = new MockStackMobDatastore(new ResponseDetails(200, body = json.write(bulkRes).getBytes))
+      val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(200, body = json.write(bulkRes).getBytes))
       val svc = dataService(datastore)
       val bulkResult = svc.createRelatedObjects(schemaName, new SMString("helloworld"), "related", relatedObjectsToCreate)
 

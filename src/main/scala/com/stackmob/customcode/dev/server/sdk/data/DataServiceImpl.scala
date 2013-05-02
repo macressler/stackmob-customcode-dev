@@ -27,6 +27,7 @@ class DataServiceImpl(stackMob: StackMob,
   }
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
+    //TODO: needs to use a JSONR here to decode the List[Map[String, Object]]
     val read = json.read[RawMapList](s)
     val scalaObjList = smObjectList(read)
     scalaObjList.asJava
@@ -305,6 +306,7 @@ class DataServiceImpl(stackMob: StackMob,
 
 object DataServiceImpl {
   val DefaultMaxCallsPerRequest = 5
+  //since each CallLimitation contains state, we should create a new one each time it's requested
   def DefaultCallLimitation = {
     CallLimitation(DefaultMaxCallsPerRequest, TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, _))
   }

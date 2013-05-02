@@ -19,9 +19,9 @@ import com.stackmob.core.{DatastoreException, InvalidSchemaException}
 import com.stackmob.customcode.dev.server.json
 import org.specs2.mock.Mockito
 
-private [dataservice] trait Base { this: Specification with CustomMatchers with Mockito =>
+private [dataservice] trait BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
 
-  protected trait Base {
+  protected trait BaseTestContext {
     protected implicit lazy val session = UUID.randomUUID()
     protected def dataService(stackMobDatastore: StackMobDatastore,
                               maxCallsPerRequest: Int = DefaultMaxCallsPerRequest,
@@ -41,7 +41,8 @@ private [dataservice] trait Base { this: Specification with CustomMatchers with 
     protected lazy val defaults = {
       val defaultMap = Map("key1" -> "val1")
       val defaultSMObj = smObject(defaultMap)
-      val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytes))
+      val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
+        new ResponseDetails(200, Nil, json.write(defaultMap).getBytes))
       val defaultDataservice = dataService(defaultDatastore)
       (defaultMap, defaultSMObj, defaultDatastore, defaultDataservice)
     }
@@ -51,27 +52,27 @@ private [dataservice] trait Base { this: Specification with CustomMatchers with 
       val limited = {
         val ex = new Exception("hello world")
         val callLim = CallLimitation(0, _ => ex)
-        val datastore = new MockStackMobDatastore(new ResponseDetails(200))
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(200))
         val svc = dataService(datastore, maxCallsPerRequest = 1000, allCallsLimiter = callLim)
         Try(fn(svc, schemaName, obj)).toEither must beThrowable(ex)
       }
 
       val maxCallsPerReq = {
-        val datastore = new MockStackMobDatastore(new ResponseDetails(200))
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(200))
         val svc = dataService(datastore, maxCallsPerRequest = 0)
-        //TODO: implement the calls per request limit
+        //TODO: implement the calls per request limit. see https://github.com/stackmob/stackmob-customcode-localrunner/issues/29
         //Try(svc.createObject(schemaName, obj)).toEither must beThrowableInstance[CallsPerRequestLimitExceeded]
         svc must beAnInstanceOf[DataServiceImpl]
       }
 
       val invalidSchema = {
-        val datastore = new MockStackMobDatastore(new ResponseDetails(400))
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(400))
         val svc = dataService(datastore)
         Try(fn(svc, invalidSchemaName, obj)).toEither must beThrowableInstance[InvalidSchemaException]
       }
 
       val otherErrCode = {
-        val datastore = new MockStackMobDatastore(new ResponseDetails(401))
+        val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(401))
         val svc = dataService(datastore)
         Try(fn(svc, schemaName, obj)).toEither must beThrowableInstance[DatastoreException]
       }

@@ -12,9 +12,9 @@ import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import org.specs2.mock.Mockito
 
 private[dataservice] trait CreateObject
-  extends Base { this: Specification with CustomMatchers with Mockito =>
+  extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
 
-  protected case class CreateObject() extends Base {
+  protected case class CreateObject() extends BaseTestContext {
     private val (map, obj, datastore, svc) = defaults
 
     def correctSchema = {
