@@ -7,27 +7,18 @@ package dataservice
 
 import org.specs2.Specification
 import com.stackmob.customcode.dev.test.CustomMatchers
-import org.specs2.specification.Fragments
-import com.stackmob.customcode.dev.server.sdk.data._
-import com.stackmob.customcode.dev.test.server.sdk.data.{ResponseDetails, MockStackMobDatastore}
-import com.stackmob.customcode.dev.server.json
-import com.stackmob.customcode.dev.server.sdk.data.extensions._
 
-trait CreateObjectFragments extends BaseFragments { this: Specification with CustomMatchers =>
-  protected lazy val createObjectFragments: Fragments = {
-    "createObject should"                                                                                               ^
-      "create the proper schema"                                                                                        ! CreateObject().correctSchema ^
-      "convert the response to an SMObject correctly"                                                                   ! CreateObject().correctResponse ^
-      "handle common errors properly"                                                                                   ! CreateObject().commonErrors() ^
-      end
-  }
-  private case class CreateObject() extends Base {
-    val map = Map("key1" -> "val1")
-    val obj = smObject(map)
-    val datastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(map).getBytes))
+import com.stackmob.customcode.dev.server.sdk.data.extensions._
+import org.specs2.mock.Mockito
+
+private[dataservice] trait CreateObjectFragments
+  extends BaseFragments { this: Specification with CustomMatchers with Mockito =>
+
+  protected case class CreateObject() extends Base {
+    private val (map, obj, datastore, svc) = defaults
 
     def correctSchema = {
-      val res = dataService(datastore).createObject(schemaName, obj)
+      val res = svc.createObject(schemaName, obj)
       val called = datastore.numPostCalls must beEqualTo(1)
       val returnCorrect = res must beEqualTo(obj)
       val correctSchema = datastore.postCalls.get(0).schema must beEqualTo(schemaName)

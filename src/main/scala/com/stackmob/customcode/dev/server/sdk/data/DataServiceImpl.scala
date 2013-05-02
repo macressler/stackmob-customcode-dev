@@ -5,7 +5,7 @@ package data
 
 import scalaz.Scalaz._
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.StackMobDatastore
+import com.stackmob.sdk.api.{StackMob, StackMobDatastore}
 import com.stackmob.sdk.exception.{StackMobHTTPResponseException, StackMobException}
 import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import collection.JavaConverters._
@@ -15,11 +15,16 @@ import simulator.CallLimitation
 import java.util.UUID
 import DataServiceImpl._
 
-class DataServiceImpl(datastore: StackMobDatastore,
+class DataServiceImpl(stackMob: StackMob,
                       maxCallsPerRequest: Int = DefaultMaxCallsPerRequest,
                       allCallsLimiter: CallLimitation = DefaultCallLimitation)
                      (implicit session: UUID) extends DataService {
   override def getUserSchema = userSchemaName
+
+  private lazy val datastore = {
+    val s = stackMob.getDatastore
+    s
+  }
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
     val read = json.read[RawMapList](s)
@@ -77,14 +82,18 @@ class DataServiceImpl(datastore: StackMobDatastore,
       val relatedObjects = relatedObjectsToCreate.asScala.map { relatedObj =>
         relatedObj.toObjectMap()
       }.toList
-      synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _))
-        .get
-        .mapFailure(convert)
-        .map { responseStr =>
-          //TODO: fix this decoding
-          json.read[BulkResult](responseStr)
+      synchronous(datastore.postRelatedBulk(schema, objectIdString, relatedField, relatedObjects.asJava, _)).get.mapFailure { f =>
+        convert(f)
+      }.map { responseStr =>
+        val resp = json.read[PostRelatedResponse](responseStr)
+        val successSMValues = resp.succeeded.map { idStr =>
+          smValue(idStr)
         }
-        .getOrThrow
+        val failSMValues = resp.failed.map { idStr =>
+          smValue(idStr)
+        }
+        new BulkResult(successSMValues.asJava, failSMValues.asJava)
+      }.getOrThrow
     }
   }
 
@@ -303,4 +312,6 @@ object DataServiceImpl {
   //TODO: actually throw this when a call limit is reached
   class CallsPerRequestLimitExceeded(maxCalls: Int)
     extends Exception(s"you tried to make more than $maxCalls datastore calls in a single custom code request")
+
+  case class PostRelatedResponse(succeeded: List[String], failed: List[String])
 }

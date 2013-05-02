@@ -6,32 +6,33 @@ package data
 package dataservice
 
 import org.specs2.Specification
-import com.stackmob.sdk.api.StackMobDatastore
 import org.specs2.mock.Mockito
-import com.stackmob.customcode.dev.server.sdk.data._
-import com.stackmob.customcode.dev.server.json
-import java.util.UUID
-import com.stackmob.customcode.dev.server.sdk.simulator.CallLimitation
-import scala.util.Try
-import DataServiceImpl._
-import com.stackmob.sdkapi.SMObject
-import com.stackmob.core.{DatastoreException, InvalidSchemaException}
-import org.specs2.specification.Fragments
 import com.stackmob.customcode.dev.test.CustomMatchers
+import com.stackmob.sdkapi.SMString
+import collection.JavaConverters._
 
 class DataServiceImplSpecs
   extends Specification
   with Mockito
   with CustomMatchers
-  with CreateObjectFragments { def is =
+  with CreateObjectFragments
+  with CreateRelatedObjectFragments { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
-  createObjectFragments ^
+  "createObject should"                                                                                                 ^
+    "create the proper schema"                                                                                          ! CreateObject().correctSchema ^
+    "convert the response to an SMObject correctly"                                                                     ! CreateObject().correctResponse ^
+    "handle common errors properly"                                                                                     ! CreateObject().commonErrors { (svc, schemaName, obj) =>
+      svc.createObject(schemaName, obj)
+    } ^
+  end ^
   "createRelatedObjects should"                                                                                         ^
-    "throw if the given objectId isn't an SMString"                                                                     ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
-                                                                                                                        end ^
+    "throw if the given objectId isn't an SMString"                                                                     ! CreateRelatedObjects().throwNotSMString ^
+    "decode the result properly"                                                                                        ! CreateRelatedObjects().decodeResult ^
+    "handle common errors properly"                                                                                     ! CreateRelatedObjects().commonErrors { (svc, schema, obj) =>
+      svc.createRelatedObjects(schema, new SMString("hello world"), "relatedfield", List(obj).asJava)
+    } ^
+  end ^
   "readObjects should"                                                                                                  ^
     "read all objects correctly"                                                                                        ! pending ^
     "read all objects given conditions"                                                                                 ! pending ^

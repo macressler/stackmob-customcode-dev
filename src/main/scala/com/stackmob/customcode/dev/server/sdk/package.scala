@@ -17,7 +17,7 @@ import scalaz.concurrent.Promise
  */
 package object sdk {
 
-  def synchronous(fn: StackMobCallback => Unit): Promise[Validation[StackMobException, String]] = {
+  def synchronous[ResType](fn: StackMobCallback => ResType): Promise[Validation[StackMobException, String]] = {
     val q = new LinkedBlockingQueue[Validation[StackMobException, String]](1)
     val callback = new StackMobCallback {
       override def failure(e: StackMobException) {
