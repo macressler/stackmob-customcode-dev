@@ -5,7 +5,7 @@ package data
 
 import scalaz.Scalaz._
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.{StackMob, StackMobDatastore}
+import com.stackmob.sdk.api._
 import com.stackmob.sdk.exception.{StackMobHTTPResponseException, StackMobException}
 import com.stackmob.core.{InvalidSchemaException, DatastoreException}
 import collection.JavaConverters._
@@ -14,6 +14,8 @@ import net.liftweb.json._
 import simulator.CallLimitation
 import java.util.UUID
 import DataServiceImpl._
+import net.liftweb.json.scalaz.JsonScalaz._
+import scala.util.Try
 
 class DataServiceImpl(stackMob: StackMob,
                       maxCallsPerRequest: Int = DefaultMaxCallsPerRequest,
@@ -27,10 +29,26 @@ class DataServiceImpl(stackMob: StackMob,
   }
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
-    //TODO: needs to use a JSONR here to decode the List[Map[String, Object]]
-    val read = json.read[RawMapList](s)
-    val scalaObjList = smObjectList(read)
-    scalaObjList.asJava
+    val tried = for {
+      jValue <- Try {
+        parse(s)
+      }
+      read <- Try {
+        fromJSON[List[Map[String, Any]]](jValue).map { lst =>
+          lst.map { elt =>
+            elt.toMapStringObj
+          }
+        } ||| { errNel =>
+          throw new DatastoreException(s"invalid response $s")
+        }
+      }
+      objList <- Try {
+        smObjectList(read)
+      }
+    } yield {
+      objList.asJava
+    }
+    tried.get
   }
 
   private def convertSMObject(s: String): SMObject = {
@@ -316,4 +334,44 @@ object DataServiceImpl {
     extends Exception(s"you tried to make more than $maxCalls datastore calls in a single custom code request")
 
   case class PostRelatedResponse(succeeded: List[String], failed: List[String])
+
+  implicit def listJSONR[T: JSONR]: JSONR[List[T]] = new JSONR[List[T]] {
+    override def read(json: JValue): Result[List[T]] = {
+      json match {
+        case JArray(arr) => {
+          val listOfResults: List[Result[T]] = arr.map { jValue =>
+            fromJSON[T](jValue)
+          }
+          listOfResults.sequence[Result, T]
+        }
+        case other => UnexpectedJSONError(other, classOf[JArray]).failNel[List[T]]
+      }
+    }
+  }
+
+  implicit val mapJSONR: JSONR[Map[String, Any]] = new JSONR[Map[String, Any]] {
+    override def read(json: JValue): Result[Map[String, Any]] = {
+      json match {
+        case JObject(fields) => {
+          fields.map { field =>
+            field.values: (String, Any)
+          }.toMap.successNel[Error]
+        }
+        case other => {
+          UnexpectedJSONError(other, classOf[JObject]).failNel[Map[String, Any]]
+        }
+      }
+    }
+  }
+
+  implicit val listMapJSONR: JSONR[List[Map[String, Any]]] = listJSONR(mapJSONR)
+
+  implicit class MapStringAnyW(map: Map[String, Any]) {
+    def toMapStringObj: Map[String, Object] = {
+      map.map { tup =>
+        //TODO: see if there's a better way to do this without the asInstanceOf
+        tup._1 -> tup._2.asInstanceOf[Object]
+      }
+    }
+  }
 }

@@ -120,7 +120,7 @@ package object data {
     new SMObject(smValueMap(rawMap).asJava)
   }
 
-  def smObjectList(list: List[Map[String, Object]]): List[SMObject] = {
+  def smObjectList(list: RawMapList): List[SMObject] = {
     list.map { rawMap =>
       smObject(rawMap)
     }
