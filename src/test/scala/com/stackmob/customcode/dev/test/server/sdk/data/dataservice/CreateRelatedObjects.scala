@@ -15,8 +15,8 @@ import com.stackmob.customcode.dev.server.json
 import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.server.sdk.data.DataServiceImpl.PostRelatedResponse
 
-private [dataservice] trait CreateRelatedObjectFragments
-  extends BaseFragments { this: Specification with CustomMatchers with Mockito =>
+private [dataservice] trait CreateRelatedObjects
+  extends Base { this: Specification with CustomMatchers with Mockito =>
 
   protected case class CreateRelatedObjects() extends Base {
     private lazy val (_, _, _, svc) = defaults

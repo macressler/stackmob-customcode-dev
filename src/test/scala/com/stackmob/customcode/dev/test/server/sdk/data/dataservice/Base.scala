@@ -19,7 +19,7 @@ import com.stackmob.core.{DatastoreException, InvalidSchemaException}
 import com.stackmob.customcode.dev.server.json
 import org.specs2.mock.Mockito
 
-private [dataservice] trait BaseFragments { this: Specification with CustomMatchers with Mockito =>
+private [dataservice] trait Base { this: Specification with CustomMatchers with Mockito =>
 
   protected trait Base {
     protected implicit lazy val session = UUID.randomUUID()

@@ -15,8 +15,8 @@ class DataServiceImplSpecs
   extends Specification
   with Mockito
   with CustomMatchers
-  with CreateObjectFragments
-  with CreateRelatedObjectFragments { def is =
+  with CreateObject
+  with CreateRelatedObjects { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
   "createObject should"                                                                                                 ^

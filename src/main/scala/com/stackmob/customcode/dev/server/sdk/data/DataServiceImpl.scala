@@ -305,7 +305,7 @@ class DataServiceImpl(stackMob: StackMob,
 
 object DataServiceImpl {
   val DefaultMaxCallsPerRequest = 5
-  val DefaultCallLimitation = {
+  def DefaultCallLimitation = {
     CallLimitation(DefaultMaxCallsPerRequest, TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, _))
   }
 

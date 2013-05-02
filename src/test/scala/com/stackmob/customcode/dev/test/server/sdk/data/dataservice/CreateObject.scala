@@ -11,8 +11,8 @@ import com.stackmob.customcode.dev.test.CustomMatchers
 import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import org.specs2.mock.Mockito
 
-private[dataservice] trait CreateObjectFragments
-  extends BaseFragments { this: Specification with CustomMatchers with Mockito =>
+private[dataservice] trait CreateObject
+  extends Base { this: Specification with CustomMatchers with Mockito =>
 
   protected case class CreateObject() extends Base {
     private val (map, obj, datastore, svc) = defaults
