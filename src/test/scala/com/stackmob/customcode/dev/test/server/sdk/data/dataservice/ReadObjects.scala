@@ -5,7 +5,7 @@ package sdk
 package data
 package dataservice
 
-import org.specs2.Specification
+import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.customcode.dev.test.CustomMatchers
 import org.specs2.mock.Mockito
 import collection.JavaConverters._
@@ -13,17 +13,11 @@ import com.stackmob.sdkapi._
 import com.stackmob.customcode.dev.server.sdk.data._
 import com.stackmob.customcode.dev.server.json
 import com.stackmob.customcode.dev.server.sdk.EntryW
+import scala.util.Try
+import org.scalacheck.Prop.forAll
+import org.scalacheck.Gen
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data.dataservice
- *
- * User: aaron
- * Date: 5/1/13
- * Time: 6:19 PM
- */
-trait ReadObjects extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
+trait ReadObjects extends BaseTestGroup { this: Specification with CustomMatchers with Mockito with ScalaCheck =>
   case class ReadObjects() extends BaseTestContext {
     override protected def defaults = {
       val (origMap, origObj, _, _) = super.defaults
@@ -64,6 +58,17 @@ trait ReadObjects extends BaseTestGroup { this: Specification with CustomMatcher
       svc.readObjects(schemaName, List[SMCondition]().asJava, fields.asJava)
       val expectedOptions = smOptions(1, Some(fields))
       ds.getCalls.get(0).headers must haveTheSameElementsAs(expectedOptions.getHeaders.asScala.map(_.tup))
+    }
+    def expandDepth = {
+      val (_, _, ds, svc) = defaults
+      val expandDepth = 2
+      svc.readObjects(schemaName, List[SMCondition]().asJava, expandDepth)
+      val expectedOptions = smOptions(expandDepth)
+      ds.getCalls.get(0).headers must haveTheSameElementsAs(expectedOptions.getHeaders.asScala.map(_.tup))
+    }
+    def throwForHighExpandDepth = forAll(Gen.choose(4, Int.MaxValue)) { depth =>
+      val (_, _, _, svc) = defaults
+      Try(svc.readObjects(schemaName, List[SMCondition]().asJava, depth)).toEither must beThrowableInstance[IllegalArgumentException]
     }
   }
 }

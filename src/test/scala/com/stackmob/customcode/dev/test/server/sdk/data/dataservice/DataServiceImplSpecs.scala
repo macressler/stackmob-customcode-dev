@@ -5,14 +5,15 @@ package sdk
 package data
 package dataservice
 
-import org.specs2.Specification
+import org.specs2.{ScalaCheck, Specification}
 import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.test.CustomMatchers
-import com.stackmob.sdkapi.SMString
+import com.stackmob.sdkapi.{SMCondition, SMString}
 import collection.JavaConverters._
 
 class DataServiceImplSpecs
   extends Specification
+  with ScalaCheck
   with Mockito
   with CustomMatchers
   with CreateObject
@@ -38,11 +39,11 @@ class DataServiceImplSpecs
     "read all objects correctly"                                                                                        ! ReadObjects().readsAllCorrectly ^
     "read all objects given conditions"                                                                                 ! ReadObjects().readsGivenConditions ^
     "read only the requested fields"                                                                                    ! ReadObjects().requestedFields ^
-    "read to the given expand depth properly"                                                                           ! pending ^
-    "throw when the max expand depth is reached"                                                                        ! pending ^
-    "honor all result filters properly"                                                                                 ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
+    "read to the given expand depth properly"                                                                           ! ReadObjects().expandDepth ^
+    "throw when the max expand depth is reached"                                                                        ! ReadObjects().throwForHighExpandDepth ^
+    "handle common errors properly"                                                                                     ! ReadObjects().commonErrors { (svc, schema, obj) =>
+      svc.readObjects(schema, List[SMCondition]().asJava)
+    } ^
                                                                                                                         end ^
   "updateObject should"                                                                                                 ^
     "work on the proper schema and ID"                                                                                  ! pending ^

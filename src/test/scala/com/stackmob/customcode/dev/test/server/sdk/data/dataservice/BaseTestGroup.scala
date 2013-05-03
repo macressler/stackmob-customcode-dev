@@ -66,7 +66,7 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
       }
 
       val invalidSchema = {
-        val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(400))
+        val datastore = new MockStackMobDatastore(new ResponseDetails(400), new ResponseDetails(400))
         val svc = dataService(datastore)
         Try(fn(svc, invalidSchemaName, obj)).toEither must beThrowableInstance[InvalidSchemaException]
       }
