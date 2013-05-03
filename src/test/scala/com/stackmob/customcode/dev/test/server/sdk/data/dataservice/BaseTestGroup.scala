@@ -38,7 +38,7 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
     protected lazy val schemaName = "test-schema"
     protected lazy val invalidSchemaName = "test-invalid-schema"
 
-    protected lazy val defaults = {
+    protected def defaults = {
       val defaultMap = Map("key1" -> "val1")
       val defaultSMObj = smObject(defaultMap)
       val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),

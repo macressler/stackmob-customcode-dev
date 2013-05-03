@@ -4,13 +4,14 @@ package server
 package sdk
 package data
 
-import com.stackmob.sdk.api.{StackMobQuery, StackMob, StackMobDatastore}
+import com.stackmob.sdk.api.{StackMobOptions, StackMobQuery, StackMobDatastore}
 import com.stackmob.sdk.callback.StackMobRawCallback
 import com.stackmob.sdk.net.{HttpVerbWithoutPayload, HttpVerb, HttpVerbWithPayload}
 import com.stackmob.customcode.dev.server.sdk.{JavaMap, JavaList}
 import collection.JavaConverters._
 import java.util.concurrent.CopyOnWriteArrayList
 import scalaz.Scalaz._
+import com.stackmob.customcode.dev.server.sdk.EntryW
 
 private[data] class MockStackMobDatastore(getResponse: ResponseDetails, postResponse: ResponseDetails)
   extends StackMobDatastore(datastoreExecutorService,datastoreSession, "MockStackMobDatastoreHost", datastoreRedirectedCallback) {
@@ -58,7 +59,20 @@ private[data] class MockStackMobDatastore(getResponse: ResponseDetails, postResp
 
   override def get(query: StackMobQuery, cb: StackMobRawCallback) {
     cb.setDone(getVerb, requestURL, emptyRequestHeaders, "", getResponse.code, getResponse.headerEntries, getResponse.body)
-    getCalls.add(new RequestDetails(getVerb, query.getObjectName, emptyRequestHeaders.toTuples, None))
+    getCalls.add(new RequestDetails(getVerb,
+      query.getObjectName,
+      query.getHeaders.asScala.toList,
+      None,
+      query.getArguments.asScala.map(_.tup).toList))
+  }
+
+  override def get(query: StackMobQuery, options: StackMobOptions, cb: StackMobRawCallback) {
+    cb.setDone(getVerb, requestURL, emptyRequestHeaders, "", getResponse.code, getResponse.headerEntries, getResponse.body)
+    getCalls.add(new RequestDetails(getVerb,
+      query.getObjectName,
+      query.getHeaders.asScala.toList ++ options.getHeaders.asScala.map(_.tup).toList,
+      None,
+      query.getArguments.asScala.map(_.tup).toList))
   }
 }
 
@@ -68,10 +82,10 @@ private[data] class ResponseDetails(val code: Int,
   def headerEntries: JavaList[JavaMap.Entry[String, String]] = headers.toEntries
 }
 
-
 object MockStackMobDatastore {
   class RequestDetails(val verb: HttpVerb,
                        val schema: String,
                        val headers: List[(String, String)],
-                       val body: Option[String])
+                       val body: Option[String],
+                       val queryStringParams: List[(String, String)] = Nil)
 }

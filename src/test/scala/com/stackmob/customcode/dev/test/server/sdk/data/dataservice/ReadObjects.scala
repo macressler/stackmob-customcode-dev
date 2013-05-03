@@ -9,9 +9,10 @@ import org.specs2.Specification
 import com.stackmob.customcode.dev.test.CustomMatchers
 import org.specs2.mock.Mockito
 import collection.JavaConverters._
-import com.stackmob.sdkapi.SMCondition
+import com.stackmob.sdkapi._
 import com.stackmob.customcode.dev.server.sdk.data._
 import com.stackmob.customcode.dev.server.json
+import com.stackmob.customcode.dev.server.sdk.EntryW
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,14 +25,45 @@ import com.stackmob.customcode.dev.server.json
  */
 trait ReadObjects extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
   case class ReadObjects() extends BaseTestContext {
+    override protected def defaults = {
+      val (origMap, origObj, _, _) = super.defaults
+      val ds = new MockStackMobDatastore(new ResponseDetails(200, body = json.write(List(origMap)).getBytes), new ResponseDetails(200))
+      val svc = dataService(ds)
+      (origMap, origObj, ds, svc)
+    }
+
     def readsAllCorrectly = {
-      val (map, _, _, _) = defaults
-      val encodedBody = List(map)
-      val datastore = new MockStackMobDatastore(new ResponseDetails(200, body = json.write(encodedBody).getBytes), new ResponseDetails(200))
-      val svc = dataService(datastore)
+      val (map, _, _, svc) = defaults
       val res = svc.readObjects(schemaName, List[SMCondition]().asJava).asScala
       val expectedSMObjectList = smObjectList(map :: Nil)
       res must haveTheSameElementsAs(expectedSMObjectList)
+    }
+    def readsGivenConditions = {
+      val (_, _, ds, svc) = defaults
+      val field = "field"
+      val valueStr = "value"
+      val valueSM = smValue(valueStr)
+      //TODO: include geo operations and AND/OR
+      val allConditions = new SMEquals(field, valueSM) ::
+        new SMGreater(field, valueSM) ::
+        new SMGreaterOrEqual(field, valueSM) ::
+        new SMIn(field, List(valueSM).asJava) ::
+        new SMIsNull(field, new SMBoolean(true)) ::
+        new SMLess(field, valueSM) ::
+        new SMLessOrEqual(field, valueSM) ::
+        new SMNotEqual(field, valueSM) ::
+      Nil
+
+      val expectedQuery = smQuery(schemaName, allConditions)
+      svc.readObjects(schemaName, allConditions.asJava)
+      ds.getCalls.get(0).queryStringParams.toMap must haveTheSameElementsAs(expectedQuery.getArguments.asScala.map(_.tup).toMap)
+    }
+    def requestedFields = {
+      val (_, _, ds, svc) = defaults
+      val fields = List("field1")
+      svc.readObjects(schemaName, List[SMCondition]().asJava, fields.asJava)
+      val expectedOptions = smOptions(1, Some(fields))
+      ds.getCalls.get(0).headers must haveTheSameElementsAs(expectedOptions.getHeaders.asScala.map(_.tup))
     }
   }
 }

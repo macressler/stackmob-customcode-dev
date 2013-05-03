@@ -36,8 +36,8 @@ class DataServiceImplSpecs
   end ^
   "readObjects should"                                                                                                  ^
     "read all objects correctly"                                                                                        ! ReadObjects().readsAllCorrectly ^
-    "read all objects given conditions"                                                                                 ! pending ^
-    "read only the requested fields"                                                                                    ! pending ^
+    "read all objects given conditions"                                                                                 ! ReadObjects().readsGivenConditions ^
+    "read only the requested fields"                                                                                    ! ReadObjects().requestedFields ^
     "read to the given expand depth properly"                                                                           ! pending ^
     "throw when the max expand depth is reached"                                                                        ! pending ^
     "honor all result filters properly"                                                                                 ! pending ^

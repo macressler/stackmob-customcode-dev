@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import com.stackmob.sdk.exception.StackMobException
 import scalaz.{Validation, Failure, Success}
 import scalaz.concurrent.Promise
+import java.util.Map
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,6 +49,17 @@ package object sdk {
       m
     }
     type Entry[X, Y] = java.util.Map.Entry[X, Y]
+    def entry[X, Y](key: X, value: Y): Entry[X, Y] = new java.util.Map.Entry[X, Y] {
+      override lazy val getKey = key
+      override lazy val getValue = value
+      override def setValue(v: Y) = value
+    }
+    def entry[X, Y](tup: (X, Y)): Entry[X, Y] = {
+      entry(tup._1, tup._2)
+    }
+  }
+  implicit class EntryW[T, U](e: java.util.Map.Entry[T, U]) {
+    def tup = e.getKey -> e.getValue
   }
 
   type JavaBoolean = java.lang.Boolean

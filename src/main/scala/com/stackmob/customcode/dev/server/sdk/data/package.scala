@@ -69,7 +69,6 @@ package object data {
    */
   def smQuery(schemaName: String,
               conditions: List[SMCondition],
-              mbFields: Option[List[String]] = None,
               mbRange: Option[(Long, Long)] = None,
               mbOrderings: Option[List[SMOrdering]] = None): StackMobQuery = {
     val q = new StackMobQuery(schemaName)
@@ -77,17 +76,9 @@ package object data {
       agg.addSMCondition(cur)
     }
 
-    val queryWithFields = mbFields.map { fields =>
-      fields.foldLeft(queryWithConditions) { (agg, cur) =>
-        agg.field(new StackMobQueryField(cur))
-      }
-    }.getOrElse {
-      queryWithConditions
-    }
-
     val queryWithRange = mbRange.map { tup =>
       val (start, end) = tup
-      queryWithFields.isInRange(start.toInt, end.toInt)
+      queryWithConditions.isInRange(start.toInt, end.toInt)
     }.getOrElse {
       queryWithConditions
     }

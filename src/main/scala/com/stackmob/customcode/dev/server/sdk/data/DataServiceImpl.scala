@@ -136,8 +136,9 @@ class DataServiceImpl(stackMob: StackMob,
                            conditions: JavaList[SMCondition],
                            fields: JavaList[String]): JavaList[SMObject] = {
     allCallsLimiter("readObjects") {
-      val query = smQuery(schema, conditions.asScala.toList, fields.asScala.toList.some)
-      synchronous(datastore.get(query, _))
+      val query = smQuery(schema, conditions.asScala.toList)
+      val options = smOptions(1, fields.asScala.toList.some)
+      synchronous(datastore.get(query, options, _))
         .get
         .map(convertSMObjectList)
         .mapFailure(convert)
@@ -170,7 +171,6 @@ class DataServiceImpl(stackMob: StackMob,
     allCallsLimiter("readObjects") {
       val query = smQuery(schema,
         conditions.asScala.toList,
-        mbFields = resultFilters.getFields.asScala.toList.some,
         mbRange = (resultFilters.getStart -> resultFilters.getEnd).some,
         mbOrderings = resultFilters.getOrderings.asScala.toList.some)
       val options = smOptions(expandDepth, resultFilters.getFields.asScala.toList.some)
