@@ -95,15 +95,15 @@ package object data {
     queryWithOrderings
   }
 
-  private def smValueMap(rawMap: Map[String, Object]): Map[String, SMValue[_]] = {
+  private def smValueMap(rawMap: Map[String, Object], depth: Int = 0): Map[String, SMValue[_]] = {
     rawMap.map { tup =>
-      tup._1 -> smValue(tup._2)
+      tup._1 -> smValue(tup._2, depth + 1)
     }.toMap
   }
 
-  private def smValueList(rawList: List[Object]): List[SMValue[_]] = {
+  private def smValueList(rawList: List[Object], depth: Int = 0): List[SMValue[_]] = {
     rawList.map { elt =>
-      smValue(elt)
+      smValue(elt, depth + 1)
     }
   }
 
@@ -127,8 +127,8 @@ package object data {
       case d: Double => new SMDouble(d)
       case i: Int => new SMInt(i.toLong)
       case s: String => new SMString(s)
-      case l: RawList => new SMList(smValueList(l).asJava)
-      case m: RawMap => new SMObject(smValueMap(m).asJava)
+      case l: RawList => new SMList(smValueList(l, depth).asJava)
+      case m: RawMap => new SMObject(smValueMap(m, depth).asJava)
       case t => throw NoSMValueFoundException(t)
     }
   }
