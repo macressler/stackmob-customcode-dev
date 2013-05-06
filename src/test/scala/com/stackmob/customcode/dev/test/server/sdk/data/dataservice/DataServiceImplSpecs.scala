@@ -85,8 +85,9 @@ class DataServiceImplSpecs
                                                                                                                         end ^
   "countObjects should"                                                                                                 ^
     "operate on the correct schema"                                                                                     ! CountObjects().correctSchema ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
+    "handle common errors properly"                                                                                     ! CountObjects().commonErrors { (svc, schema, obj) =>
+      svc.countObjects(schema)
+    } ^
                                                                                                                         end ^
   "getObjectModelNames should"                                                                                          ^
     "throws a DatastoreException"                                                                                       ! ObjectModelNames().throws ^
