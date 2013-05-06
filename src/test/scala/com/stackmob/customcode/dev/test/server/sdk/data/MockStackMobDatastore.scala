@@ -13,20 +13,30 @@ import java.util.concurrent.CopyOnWriteArrayList
 import scalaz.Scalaz._
 import com.stackmob.customcode.dev.server.sdk.EntryW
 
-private[data] class MockStackMobDatastore(val getResponse: ResponseDetails, val postResponse: ResponseDetails)
+private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
+                                          val postResponse: ResponseDetails,
+                                          val putResponse: ResponseDetails,
+                                          val deleteResponse: ResponseDetails)
   extends StackMobDatastore(datastoreExecutorService,datastoreSession, "MockStackMobDatastoreHost", datastoreRedirectedCallback) {
   import MockStackMobDatastore._
 
   lazy val getCalls = new CopyOnWriteArrayList[RequestDetails]()
-  lazy val numGetCalls = getCalls.size()
+  def numGetCalls = getCalls.size()
 
   lazy val postCalls = new CopyOnWriteArrayList[RequestDetails]()
-  lazy val numPostCalls = postCalls.size()
+  def numPostCalls = postCalls.size()
+
+  lazy val putCalls = new CopyOnWriteArrayList[RequestDetails]()
+  def numPutcalls = putCalls.size()
+
+  lazy val deleteCalls = new CopyOnWriteArrayList[RequestDetails]()
+  def numDeleteCalls = deleteCalls.size()
 
   private val requestURL = "http://testurl.com"
   private val emptyRequestHeaders = List[JavaMap.Entry[String, String]]().asJava
   private val getVerb = HttpVerbWithoutPayload.GET
   private val postVerb = HttpVerbWithPayload.POST
+  private val putVerb = HttpVerbWithPayload.PUT
 
   override def post(schema: String,
                     body: String,
@@ -74,12 +84,25 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails, val 
       None,
       query.getArguments.asScala.map(_.tup).toList))
   }
+
+  override def put(path: String, id: String, body: Object, cb: StackMobRawCallback) {
+    cb.setDone(putVerb, requestURL, emptyRequestHeaders, body.toString, putResponse.code, putResponse.headerEntries, putResponse.body)
+    putCalls.add(new RequestDetails(putVerb,
+      s"$path/$id",
+      Nil,
+      body.toString.some,
+      Nil
+    ))
+  }
 }
 
 private[data] class ResponseDetails(val code: Int,
                                     val headers: List[(String, String)] = Nil,
                                     val body: Array[Byte] = Array[Byte]()) {
   def headerEntries: JavaList[JavaMap.Entry[String, String]] = headers.toEntries
+}
+object ResponseDetails {
+  def apply(code: Int) = new ResponseDetails(code)
 }
 
 object MockStackMobDatastore {

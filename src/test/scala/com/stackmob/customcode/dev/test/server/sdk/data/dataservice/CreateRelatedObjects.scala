@@ -31,7 +31,10 @@ private [dataservice] trait CreateRelatedObjects
       val successIdList = List(1.toString, 2.toString, 3.toString)
       val failIdList = List(4.toString, 5.toString, 6.toString)
       val bulkRes = PostRelatedResponse(successIdList, failIdList)
-      val datastore = new MockStackMobDatastore(new ResponseDetails(200), new ResponseDetails(200, body = json.write(bulkRes).getBytes))
+      val datastore = new MockStackMobDatastore(ResponseDetails(200),
+        new ResponseDetails(200, body = json.write(bulkRes).getBytes),
+        ResponseDetails(200),
+        ResponseDetails(200))
       val svc = dataService(datastore)
       val bulkResult = svc.createRelatedObjects(schemaName, new SMString("helloworld"), "related", relatedObjectsToCreate)
 

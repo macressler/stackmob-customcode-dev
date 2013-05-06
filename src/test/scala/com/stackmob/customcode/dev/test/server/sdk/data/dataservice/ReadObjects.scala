@@ -21,7 +21,11 @@ trait ReadObjects extends BaseTestGroup { this: Specification with CustomMatcher
   case class ReadObjects() extends BaseTestContext {
     override protected def defaults = {
       val (origMap, origObj, _, _) = super.defaults
-      val ds = new MockStackMobDatastore(new ResponseDetails(200, body = json.write(List(origMap)).getBytes), new ResponseDetails(200))
+      val ds = new MockStackMobDatastore(new ResponseDetails(200, body = json.write(List(origMap)).getBytes),
+        ResponseDetails(200),
+        ResponseDetails(200),
+        ResponseDetails(200)
+      )
       val svc = dataService(ds)
       (origMap, origObj, ds, svc)
     }

@@ -19,6 +19,7 @@ class DataServiceImplSpecs
   with CreateObject
   with CreateRelatedObjects
   with ReadObjects
+  with UpdateObject
   with CountObjects
   with ObjectModelNames { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
@@ -51,9 +52,11 @@ class DataServiceImplSpecs
     "work on the proper schema and ID"                                                                                  ! pending ^
     "apply the right update actions"                                                                                    ! pending ^
     "only work when conditions are met"                                                                                 ! pending ^
-    "throw if an SMString wasn't given"                                                                                 ! pending ^
+    "throw if an SMString wasn't given"                                                                                 ! UpdateObject().throwIfNoSMString ^
     "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
+    "handle common errors properly"                                                                                     ! UpdateObject().commonErrors { (svc, schema, obj) =>
+      svc.updateObject(schema, "a", List[SMUpdate]().asJava)
+    } ^
                                                                                                                         end ^
   "updateObjects should"                                                                                                ^
     "work on the right schema"                                                                                          ! pending ^
