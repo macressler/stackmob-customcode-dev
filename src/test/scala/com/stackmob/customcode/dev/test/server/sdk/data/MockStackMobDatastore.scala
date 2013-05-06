@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import scalaz.Scalaz._
 import com.stackmob.customcode.dev.server.sdk.EntryW
 
-private[data] class MockStackMobDatastore(getResponse: ResponseDetails, postResponse: ResponseDetails)
+private[data] class MockStackMobDatastore(val getResponse: ResponseDetails, val postResponse: ResponseDetails)
   extends StackMobDatastore(datastoreExecutorService,datastoreSession, "MockStackMobDatastoreHost", datastoreRedirectedCallback) {
   import MockStackMobDatastore._
 

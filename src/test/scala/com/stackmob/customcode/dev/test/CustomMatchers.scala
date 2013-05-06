@@ -2,6 +2,7 @@ package com.stackmob.customcode.dev.test
 
 import org.specs2.Specification
 import scala.reflect.ClassTag
+import org.specs2.matcher.MatchResult
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,5 +20,13 @@ trait CustomMatchers { this: Specification =>
 
   protected def beThrowableInstance[T <: Throwable: ClassTag] = beLeft[Throwable].like {
     case t => t must beAnInstanceOf[T]
+  }
+
+  protected def beThrowableInstance[T <: Throwable: ClassTag, U](fn: Throwable => MatchResult[U]) = beLeft[Throwable].like {
+    case t => {
+      val instance = t must beAnInstanceOf[T]
+      val res = fn(t)
+      instance and res
+    }
   }
 }

@@ -8,7 +8,7 @@ package dataservice
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.test.CustomMatchers
-import com.stackmob.sdkapi.{SMCondition, SMString}
+import com.stackmob.sdkapi._
 import collection.JavaConverters._
 
 class DataServiceImplSpecs
@@ -18,7 +18,9 @@ class DataServiceImplSpecs
   with CustomMatchers
   with CreateObject
   with CreateRelatedObjects
-  with ReadObjects { def is =
+  with ReadObjects
+  with CountObjects
+  with ObjectModelNames { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
   "DataService is the primary API for custom code to talk to the StackMob datastore"                                    ^ end ^
   "createObject should"                                                                                                 ^
@@ -82,12 +84,11 @@ class DataServiceImplSpecs
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "countObjects should"                                                                                                 ^
-    "operate on the correct schema"                                                                                     ! pending ^
+    "operate on the correct schema"                                                                                     ! CountObjects().correctSchema ^
     "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "getObjectModelNames should"                                                                                          ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
+    "throws a DatastoreException"                                                                                       ! ObjectModelNames().throws ^
                                                                                                                         end
 }

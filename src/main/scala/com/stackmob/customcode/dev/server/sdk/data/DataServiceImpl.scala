@@ -305,7 +305,8 @@ class DataServiceImpl(stackMob: StackMob,
     allCallsLimiter("countObjects") {
       synchronous(datastore.count(schema, _))
         .get
-        .mapFailure(convert).map { respString =>
+        .mapFailure(convert)
+        .map { respString =>
           json.read[Long](respString)
         }
         .getOrThrow
