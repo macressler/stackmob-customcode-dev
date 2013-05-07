@@ -57,6 +57,7 @@ object Dependencies {
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
   lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.0.9"
   lazy val mockito = "org.mockito" % "mockito-core" % "1.9.5" % "test"
+  lazy val pegdown = "org.pegdown" % "pegdown" % "1.2.1" % "test"
 }
 
 object CustomCodeDevBuild extends Build {
@@ -78,7 +79,8 @@ object CustomCodeDevBuild extends Build {
         slf4j,
         logbackClassic,
         mockito,
-        twitterUtil),
+        twitterUtil,
+        pegdown),
       name := "stackmob-customcode-dev",
       publish := {}
     )
