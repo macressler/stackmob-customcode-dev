@@ -191,7 +191,9 @@ class DataServiceImpl(stackMob: StackMob,
     allCallsLimiter("updateObject") {
       synchronous(datastore.put(schema, id, smBody(updateActions.asScala.toList).asJava, _))
         .get
-        .map(convertSMObject)
+        .map { resString =>
+          convertSMObject(resString)
+        }
         .mapFailure(convert)
         .getOrThrow
     }

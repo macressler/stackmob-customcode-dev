@@ -44,8 +44,8 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
       val defaultSMObj = smObject(defaultMap)
       val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
         new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
-        ResponseDetails(200),
-        ResponseDetails(200))
+        new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
+        new ResponseDetails(200, Nil, json.write(defaultMap).getBytes))
       val defaultDataservice = dataService(defaultDatastore)
       (defaultMap, defaultSMObj, defaultDatastore, defaultDataservice)
     }

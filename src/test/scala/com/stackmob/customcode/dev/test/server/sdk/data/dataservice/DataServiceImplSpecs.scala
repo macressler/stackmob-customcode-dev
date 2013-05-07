@@ -49,7 +49,7 @@ class DataServiceImplSpecs
     } ^
                                                                                                                         end ^
   "updateObject should"                                                                                                 ^
-    "work on the proper schema and ID"                                                                                  ! pending ^
+    "work on the proper schema and ID"                                                                                  ! UpdateObject().properSchemaAndId ^
     "apply the right update actions"                                                                                    ! pending ^
     "only work when conditions are met"                                                                                 ! pending ^
     "throw if an SMString wasn't given"                                                                                 ! UpdateObject().throwIfNoSMString ^
