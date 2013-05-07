@@ -189,7 +189,7 @@ class DataServiceImpl(stackMob: StackMob,
                             id: String,
                             updateActions: JavaList[SMUpdate]): SMObject = {
     allCallsLimiter("updateObject") {
-      synchronous(datastore.put(schema, id, smBody(updateActions.asScala.toList).asJava, _))
+      synchronous(datastore.put(schema, id, json.write(smBody(updateActions.asScala.toList)), _))
         .get
         .map { resString =>
           convertSMObject(resString)

@@ -50,20 +50,11 @@ class DataServiceImplSpecs
                                                                                                                         end ^
   "updateObject should"                                                                                                 ^
     "work on the proper schema and ID"                                                                                  ! UpdateObject().properSchemaAndId ^
-    "apply the right update actions"                                                                                    ! pending ^
-    "only work when conditions are met"                                                                                 ! pending ^
+    "apply the right update actions"                                                                                    ! UpdateObject().appliesRightupdates ^
     "throw if an SMString wasn't given"                                                                                 ! UpdateObject().throwIfNoSMString ^
-    "decode the result properly"                                                                                        ! pending ^
     "handle common errors properly"                                                                                     ! UpdateObject().commonErrors { (svc, schema, obj) =>
       svc.updateObject(schema, "a", List[SMUpdate]().asJava)
     } ^
-                                                                                                                        end ^
-  "updateObjects should"                                                                                                ^
-    "work on the right schema"                                                                                          ! pending ^
-    "only work when conditions are met"                                                                                 ! pending ^
-    "apply the right update actions"                                                                                    ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
                                                                                                                         end ^
   "addRelatedObjects should"                                                                                            ^
     "work on the correct parent schema"                                                                                 ! pending ^

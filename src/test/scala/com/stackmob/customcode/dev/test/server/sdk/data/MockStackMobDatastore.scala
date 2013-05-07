@@ -86,13 +86,18 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
   }
 
   override def put(path: String, id: String, body: Object, cb: StackMobRawCallback) {
+    put(path, id, body.toString, cb)
+  }
+
+  override def put(path: String, id: String, body: String, cb: StackMobRawCallback) {
     cb.setDone(putVerb, requestURL, emptyRequestHeaders, body.toString, putResponse.code, putResponse.headerEntries, putResponse.body)
-    putCalls.add(new RequestDetails(putVerb,
+    val reqDetails = new RequestDetails(putVerb,
       s"$path/$id",
       Nil,
       body.toString.some,
       Nil
-    ))
+    )
+    putCalls.add(reqDetails)
   }
 }
 
