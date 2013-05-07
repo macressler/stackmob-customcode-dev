@@ -54,7 +54,9 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
                      obj: SMObject = defaults._2) = {
       val limited = {
         val ex = new Exception("hello world")
-        val callLim = CallLimitation(0, _ => ex)
+        val callLim = CallLimitation(0) { _ =>
+          ex
+        }
         val datastore = new MockStackMobDatastore(ResponseDetails(200), ResponseDetails(200), ResponseDetails(200), ResponseDetails(200))
         val svc = dataService(datastore, maxCallsPerRequest = 1000, allCallsLimiter = callLim)
         Try(fn(svc, schemaName, obj)).toEither must beThrowable(ex)

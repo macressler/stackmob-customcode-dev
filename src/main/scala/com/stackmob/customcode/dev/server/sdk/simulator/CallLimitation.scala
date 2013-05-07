@@ -5,13 +5,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 import collection.JavaConverters._
 
 /**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk.simulator
- *
- * User: aaron
- * Date: 4/17/13
- * Time: 3:55 PM
+ * a class to limit the number of calls to an operation, and throw if the limit has been reached
+ * @param limit the max number of calls to allow
+ * @param ex a function that takes all the call names that were executed before the limit, and return an exception to
+ *           throw now that we're over the limit
  */
 class CallLimitation(val limit: Int, val ex: Seq[String] => Throwable) {
   private val count = new AtomicInteger(0)
@@ -32,14 +29,10 @@ class CallLimitation(val limit: Int, val ex: Seq[String] => Throwable) {
       op
     }
   }
-
-  def reset() {
-    count.set(0)
-  }
 }
 
 object CallLimitation {
-  def apply(limit: Int, ex: Seq[String] => Throwable): CallLimitation = {
+  def apply(limit: Int)(ex: Seq[String] => Throwable): CallLimitation = {
     new CallLimitation(limit, ex)
   }
 }

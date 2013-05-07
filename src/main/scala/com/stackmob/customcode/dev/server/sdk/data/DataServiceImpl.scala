@@ -329,7 +329,9 @@ object DataServiceImpl {
   val DefaultMaxCallsPerRequest = 5
   //since each CallLimitation contains state, we should create a new one each time it's requested
   def DefaultCallLimitation = {
-    CallLimitation(DefaultMaxCallsPerRequest, TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, _))
+    CallLimitation(DefaultMaxCallsPerRequest) { seq =>
+      TooManyDataServiceCallsException(DefaultMaxCallsPerRequest, seq)
+    }
   }
 
   //TODO: actually throw this when a call limit is reached
