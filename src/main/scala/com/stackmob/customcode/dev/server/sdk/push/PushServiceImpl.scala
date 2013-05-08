@@ -100,7 +100,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   @throws(classOf[DatastoreException])
   override def getAllExpiredTokens(clear: Boolean): JavaMap[CCTokenAndType, JavaLong] = {
     //TODO: endpoint for this in push API
-    JavaMap[CCTokenAndType, JavaLong]()
+    throw new DatastoreException("not yet implemented")
   }
 
   @Deprecated
@@ -129,7 +129,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   @throws(classOf[DatastoreException])
   override def getExpiredTokens(clear: Boolean): JavaMap[String, JavaLong] = {
     //TODO: endpoint for this in push API
-    JavaMap[String, JavaLong]()
+    throw new DatastoreException("not yet implemented")
   }
 
   @Deprecated
