@@ -6,7 +6,8 @@ import com.stackmob.newman.{Headers => NewmanHeaders}
 import com.stackmob.newman.response.{HttpResponse => NewmanHttpResponse}
 import collection.JavaConverters._
 import com.stackmob.newman.dsl._
-import java.util.concurrent.Callable
+import java.util.concurrent.{TimeUnit, Future, Callable}
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,8 +50,14 @@ package object http {
   }
 
   def callable[T](fn: => T): Callable[T] = new Callable[T] {
-    def call(): T = {
+    override def call(): T = {
       fn
+    }
+  }
+
+  implicit class JavaFutureW[T](f: Future[T]) {
+    def getSoon: Try[T] = {
+      Try(f.get(1, TimeUnit.SECONDS))
     }
   }
 }

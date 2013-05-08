@@ -4,9 +4,8 @@ package sdk
 package http
 
 import com.stackmob.sdkapi.http.HttpService
-
-import java.util.concurrent.{TimeUnit, Executors, Future}
-import com.stackmob.sdkapi.http.request.{GetRequest, PostRequest, PutRequest, DeleteRequest}
+import java.util.concurrent.{ExecutorService, TimeUnit, Executors, Future}
+import com.stackmob.sdkapi.http.request._
 import com.stackmob.sdkapi.http.response.HttpResponse
 import com.stackmob.newman.ApacheHttpClient
 import com.stackmob.newman.dsl._
@@ -14,102 +13,129 @@ import collection.JavaConverters._
 import com.stackmob.sdkapi.http.exceptions.{WhitelistException, RateLimitedException, TimeoutException, AccessDeniedException}
 import com.twitter.util.Duration
 import simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
+import HttpServiceImpl._
+import scalaz.concurrent.Strategy
 
-/**
- * Created by IntelliJ IDEA.
- * 
- * com.stackmob.customcode.server.sdk.http
- * 
- * User: aaron
- * Date: 3/28/13
- * Time: 5:37 PM
- */
-class HttpServiceImpl extends HttpService {
-  private implicit val newmanClient = new ApacheHttpClient()
+class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedThrowableFrequency,
+                      whitelistedFreq: ThrowableFrequency = DefaultWhitelistedThrowableFrequency,
+                      timeoutFreq: ThrowableFrequency = DefaultTimeoutThrowableFrequency,
+                      executorService: ExecutorService = DefaultExecutorService) extends HttpService {
 
-  private val rateLimitedFreq = ThrowableFrequency(new RateLimitedException, Frequency(1, Duration(1, TimeUnit.MINUTES)))
-  private val whitelistedFreq = ThrowableFrequency(new WhitelistException("test domain"), Frequency(1, Duration(1, TimeUnit.MINUTES)))
+  //we can use the Sequential strategy here because all async operations will be executed in the given executorService,
+  //and synchronous operations need to be blocking anyway
+  private implicit val newmanClient = new ApacheHttpClient(strategy = Strategy.Sequential)
+
   private val accessDeniedSimulator = ErrorSimulator(rateLimitedFreq :: whitelistedFreq :: Nil)
-  private val timeoutFreq = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(1, TimeUnit.MINUTES)))
   private val allSimulators = accessDeniedSimulator.and(timeoutFreq :: Nil)
 
-  private lazy val executorService = Executors.newFixedThreadPool(4)
+  private def executorService(bld: => Builder): Future[HttpResponse] = {
+    val cb = callable {
+      ccHttpResponse(bld)
+    }
+    executorService.submit(cb)
+  }
 
   override def isWhitelisted(url: String) = {
     true
+  }
+
+  //GET
+
+  private def doGetAsync(req: GetRequest): Future[HttpResponse] = executorService {
+    GET(req.getUrl)
+      .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
   }
 
   @throws(classOf[AccessDeniedException])
   @throws(classOf[TimeoutException])
   override def get(req: GetRequest): HttpResponse = {
     allSimulators {
-      ccHttpResponse {
-        GET(req.getUrl)
-          .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
-      }
+      doGetAsync(req).getSoon.get
     }
   }
 
   @throws(classOf[AccessDeniedException])
   override def getAsync(req: GetRequest): Future[HttpResponse] = {
     accessDeniedSimulator {
-      executorService.submit(callable(get(req)))
+      doGetAsync(req)
     }
+  }
+
+
+  //POST
+
+  private def doPostAsync(req: PostRequest): Future[HttpResponse] = executorService {
+    POST(req.getUrl)
+      .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
+      .addBody(req.getBody)
   }
 
   @throws(classOf[AccessDeniedException])
   @throws(classOf[TimeoutException])
   override def post(req: PostRequest): HttpResponse = {
     allSimulators {
-      ccHttpResponse {
-        POST(req.getUrl)
-          .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
-          .addBody(req.getBody)
-      }
+      doPostAsync(req).getSoon.get
     }
   }
 
   @throws(classOf[AccessDeniedException])
   override def postAsync(req: PostRequest): Future[HttpResponse] = {
     accessDeniedSimulator {
-      executorService.submit(callable(post(req)))
+      doPostAsync(req)
     }
+  }
+
+  //PUT
+
+  private def doPutAsync(req: PutRequest): Future[HttpResponse] = executorService {
+    PUT(req.getUrl)
+      .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
+      .addBody(req.getBody)
   }
 
   @throws(classOf[AccessDeniedException])
   @throws(classOf[TimeoutException])
   override def put(req: PutRequest): HttpResponse = {
     allSimulators {
-      ccHttpResponse {
-        PUT(req.getUrl)
-          .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
-          .addBody(req.getBody)
-      }
+      doPutAsync(req).getSoon.get
     }
   }
 
   @throws(classOf[AccessDeniedException])
   override def putAsync(req: PutRequest): Future[HttpResponse] = {
     accessDeniedSimulator {
-      executorService.submit(callable(put(req)))
+      doPutAsync(req)
     }
+  }
+
+
+  //DELETE
+
+  private def doDeleteAsync(req: DeleteRequest): Future[HttpResponse] = executorService {
+    DELETE(req.getUrl)
+      .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
   }
 
   @throws(classOf[AccessDeniedException])
   @throws(classOf[TimeoutException])
   override def delete(req: DeleteRequest): HttpResponse = {
     allSimulators {
-      ccHttpResponse {
-        DELETE(req.getUrl)
-          .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
-      }
+      doDeleteAsync(req).getSoon.get
     }
   }
 
   @throws(classOf[AccessDeniedException])
   override def deleteAsync(req: DeleteRequest): Future[HttpResponse] = {
     accessDeniedSimulator {
-      executorService.submit(callable(delete(req)))
+      doDeleteAsync(req)
     }
   }
+}
+
+object HttpServiceImpl {
+  lazy val DefaultRateLimitedThrowableFrequency = ThrowableFrequency(new RateLimitedException, Frequency(2, Duration(1, TimeUnit.HOURS)))
+  lazy val DefaultWhitelistedThrowableFrequency = ThrowableFrequency(new WhitelistException("test domain"), Frequency(2, Duration(1, TimeUnit.HOURS)))
+  lazy val DefaultTimeoutThrowableFrequency = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(2, TimeUnit.HOURS)))
+  //keep this lazy so a thread pool isn't created possibly needlessly
+  lazy val DefaultExecutorService = Executors.newFixedThreadPool(16)
 }
