@@ -76,10 +76,9 @@ class DataServiceImplSpecs
     } ^
   end ^
   "removeRelatedObjects should"                                                                                         ^
-    "operate on the correct parent schema"                                                                              ! pending ^
-    "throw if the given object id isn't an SMString"                                                                    ! pending ^
-    "throw if any of the given related IDs aren't SMStrings"                                                            ! pending ^
-    "honor the cascadeDelete flag"                                                                                      ! pending ^
+    "operate on the correct parent schema"                                                                              ! RemoveRelated().correctParentSchema ^
+    "throw if the given object id isn't an SMString"                                                                    ! RemoveRelated().throwIfNoObjectIdSMString ^
+    "throw if any of the given related IDs aren't SMStrings"                                                            ! RemoveRelated().throwIfNoRelatedIDSMStrings ^
     "handle common errors properly"                                                                                     ! RemoveRelated().commonErrors { (svc, schema, obj) =>
       svc.removeRelatedObjects(schema, new SMString("parent"), "children", List(smValue("child1")).asJava, true)
     } ^
