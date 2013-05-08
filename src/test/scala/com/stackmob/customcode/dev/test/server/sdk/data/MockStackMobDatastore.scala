@@ -116,7 +116,7 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
 
   override def deleteIdsFrom[T](path: String, primaryId: String, field: String, idsToDelete: JavaList[T], cascadeDeletes: Boolean, cb: StackMobRawCallback) {
     cb.setDone(deleteVerb, requestURL, emptyRequestHeaders, "", deleteResponse.code, deleteResponse.headerEntries, deleteResponse.body)
-    val reqDetails = new RequestDetails(deleteVerb, s"$path/$id", Nil, None, Nil)
+    val reqDetails = new RequestDetails(deleteVerb, s"$path/$primaryId/$field", Nil, None, Nil)
     deleteCalls.add(reqDetails)
   }
 }

@@ -30,7 +30,7 @@ private[dataservice] trait RemoveRelated extends BaseTestGroup { this: Specifica
       val relation = "rel"
       val relatedIds = List("rel1", "rel2", "rel3")
       svc.removeRelatedObjects(schemaName, smValue(objId), relation, relatedIds.map(smValue(_)).asJava, true)
-      datastore.putCalls.get(0).schema must beEqualTo(s"$schemaName/$objId/$relation")
+      datastore.deleteCalls.get(0).schema must beEqualTo(s"$schemaName/$objId/$relation")
     }
 
     def throwIfNoObjectIdSMString = {
