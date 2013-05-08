@@ -46,4 +46,10 @@ package object dev {
       }
     }
   }
+
+  implicit class StringW(inner: String) {
+    def getBytesUTF8: Array[Byte] = {
+      inner.getBytes("UTF-8")
+    }
+  }
 }

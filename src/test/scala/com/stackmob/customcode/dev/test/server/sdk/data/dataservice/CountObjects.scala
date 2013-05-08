@@ -22,7 +22,7 @@ trait CountObjects extends BaseTestGroup { this: Specification with Mockito with
   case class CountObjects() extends BaseTestContext {
     private val count = 1L
     override protected lazy val defaults = {
-      val getResponse = new ResponseDetails(200, headers = List("content-range" -> s"0-0/$count"), body = count.toString.getBytes)
+      val getResponse = new ResponseDetails(200, headers = List("content-range" -> s"0-0/$count"), body = count.toString.getBytesUTF8)
       val datastore = new MockStackMobDatastore(getResponse,
         ResponseDetails(200),
         ResponseDetails(200),

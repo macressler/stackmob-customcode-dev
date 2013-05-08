@@ -79,7 +79,7 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
   @throws(classOf[PushServiceException])
   override def getSendableDevicesForPayload(pairs: JavaMap[String, String]): JavaSet[TokenType] = {
     val serialized = json.write(pairs)
-    val numBytes = serialized.getBytes.length
+    val numBytes = serialized.getBytesUTF8.length
     Set(
       (if(numBytes > IosMaxBytes) None else Some(TokenType.iOS)),
       (if(numBytes > AndroidMaxBytes) None else Some(TokenType.Android))

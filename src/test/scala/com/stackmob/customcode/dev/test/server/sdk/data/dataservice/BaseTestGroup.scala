@@ -42,10 +42,10 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
     protected def defaults = {
       val defaultMap = Map("key1" -> "val1")
       val defaultSMObj = smObject(defaultMap)
-      val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
-        new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
-        new ResponseDetails(200, Nil, json.write(defaultMap).getBytes),
-        new ResponseDetails(200, Nil, "true".getBytes))
+      val defaultDatastore = new MockStackMobDatastore(new ResponseDetails(200, Nil, json.write(defaultMap).getBytesUTF8),
+        new ResponseDetails(200, Nil, json.write(defaultMap).getBytesUTF8),
+        new ResponseDetails(200, Nil, json.write(defaultMap).getBytesUTF8),
+        new ResponseDetails(200, Nil, "true".getBytesUTF8))
       val defaultDataservice = dataService(defaultDatastore)
       (defaultMap, defaultSMObj, defaultDatastore, defaultDataservice)
     }
