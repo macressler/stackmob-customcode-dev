@@ -37,6 +37,7 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
   private val getVerb = HttpVerbWithoutPayload.GET
   private val postVerb = HttpVerbWithPayload.POST
   private val putVerb = HttpVerbWithPayload.PUT
+  private val deleteVerb = HttpVerbWithoutPayload.DELETE
 
   override def post(schema: String,
                     body: String,
@@ -98,6 +99,25 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
       Nil
     )
     putCalls.add(reqDetails)
+  }
+
+  override def putRelated[T](path: String, primaryId: String, relatedField: String, relatedIds: JavaList[T], cb: StackMobRawCallback) {
+    cb.setDone(putVerb, requestURL, emptyRequestHeaders, "", putResponse.code, putResponse.headerEntries, putResponse.body)
+    val reqDetails = new RequestDetails(putVerb, s"$path/$id", Nil, None, Nil)
+    putCalls.add(reqDetails)
+  }
+
+
+    override def delete(path: String, id: String, cb: StackMobRawCallback) {
+    cb.setDone(deleteVerb, requestURL, emptyRequestHeaders, "", deleteResponse.code, deleteResponse.headerEntries, deleteResponse.body)
+    val reqDetails = new RequestDetails(deleteVerb, s"$path/$id", Nil, None, Nil)
+    deleteCalls.add(reqDetails)
+  }
+
+  override def deleteIdsFrom[T](path: String, primaryId: String, field: String, idsToDelete: JavaList[T], cascadeDeletes: Boolean, cb: StackMobRawCallback) {
+    cb.setDone(deleteVerb, requestURL, emptyRequestHeaders, "", deleteResponse.code, deleteResponse.headerEntries, deleteResponse.body)
+    val reqDetails = new RequestDetails(deleteVerb, s"$path/$id", Nil, None, Nil)
+    deleteCalls.add(reqDetails)
   }
 }
 

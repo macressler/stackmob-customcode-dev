@@ -10,6 +10,7 @@ import org.specs2.mock.Mockito
 import com.stackmob.customcode.dev.test.CustomMatchers
 import com.stackmob.sdkapi._
 import collection.JavaConverters._
+import com.stackmob.customcode.dev.server.sdk.data.smValue
 
 class DataServiceImplSpecs
   extends Specification
@@ -20,6 +21,9 @@ class DataServiceImplSpecs
   with CreateRelatedObjects
   with ReadObjects
   with UpdateObject
+  with DeleteObject
+  with AddRelated
+  with RemoveRelated
   with CountObjects
   with ObjectModelNames { def is =
   "DataServiceImplSpecs".title                                                                                          ^ end ^
@@ -47,7 +51,7 @@ class DataServiceImplSpecs
     "handle common errors properly"                                                                                     ! ReadObjects().commonErrors { (svc, schema, obj) =>
       svc.readObjects(schema, List[SMCondition]().asJava)
     } ^
-                                                                                                                        end ^
+  end ^
   "updateObject should"                                                                                                 ^
     "work on the proper schema and ID"                                                                                  ! UpdateObject().properSchemaAndId ^
     "apply the right update actions"                                                                                    ! UpdateObject().appliesRightupdates ^
@@ -55,35 +59,38 @@ class DataServiceImplSpecs
     "handle common errors properly"                                                                                     ! UpdateObject().commonErrors { (svc, schema, obj) =>
       svc.updateObject(schema, "a", List[SMUpdate]().asJava)
     } ^
-                                                                                                                        end ^
+  end ^
   "addRelatedObjects should"                                                                                            ^
     "work on the correct parent schema"                                                                                 ! pending ^
     "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
     "throw if any of the related IDs aren't SMStrings"                                                                  ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
-                                                                                                                        end ^
+    "handle common errors properly"                                                                                     ! AddRelated().commonErrors { (svc, schema, obj) =>
+      svc.addRelatedObjects(schema, new SMString("parent"), "children", List(smValue("child1")).asJava)
+    } ^
+  end ^
   "deleteObject should"                                                                                                 ^
     "operate on the correct schema"                                                                                     ! pending ^
     "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
-                                                                                                                        end ^
+    "handle common errors properly"                                                                                     ! DeleteObject().commonErrors { (svc, schema, obj) =>
+      svc.deleteObject(schema, "id")
+    } ^
+  end ^
   "removeRelatedObjects should"                                                                                         ^
     "operate on the correct parent schema"                                                                              ! pending ^
     "throw if the given object id isn't an SMString"                                                                    ! pending ^
     "throw if any of the given related IDs aren't SMStrings"                                                            ! pending ^
     "honor the cascadeDelete flag"                                                                                      ! pending ^
-    "decode the result properly"                                                                                        ! pending ^
-    "handle common errors properly"                                                                                     ! pending ^
-                                                                                                                        end ^
+    "handle common errors properly"                                                                                     ! RemoveRelated().commonErrors { (svc, schema, obj) =>
+      svc.removeRelatedObjects(schema, new SMString("parent"), "children", List(smValue("child1")).asJava, true)
+    } ^
+  end ^
   "countObjects should"                                                                                                 ^
     "operate on the correct schema"                                                                                     ! CountObjects().correctSchema ^
     "handle common errors properly"                                                                                     ! CountObjects().commonErrors { (svc, schema, obj) =>
       svc.countObjects(schema)
     } ^
-                                                                                                                        end ^
+  end ^
   "getObjectModelNames should"                                                                                          ^
     "throws a DatastoreException"                                                                                       ! ObjectModelNames().throws ^
-                                                                                                                        end
+  end
 }
