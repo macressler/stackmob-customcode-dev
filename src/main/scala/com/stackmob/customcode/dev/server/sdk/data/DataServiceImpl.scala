@@ -270,7 +270,7 @@ class DataServiceImpl(stackMob: StackMob,
   @throws(classOf[InvalidSchemaException])
   override def deleteObject(schema: String,
                             id: SMValue[_]): JavaBoolean = {
-    deleteObject(schema, getSMString(id))
+    deleteObject(schema, getSMString(id).getValue)
   }
 
   @throws(classOf[DatastoreException])

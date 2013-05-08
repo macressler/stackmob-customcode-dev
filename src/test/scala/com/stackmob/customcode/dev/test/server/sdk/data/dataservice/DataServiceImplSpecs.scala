@@ -61,16 +61,16 @@ class DataServiceImplSpecs
     } ^
   end ^
   "addRelatedObjects should"                                                                                            ^
-    "work on the correct parent schema"                                                                                 ! pending ^
-    "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
-    "throw if any of the related IDs aren't SMStrings"                                                                  ! pending ^
+    "work on the correct schemas and IDs"                                                                               ! AddRelated().correctParentSchema ^
+    "throw if an SMString wasn't given for the object ID"                                                               ! AddRelated().throwIfNoObjectIdSMString ^
+    "throw if any of the related IDs aren't SMStrings"                                                                  ! AddRelated().throwIfNoRelatedIdSMString ^
     "handle common errors properly"                                                                                     ! AddRelated().commonErrors { (svc, schema, obj) =>
       svc.addRelatedObjects(schema, new SMString("parent"), "children", List(smValue("child1")).asJava)
     } ^
   end ^
   "deleteObject should"                                                                                                 ^
-    "operate on the correct schema"                                                                                     ! pending ^
-    "throw if an SMString wasn't given for the object ID"                                                               ! pending ^
+    "operate on the correct schema"                                                                                     ! DeleteObject().worksOnSchema ^
+    "throw if an SMString wasn't given for the object ID"                                                               ! DeleteObject().throwIfNoObjectIDSMString ^
     "handle common errors properly"                                                                                     ! DeleteObject().commonErrors { (svc, schema, obj) =>
       svc.deleteObject(schema, "id")
     } ^

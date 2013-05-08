@@ -103,7 +103,7 @@ private[data] class MockStackMobDatastore(val getResponse: ResponseDetails,
 
   override def putRelated[T](path: String, primaryId: String, relatedField: String, relatedIds: JavaList[T], cb: StackMobRawCallback) {
     cb.setDone(putVerb, requestURL, emptyRequestHeaders, "", putResponse.code, putResponse.headerEntries, putResponse.body)
-    val reqDetails = new RequestDetails(putVerb, s"$path/$id", Nil, None, Nil)
+    val reqDetails = new RequestDetails(putVerb, s"$path/$primaryId/$relatedField", Nil, None, Nil)
     putCalls.add(reqDetails)
   }
 

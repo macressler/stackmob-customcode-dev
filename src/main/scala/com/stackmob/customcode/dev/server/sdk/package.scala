@@ -1,9 +1,10 @@
 package com.stackmob.customcode.dev.server
 
 import com.stackmob.sdk.callback.StackMobCallback
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.{TimeUnit, LinkedBlockingQueue}
 import com.stackmob.sdk.exception.StackMobException
 import scalaz.{Validation, Failure, Success}
+import scalaz.Scalaz._
 import scalaz.concurrent.Promise
 import java.util.Map
 
@@ -17,8 +18,9 @@ import java.util.Map
  * Time: 4:45 PM
  */
 package object sdk {
-
-  def synchronous[ResType](fn: StackMobCallback => ResType): Promise[Validation[StackMobException, String]] = {
+  val DefaultTimeoutException = new StackMobException("datastore didn't return in time")
+  def synchronous[ResType](fn: StackMobCallback => ResType)
+                          (implicit timeoutException: StackMobException = DefaultTimeoutException): Promise[Validation[StackMobException, String]] = {
     val q = new LinkedBlockingQueue[Validation[StackMobException, String]](1)
     val callback = new StackMobCallback {
       override def failure(e: StackMobException) {
@@ -30,8 +32,15 @@ package object sdk {
     }
     Promise {
       fn(callback)
-    }.map { _ =>
-      q.take
+    }.map { _: ResType =>
+      for {
+        mbPolled <- q.poll(1000, TimeUnit.SECONDS)
+        polled <- Option(mbPolled).toSuccess {
+          timeoutException
+        }
+      } yield {
+        polled
+      }
     }
   }
 
