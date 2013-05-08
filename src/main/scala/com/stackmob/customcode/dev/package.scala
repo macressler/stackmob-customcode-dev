@@ -25,4 +25,25 @@ package object dev {
 
   type ConfigMap = Map[ConfigKey, ConfigVal]
   val DefaultConfig: ConfigMap = Map(EnableDatastoreService -> Enabled(false))
+
+  implicit class TryW[T](inner: Try[T]) {
+    def toEither: Either[Throwable, T] = {
+      inner match {
+        case Success(successVal) => Right(successVal)
+        case Failure(throwable) => Left(throwable)
+      }
+    }
+    def mapFailure(fn: PartialFunction[Throwable, Throwable]): Try[T] = {
+      inner match {
+        case s@Success(_) => s
+        case Failure(t) => {
+          if(fn.isDefinedAt(t)) {
+            Failure(fn(t))
+          } else {
+            Failure(t)
+          }
+        }
+      }
+    }
+  }
 }

@@ -15,24 +15,24 @@ import com.twitter.util.Duration
 import simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
 import HttpServiceImpl._
 import scalaz.concurrent.Strategy
+import com.google.common.util.concurrent.SettableFuture
 
 class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedThrowableFrequency,
                       whitelistedFreq: ThrowableFrequency = DefaultWhitelistedThrowableFrequency,
                       timeoutFreq: ThrowableFrequency = DefaultTimeoutThrowableFrequency,
                       executorService: ExecutorService = DefaultExecutorService) extends HttpService {
 
-  //we can use the Sequential strategy here because all async operations will be executed in the given executorService,
-  //and synchronous operations need to be blocking anyway
-  private implicit val newmanClient = new ApacheHttpClient(strategy = Strategy.Sequential)
+  private implicit val newmanClient = new ApacheHttpClient(strategy = Strategy.Executor(executorService))
 
   private val accessDeniedSimulator = ErrorSimulator(rateLimitedFreq :: whitelistedFreq :: Nil)
   private val allSimulators = accessDeniedSimulator.and(timeoutFreq :: Nil)
 
-  private def executorService(bld: => Builder): Future[HttpResponse] = {
-    val cb = callable {
-      ccHttpResponse(bld)
+  private def async(bld: => Builder): Future[HttpResponse] = {
+    val settableFuture = SettableFuture.create[HttpResponse]()
+    bld.prepareAsync.unsafePerformIO.map { res =>
+      settableFuture.set(ccHttpResponse(res))
     }
-    executorService.submit(cb)
+    settableFuture
   }
 
   override def isWhitelisted(url: String) = {
@@ -41,7 +41,7 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
 
   //GET
 
-  private def doGetAsync(req: GetRequest): Future[HttpResponse] = executorService {
+  private def doGetAsync(req: GetRequest): Future[HttpResponse] = async {
     GET(req.getUrl)
       .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
   }
@@ -50,8 +50,10 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   @throws(classOf[TimeoutException])
   override def get(req: GetRequest): HttpResponse = {
     allSimulators {
-      doGetAsync(req).getSoon.get
-    }
+      doGetAsync(req).getSoon.mapFailure {
+        case t: JavaTimeoutException => new TimeoutException(req.getUrl.toString)
+      }
+    }.get
   }
 
   @throws(classOf[AccessDeniedException])
@@ -64,7 +66,7 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
 
   //POST
 
-  private def doPostAsync(req: PostRequest): Future[HttpResponse] = executorService {
+  private def doPostAsync(req: PostRequest): Future[HttpResponse] = async {
     POST(req.getUrl)
       .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
       .addBody(req.getBody)
@@ -74,7 +76,9 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   @throws(classOf[TimeoutException])
   override def post(req: PostRequest): HttpResponse = {
     allSimulators {
-      doPostAsync(req).getSoon.get
+      doPostAsync(req).getSoon.mapFailure {
+        case t: JavaTimeoutException => new TimeoutException(req.getUrl.toString)
+      }.get
     }
   }
 
@@ -87,7 +91,7 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
 
   //PUT
 
-  private def doPutAsync(req: PutRequest): Future[HttpResponse] = executorService {
+  private def doPutAsync(req: PutRequest): Future[HttpResponse] = async {
     PUT(req.getUrl)
       .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
       .addBody(req.getBody)
@@ -97,7 +101,9 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   @throws(classOf[TimeoutException])
   override def put(req: PutRequest): HttpResponse = {
     allSimulators {
-      doPutAsync(req).getSoon.get
+      doPutAsync(req).getSoon.mapFailure {
+        case t: JavaTimeoutException => new TimeoutException(req.getUrl.toString)
+      }.get
     }
   }
 
@@ -111,7 +117,7 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
 
   //DELETE
 
-  private def doDeleteAsync(req: DeleteRequest): Future[HttpResponse] = executorService {
+  private def doDeleteAsync(req: DeleteRequest): Future[HttpResponse] = async {
     DELETE(req.getUrl)
       .addHeaders(newmanHeaders(req.getHeaders.asScala.toSet))
   }
@@ -120,7 +126,9 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   @throws(classOf[TimeoutException])
   override def delete(req: DeleteRequest): HttpResponse = {
     allSimulators {
-      doDeleteAsync(req).getSoon.get
+      doDeleteAsync(req).getSoon.mapFailure {
+        case t: JavaTimeoutException => new TimeoutException(req.getUrl.toString)
+      }.get
     }
   }
 
@@ -137,5 +145,5 @@ object HttpServiceImpl {
   lazy val DefaultWhitelistedThrowableFrequency = ThrowableFrequency(new WhitelistException("test domain"), Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultTimeoutThrowableFrequency = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(2, TimeUnit.HOURS)))
   //keep this lazy so a thread pool isn't created possibly needlessly
-  lazy val DefaultExecutorService = Executors.newFixedThreadPool(16)
+  lazy val DefaultExecutorService = Executors.newCachedThreadPool
 }

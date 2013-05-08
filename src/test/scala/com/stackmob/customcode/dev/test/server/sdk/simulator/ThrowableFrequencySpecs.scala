@@ -1,5 +1,8 @@
-package com.stackmob.customcode.dev.test
-package server.sdk.simulator
+package com.stackmob.customcode.dev
+package test
+package server
+package sdk
+package simulator
 
 import org.specs2.Specification
 import com.twitter.util.{Time, Duration}

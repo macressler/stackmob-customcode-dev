@@ -14,15 +14,6 @@ import collection.JavaConverters._
  * Time: 5:58 PM
  */
 package object test {
-  implicit class TryW[T](t: Try[T]) {
-    def toEither: Either[Throwable, T] = {
-      t match {
-        case Success(successVal) => Right(successVal)
-        case Failure(throwable) => Left(throwable)
-      }
-    }
-  }
-
   implicit class JavaEntryListW[T, U](l: JavaList[JavaMap.Entry[T, U]]) {
     def toTuples: List[(T, U)] = {
       l.asScala.map { entry =>

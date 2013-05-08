@@ -31,8 +31,7 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   private def impl = {
     new HttpServiceImpl(rateLimitedFreq = throwableFreq0,
       whitelistedFreq = throwableFreq0,
-      timeoutFreq = throwableFreq0,
-      executorService = Executors.newFixedThreadPool(16))
+      timeoutFreq = throwableFreq0)
   }
 
   private val baseUrl = "http://httpbin.org"
@@ -45,8 +44,8 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   private val deleteRequest = new DeleteRequest(s"$baseUrl/delete", headers.asJava)
 
   private def resolveFuture(fn: => Future[HttpResponse])
-                           (implicit timeMagnitude: Int = 1,
-                            timeUnit: TimeUnit = TimeUnit.SECONDS): Either[Throwable, HttpResponse] = {
+                           (implicit timeMagnitude: Int = 1000,
+                            timeUnit: TimeUnit = TimeUnit.MILLISECONDS): Either[Throwable, HttpResponse] = {
     Try {
       fn.get(timeMagnitude, timeUnit)
     }.toEither

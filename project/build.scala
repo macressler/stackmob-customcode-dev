@@ -52,6 +52,7 @@ object Dependencies {
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
   lazy val newman = "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec")
+  lazy val guava = "com.google.guava" % "guava" % "14.0.1"
   lazy val newmanTest = "com.stackmob" %% "newman" % newmanVsn % "test"
   lazy val liftJsonScalaz = "net.liftweb" %% "lift-json-scalaz" % "2.5-RC2"
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
@@ -72,6 +73,7 @@ object CustomCodeDevBuild extends Build {
         specs2,
         scalacheck,
         jettyServer,
+        guava,
         liftJson,
         newman,
         newmanTest,

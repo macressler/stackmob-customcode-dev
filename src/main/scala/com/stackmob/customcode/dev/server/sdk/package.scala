@@ -87,6 +87,5 @@ package object sdk {
     }
   }
 
-
-
+  type JavaTimeoutException = java.util.concurrent.TimeoutException
 }
