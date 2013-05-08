@@ -32,13 +32,22 @@ import push.PushServiceImpl
 import com.stackmob.sdk.push.StackMobPush
 import twitter.TwitterServiceImpl
 import java.util.UUID
+import com.stackmob.core.DatastoreException
 
-class SDKServiceProviderImpl(stackmob: StackMob, stackmobPush: StackMobPush)
+class SDKServiceProviderImpl(stackmob: StackMob,
+                             stackmobPush: StackMobPush,
+                             config: ConfigMap = DefaultConfig)
                             (implicit session: UUID) extends SDKServiceProvider {
-  @SuppressWarnings(Array("deprecation"))
+  private lazy val enableDSService = config.get(EnableDatastoreService).map { enabled =>
+    enabled.fold(enabled = identity[Boolean])
+  }.getOrElse(false)
+
   override lazy val getDatastoreService = {
-    //TODO: throw here unless overridden in config file
-    new DatastoreServiceImpl(getDataService)
+    if(enableDSService) {
+      throw new DatastoreException("""DatastoreService is deprecated. Please use DataService instead. If you must use DatastoreService, please enable it in configuration.""")
+    } else {
+      new DatastoreServiceImpl(getDataService)
+    }
   }
   override lazy val getDataService: DataService = new DataServiceImpl(stackmob)
   override lazy val getPushService: PushService = new PushServiceImpl(stackmobPush)

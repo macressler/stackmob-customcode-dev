@@ -22,4 +22,7 @@ package object dev {
   def stackMobPushClient(apiKey: String, apiSecret: String): StackMobPush = {
     new StackMobPush(0, apiKey, apiSecret)
   }
+
+  type ConfigMap = Map[ConfigKey, ConfigVal]
+  val DefaultConfig: ConfigMap = Map(EnableDatastoreService -> Enabled(false))
 }

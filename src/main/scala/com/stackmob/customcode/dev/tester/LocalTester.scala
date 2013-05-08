@@ -30,11 +30,12 @@ object LocalTester {
   def executeMethod(method: CustomCodeMethod,
                     req: ProcessedAPIRequest,
                     apiKey: String,
-                    apiSecret: String): ResponseToProcess = {
+                    apiSecret: String,
+                    config: ConfigMap = DefaultConfig): ResponseToProcess = {
     implicit val session = UUID.randomUUID()
     val stackMob = stackMobClient(apiKey, apiSecret)
     val stackMobPush = stackMobPushClient(apiKey, apiSecret)
-    val provider = new SDKServiceProviderImpl(stackMob, stackMobPush)
+    val provider = new SDKServiceProviderImpl(stackMob, stackMobPush, config)
     try {
       CustomCodeMethodExecutor(method, req, provider).get
     } catch {

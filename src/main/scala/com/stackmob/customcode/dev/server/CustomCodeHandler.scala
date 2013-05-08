@@ -15,19 +15,11 @@ import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
 import java.util.UUID
 
-/**
- * Created by IntelliJ IDEA.
- * 
- * com.stackmob.customcode.server
- * 
- * User: aaron
- * Date: 3/27/13
- * Time: 2:47 PM
- */
 class CustomCodeHandler(apiKey: String,
                         apiSecret: String,
                         jarEntry: JarEntryObject,
-                        maxMethodDuration: Duration = 25.seconds)
+                        maxMethodDuration: Duration = 25.seconds,
+                        config: ConfigMap = DefaultConfig)
                        (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext,
                         session: UUID)
   extends AbstractHandler {
@@ -53,7 +45,7 @@ class CustomCodeHandler(apiKey: String,
     methods.get(realPath).map { method =>
 
       val processedAPIRequestTry = processedAPIRequest(realPath, baseRequest, servletRequest, body)
-      val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush)
+      val sdkServiceProvider = new SDKServiceProviderImpl(stackMob, stackMobPush, config)
 
       val resTry = for {
         apiReq <- processedAPIRequestTry
@@ -106,5 +98,4 @@ class CustomCodeHandler(apiKey: String,
 
     baseRequest.setHandled(true)
   }
-
 }
