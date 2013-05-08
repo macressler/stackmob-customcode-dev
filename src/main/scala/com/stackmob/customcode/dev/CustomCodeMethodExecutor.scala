@@ -11,7 +11,7 @@ import scala.util.Try
 /**
  * Created by IntelliJ IDEA.
  *
- * com.stackmob.customcode.localrunner
+ * com.stackmob.customcode.server
  *
  * User: aaron
  * Date: 4/18/13

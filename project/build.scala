@@ -47,6 +47,7 @@ object Dependencies {
   lazy val twitterUtil = "com.twitter" %% "util-core" % "6.3.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   lazy val specs2 = "org.specs2" %% "specs2" % "1.12.3" % "test"
+  lazy val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
@@ -56,18 +57,20 @@ object Dependencies {
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
   lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.0.9"
   lazy val mockito = "org.mockito" % "mockito-core" % "1.9.5" % "test"
+  lazy val pegdown = "org.pegdown" % "pegdown" % "1.2.1" % "test"
 }
 
-object LocalRunnerBuild extends Build {
+object CustomCodeDevBuild extends Build {
   import BuildSettings._
   import Dependencies._
 
-  lazy val localRunner = Project("stackmob-customcode-localrunner", file("."),
+  lazy val customCodeDev = Project("stackmob-customcode-dev", file("."),
     settings = standardSettings ++ Seq(
       libraryDependencies ++= Seq(javaClientSDK,
         customcode,
         scalaz,
         specs2,
+        scalacheck,
         jettyServer,
         liftJson,
         newman,
@@ -76,8 +79,9 @@ object LocalRunnerBuild extends Build {
         slf4j,
         logbackClassic,
         mockito,
-        twitterUtil),
-      name := "stackmob-customcode-localrunner",
+        twitterUtil,
+        pegdown),
+      name := "stackmob-customcode-dev",
       publish := {}
     )
   )

@@ -14,7 +14,7 @@ import java.util.UUID
 /**
  * Created by IntelliJ IDEA.
  *
- * com.stackmob.customcode.localrunner
+ * com.stackmob.customcode.server
  *
  * User: aaron
  * Date: 4/17/13
