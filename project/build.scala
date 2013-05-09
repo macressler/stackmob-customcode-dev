@@ -43,6 +43,7 @@ object Dependencies {
   private lazy val customCodeVsn = "0.5.6"
   private lazy val jettyVsn = "7.5.4.v20111024"
   private lazy val newmanVsn = "0.14.0"
+
   lazy val customcode = "com.stackmob" % "customcode" % customCodeVsn
   lazy val twitterUtil = "com.twitter" %% "util-core" % "6.3.0"
   lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
@@ -52,8 +53,8 @@ object Dependencies {
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
   lazy val newman = "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec")
+  lazy val newmanTest = "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test")
   lazy val guava = "com.google.guava" % "guava" % "14.0.1"
-  lazy val newmanTest = "com.stackmob" %% "newman" % newmanVsn % "test"
   lazy val liftJsonScalaz = "net.liftweb" %% "lift-json-scalaz" % "2.5-RC2"
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"
   lazy val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.0.9"
