@@ -59,15 +59,6 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
     fn(dummyClient, impl)
   }
 
-//  private lazy val emptyArgs: String = {
-//    """"args": {}"""
-//  }
-//
-//  private def dataJson(data: String): String = {
-//    //the scala compiler doesn't seem to like 2.10 style format strings here
-//    """"data": "%s"""".format(data)
-//  }
-
   private def responseAndRequest[CallListType](givenResp: HttpResponse,
                                                expectedResp: NewmanHttpResponse,
                                                callList: JavaList[CallListType],
