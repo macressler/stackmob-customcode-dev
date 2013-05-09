@@ -88,4 +88,5 @@ package object sdk {
   }
 
   type JavaTimeoutException = java.util.concurrent.TimeoutException
+  type JavaEnumeration[T] = java.util.Enumeration[T]
 }

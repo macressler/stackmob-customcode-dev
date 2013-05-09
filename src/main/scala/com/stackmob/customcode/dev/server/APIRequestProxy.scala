@@ -1,4 +1,5 @@
-package com.stackmob.customcode.dev.server
+package com.stackmob.customcode.dev
+package server
 
 import org.eclipse.jetty.server.Request
 import com.stackmob.newman.response.HttpResponse

@@ -1,8 +1,9 @@
 package com.stackmob.customcode.dev
 
-import scala.util.{Try, Success, Failure}
 import com.stackmob.customcode.dev.server.sdk.{JavaMap, JavaList}
 import collection.JavaConverters._
+import java.util.concurrent.atomic.AtomicInteger
+import com.stackmob.customcode.dev.server.sdk.JavaEnumeration
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,6 +33,34 @@ package object test {
         }
         entry
       }.toList.asJava
+    }
+  }
+
+  /**
+   * an enumeration over a list of elements
+   * @param elements the elements over which to enumerate
+   */
+  class MockEnumeration[T](elements: Seq[T]) extends JavaEnumeration[T] {
+    private lazy val idx = new AtomicInteger(0)
+
+    override def hasMoreElements = idx.synchronized {
+      idx.get < elements.length
+    }
+
+    override def nextElement: T = idx.synchronized {
+      try {
+        elements.apply(idx.getAndIncrement)
+      } catch {
+        case t: Throwable => {
+          throw new NoSuchElementException()
+        }
+      }
+    }
+  }
+
+  object MockEnumeration {
+    def apply[T](seq: Seq[T]): MockEnumeration[T] = {
+      new MockEnumeration[T](seq)
     }
   }
 }

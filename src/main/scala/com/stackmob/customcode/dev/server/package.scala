@@ -113,14 +113,16 @@ package object server {
 
   implicit class RequestW(val req: Request) {
     def getAllHeaders: List[(String, String)] = {
-      val allHeaderNames = req.getHeaderNames.asScala.map(_.asInstanceOf[String])
+      val allHeaderNamesEnumeration = req.getHeaderNames
+      val allHeaderNames = allHeaderNamesEnumeration.asScala.map(_.asInstanceOf[String])
       allHeaderNames.foldLeft(List[(String, String)]()) { (agg, cur) =>
         agg ++ List(cur -> req.getHeader(cur))
       }
     }
 
     def getURL: Try[URL] = {
-      Try(new URL(req.getRequestURL.toString))
+      val strBuf = req.getRequestURL
+      Try(new URL(strBuf.toString))
     }
 
     def getBody: String = {
