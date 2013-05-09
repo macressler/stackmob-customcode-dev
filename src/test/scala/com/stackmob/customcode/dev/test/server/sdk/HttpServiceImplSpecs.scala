@@ -3,16 +3,20 @@ package test
 package server
 package sdk
 
+import com.stackmob.customcode.dev.server.sdk.JavaList
 import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.customcode.dev.server.sdk.http.HttpServiceImpl
 import com.stackmob.sdkapi.http.request. _
 import com.stackmob.customcode.dev.server.sdk.simulator.{Frequency, ThrowableFrequency}
 import com.twitter.util.Duration
-import java.util.concurrent.{Executors, Future, TimeUnit}
+import java.util.concurrent.{Future, TimeUnit}
 import scala.util.Try
 import com.stackmob.sdkapi.http.response.HttpResponse
-import com.stackmob.sdkapi.http.Header
+import com.stackmob.sdkapi.http.{HttpService, Header}
 import collection.JavaConverters._
+import com.stackmob.newman.test.DummyHttpClient
+import com.stackmob.newman.response.{HttpResponse => NewmanHttpResponse}
+import org.specs2.matcher.MatchResult
 
 class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaCheck { def is =
   "HttpServiceImplSpecs".title                                                                                          ^ end ^
@@ -28,11 +32,6 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   end
 
   val throwableFreq0 = ThrowableFrequency(new Exception(""), Frequency(0, Duration(0, TimeUnit.SECONDS)))
-  private def impl = {
-    new HttpServiceImpl(rateLimitedFreq = throwableFreq0,
-      whitelistedFreq = throwableFreq0,
-      timeoutFreq = throwableFreq0)
-  }
 
   private val baseUrl = "http://httpbin.org"
   private val headers = Set(new Header("X-StackMob-Test", "StackMobTestHeader"))
@@ -51,53 +50,70 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
     }.toEither
   }
 
-  private lazy val emptyArgs: String = {
-    """"args": {}"""
+  private def run[T](fn: (DummyHttpClient, HttpService) => T): T = {
+    val dummyClient = new DummyHttpClient()
+    val impl = new HttpServiceImpl(rateLimitedFreq = throwableFreq0,
+      whitelistedFreq = throwableFreq0,
+      timeoutFreq = throwableFreq0,
+      newmanClient = dummyClient)
+    fn(dummyClient, impl)
   }
 
-  private def dataJson(data: String): String = {
-    //the scala compiler doesn't seem to like 2.10 style format strings here
-    """"data": "%s"""".format(data)
+//  private lazy val emptyArgs: String = {
+//    """"args": {}"""
+//  }
+//
+//  private def dataJson(data: String): String = {
+//    //the scala compiler doesn't seem to like 2.10 style format strings here
+//    """"data": "%s"""".format(data)
+//  }
+
+  private def responseAndRequest[CallListType](givenResp: HttpResponse,
+                                               expectedResp: NewmanHttpResponse,
+                                               callList: JavaList[CallListType],
+                                               expectedNumCalls: Int = 1): MatchResult[Any] = {
+    val resp = givenResp must beResponse(expectedResp)
+    val numCalls = callList.size must beEqualTo(expectedNumCalls)
+    resp and numCalls
   }
 
-  private def get = {
-    val res = impl.get(getRequest)
-    res must beResponse(200, """"args": {}""")
+  private def get = run { (dummyClient, impl) =>
+    responseAndRequest(impl.get(getRequest), dummyClient.responseToReturn(), dummyClient.getRequests)
   }
 
-  private def getAsync = {
+  private def getAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.getAsync(getRequest)) must beRight.like {
-      case r => r must beResponse(200, emptyArgs)
+      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.getRequests)
     }
   }
 
-  private def post = {
-    impl.post(postRequest) must beResponse(200, dataJson(postRequest.getBody))
+  private def post = run { (dummyClient, impl) =>
+    responseAndRequest(impl.post(postRequest), dummyClient.responseToReturn(), dummyClient.postRequests)
   }
 
-  private def postAsync = {
+  private def postAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.postAsync(postRequest)) must beRight.like {
-      case r => r must beResponse(200, dataJson(postRequest.getBody))
+      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.postRequests)
     }
   }
 
-  private def put = {
-    impl.put(putRequest) must beResponse(200, dataJson(putRequest.getBody))
+  private def put = run { (dummyClient, impl) =>
+    responseAndRequest(impl.put(putRequest), dummyClient.responseToReturn(), dummyClient.putRequests)
   }
 
-  private def putAsync = {
+  private def putAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.putAsync(putRequest)) must beRight.like {
-      case r => r must beResponse(200, dataJson(putRequest.getBody))
+      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.putRequests)
     }
   }
 
-  private def delete = {
-    impl.delete(deleteRequest) must beResponse(200, emptyArgs)
+  private def delete = run { (dummyClient, impl) =>
+    responseAndRequest(impl.delete(deleteRequest), dummyClient.responseToReturn(), dummyClient.deleteRequests)
   }
 
-  private def deleteAsync = {
+  private def deleteAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.deleteAsync(deleteRequest)) must beRight.like {
-      case r => r must beResponse(200, emptyArgs)
+      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.deleteRequests)
     }
   }
 }

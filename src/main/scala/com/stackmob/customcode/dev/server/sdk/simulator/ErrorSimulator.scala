@@ -32,7 +32,7 @@ class ErrorSimulator(val errs: Seq[ThrowableFrequency]) {
    */
   def apply[T](op: => T): T = {
     errs.foreach { err =>
-      err.simulate(op)
+      err.simulate(())
     }
     op
   }

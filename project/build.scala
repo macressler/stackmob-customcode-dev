@@ -52,8 +52,8 @@ object Dependencies {
   lazy val jettyServer = "org.eclipse.jetty" % "jetty-server" % jettyVsn
   lazy val liftJson = "net.liftweb" %% "lift-json" % "2.5-RC2"
   lazy val javaClientSDK = "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0"
-  lazy val newman = "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec")
-  lazy val newmanTest = "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test")
+  lazy val newman = "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec") withSources()
+  lazy val newmanTest = "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test") withSources()
   lazy val guava = "com.google.guava" % "guava" % "14.0.1"
   lazy val liftJsonScalaz = "net.liftweb" %% "lift-json-scalaz" % "2.5-RC2"
   lazy val slf4j = "org.slf4j" % "slf4j-api" % "1.7.2"

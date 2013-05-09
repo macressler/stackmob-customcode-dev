@@ -4,6 +4,7 @@ import org.specs2.Specification
 import scala.reflect.ClassTag
 import org.specs2.matcher.{Expectable, Matcher, MatchResult}
 import com.stackmob.sdkapi.http.response.HttpResponse
+import com.stackmob.newman.response.{HttpResponse => NewmanHttpResponse}
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,5 +58,9 @@ trait CustomMatchers { this: Specification =>
    */
   protected def beResponse(code: Int, bodyContains: String): Matcher[HttpResponse] = {
     new HttpResponseMatcher(code, bodyContains)
+  }
+
+  protected def beResponse(resp: NewmanHttpResponse): Matcher[HttpResponse] = {
+    new HttpResponseMatcher(resp.code.code, resp.bodyString)
   }
 }

@@ -4,10 +4,9 @@ package sdk
 package http
 
 import com.stackmob.sdkapi.http.HttpService
-import java.util.concurrent.{ExecutorService, TimeUnit, Executors, Future}
+import java.util.concurrent.{TimeUnit, Executors, Future}
 import com.stackmob.sdkapi.http.request._
 import com.stackmob.sdkapi.http.response.HttpResponse
-import com.stackmob.newman.ApacheHttpClient
 import com.stackmob.newman.dsl._
 import collection.JavaConverters._
 import com.stackmob.sdkapi.http.exceptions.{WhitelistException, RateLimitedException, TimeoutException, AccessDeniedException}
@@ -16,16 +15,17 @@ import simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
 import HttpServiceImpl._
 import scalaz.concurrent.Strategy
 import com.google.common.util.concurrent.SettableFuture
+import com.stackmob.newman.{ApacheHttpClient, HttpClient}
 
 class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedThrowableFrequency,
                       whitelistedFreq: ThrowableFrequency = DefaultWhitelistedThrowableFrequency,
                       timeoutFreq: ThrowableFrequency = DefaultTimeoutThrowableFrequency,
-                      executorService: ExecutorService = DefaultExecutorService) extends HttpService {
-
-  private implicit val newmanClient = new ApacheHttpClient(strategy = Strategy.Executor(executorService))
+                      newmanClient: HttpClient = DefaultNewmanClient) extends HttpService {
 
   private val accessDeniedSimulator = ErrorSimulator(rateLimitedFreq :: whitelistedFreq :: Nil)
   private val allSimulators = accessDeniedSimulator.and(timeoutFreq :: Nil)
+
+  private implicit val client = newmanClient
 
   private def async(bld: => Builder): Future[HttpResponse] = {
     val settableFuture = SettableFuture.create[HttpResponse]()
@@ -145,5 +145,6 @@ object HttpServiceImpl {
   lazy val DefaultWhitelistedThrowableFrequency = ThrowableFrequency(new WhitelistException("test domain"), Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultTimeoutThrowableFrequency = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(2, TimeUnit.HOURS)))
   //keep this lazy so a thread pool isn't created possibly needlessly
-  lazy val DefaultExecutorService = Executors.newCachedThreadPool
+  lazy val DefaultExecutorService = Executors.newFixedThreadPool(28)
+  lazy val DefaultNewmanClient = new ApacheHttpClient(strategy = Strategy.Executor(Executors.newFixedThreadPool(15)))
 }
