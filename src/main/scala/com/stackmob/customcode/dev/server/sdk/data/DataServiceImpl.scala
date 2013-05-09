@@ -30,11 +30,9 @@ class DataServiceImpl(stackMob: StackMob,
 
   private def convertSMObjectList(s: String): JavaList[SMObject] = {
     val tried = for {
-      jValue <- Try {
-        parse(s)
-      }
+      jValue <- s.toJValue
       read <- Try {
-        fromJSON[List[Map[String, Any]]](jValue).map { lst =>
+        jValue.toResult[List[Map[String, Any]]].map { lst =>
           lst.map { elt =>
             elt.toMapStringObj
           }

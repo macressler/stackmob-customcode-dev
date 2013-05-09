@@ -3,7 +3,12 @@ package com.stackmob.customcode
 import com.stackmob.sdk.api.StackMob
 import com.stackmob.sdk.api.StackMob.OAuthVersion
 import com.stackmob.sdk.push.StackMobPush
-import scala.util.{Failure, Success, Try}
+import net.liftweb.json.{JValue, parse}
+import net.liftweb.json.scalaz.JsonScalaz.{Result, JSONR, fromJSON}
+import scala.util.Try
+import scalaz.{Success => ScalazSuccess, Failure => ScalazFailure, Validation}
+import scala.util.Success
+import scala.util.Failure
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,6 +38,14 @@ package object dev {
         case Failure(throwable) => Left(throwable)
       }
     }
+
+    def toValidation: Validation[Throwable, T] = {
+      inner match {
+        case Success(s) => ScalazSuccess(s)
+        case Failure(f) => ScalazFailure(f)
+      }
+    }
+
     def mapFailure(fn: PartialFunction[Throwable, Throwable]): Try[T] = {
       inner match {
         case s@Success(_) => s
@@ -47,9 +60,37 @@ package object dev {
     }
   }
 
+  implicit class JValueW(inner: JValue) {
+    def toResult[Res: JSONR]: Result[Res] = {
+      fromJSON[Res](inner)
+    }
+  }
+
   implicit class StringW(inner: String) {
     def getBytesUTF8: Array[Byte] = {
       inner.getBytes("UTF-8")
+    }
+
+    def toJValue: Try[JValue] = {
+      Try(parse(inner))
+    }
+  }
+
+  implicit class ValidationW[Fail, Succ](validation: Validation[Fail, Succ]) {
+
+    def mapFailure[NewFail](fn: Fail => NewFail): Validation[NewFail, Succ] = {
+      validation match {
+        case ScalazSuccess(s) => ScalazSuccess(s)
+        case ScalazFailure(t) => ScalazFailure(fn(t))
+      }
+    }
+  }
+
+  implicit class ThrowableValidationW[S](validation: Validation[Throwable, S]) {
+    def getOrThrow: S = {
+      validation ||| { t: Throwable =>
+        throw t
+      }
     }
   }
 }

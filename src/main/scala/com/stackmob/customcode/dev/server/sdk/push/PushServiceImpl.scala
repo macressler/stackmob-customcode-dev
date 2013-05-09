@@ -8,7 +8,7 @@ import com.stackmob.sdk.push.StackMobPush
 import com.stackmob.sdkapi.PushService.{TokenType, TokenAndType => CCTokenAndType}
 import com.stackmob.core.{DatastoreException, PushServiceException}
 import collection.JavaConverters._
-import net.liftweb.json.{parse, JValue}
+import net.liftweb.json.{JValue}
 import net.liftweb.json.scalaz.JsonScalaz._
 
 /**
@@ -56,10 +56,10 @@ class PushServiceImpl(stackmobPush: StackMobPush) extends PushService {
       respString <- synchronous(stackmobPush.getTokensForUsers(users, _)).get.mapFailure { t =>
         new DatastoreException(t.getMessage)
       }
-      respJValue <- validating(parse(respString)).mapFailure { t =>
+      respJValue <- respString.toJValue.toValidation.mapFailure { t =>
         new DatastoreException(t.getMessage)
       }
-      respMap <- fromJSON[UsersToTokensAndTypes](respJValue).mapFailure { failNel =>
+      respMap <- respJValue.toResult[UsersToTokensAndTypes].mapFailure { failNel =>
         new DatastoreException("result string from StackMob was malformed\n%s".format(respString))
       }
     } yield respMap

@@ -59,24 +59,6 @@ package object server {
     }
   }
 
-  implicit class ValidationW[Fail, Success](validation: Validation[Fail, Success]) {
-
-    def mapFailure[NewFail](fn: Fail => NewFail): Validation[NewFail, Success] = {
-      validation match {
-        case Success(s) => Success(s)
-        case Failure(t) => Failure(fn(t))
-      }
-    }
-  }
-
-  implicit class ThrowableValidationW[Success](validation: Validation[Throwable, Success]) {
-    def getOrThrow: Success = {
-      validation ||| { t: Throwable =>
-        throw t
-      }
-    }
-  }
-
   implicit class BufferedReaderW(val reader: BufferedReader) {
     def exhaust(builder: StringBuilder = new StringBuilder): StringBuilder = {
       Option(reader.readLine()).map { line =>
