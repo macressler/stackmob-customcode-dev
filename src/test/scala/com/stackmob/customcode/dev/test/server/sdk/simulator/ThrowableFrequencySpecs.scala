@@ -31,9 +31,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   private val exception = {
     new Exception("test failure")
   }
-  private val op = {
-    "hello world"
-  }
+
   private def rand(bool: Boolean) = {
     val r = mock[Random]
     r.nextBoolean() returns bool
@@ -51,9 +49,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   private def maxCounter = {
     val duration = Duration.fromNanoseconds(0)
     val freq = ThrowableFrequency(exception, Frequency(0, duration))
-    val exRes = Try(freq.simulate(op)).toEither must beRight.like {
-      case r => r must beEqualTo(op)
-    }
+    val exRes = Try(freq.simulate()).toEither must beRight
     val countRes = freq.getCount must beEqualTo(0)
     exRes and countRes
   }
@@ -63,9 +59,9 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val duration = Duration.fromMilliseconds(100)
     val freq = ThrowableFrequency(exception, Frequency(100, duration), rand = random)
     //trigger a rollover
-    Try(freq.simulate(op))
+    Try(freq.simulate())
     //then execute the real thing
-    val exRes = Try(freq.simulate(op)).toEither must beLeft.like {
+    val exRes = Try(freq.simulate()).toEither must beLeft.like {
       case t => t.getMessage must beEqualTo(exception.getMessage)
     }
 
@@ -76,9 +72,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val random = rand(false)
     val duration = Duration.fromMilliseconds(1000)
     val freq = ThrowableFrequency(exception, Frequency(1, duration), rand = random)
-    val exRes = Try(freq.simulate(op)).toEither must beRight.like {
-      case r => r must beEqualTo(op)
-    }
+    val exRes = Try(freq.simulate()).toEither must beRight
 
     exRes
   }
