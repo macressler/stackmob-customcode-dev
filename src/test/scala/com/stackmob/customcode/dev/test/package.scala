@@ -4,6 +4,9 @@ import com.stackmob.customcode.dev.server.sdk.{JavaMap, JavaList}
 import collection.JavaConverters._
 import java.util.concurrent.atomic.AtomicInteger
 import com.stackmob.customcode.dev.server.sdk.JavaEnumeration
+import com.stackmob.customcode.dev.server.sdk.simulator.{Frequency, ThrowableFrequency}
+import com.twitter.util.Duration
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,6 +18,8 @@ import com.stackmob.customcode.dev.server.sdk.JavaEnumeration
  * Time: 5:58 PM
  */
 package object test {
+  val throwableFreq0 = ThrowableFrequency(new Exception(""), Frequency(0, Duration(0, TimeUnit.SECONDS)))
+
   implicit class JavaEntryListW[T, U](l: JavaList[JavaMap.Entry[T, U]]) {
     def toTuples: List[(T, U)] = {
       l.asScala.map { entry =>

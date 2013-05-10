@@ -31,8 +31,6 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   "deleteAsync should return within a reasonable time"                                                                  ! deleteAsync ^ end ^
   end
 
-  val throwableFreq0 = ThrowableFrequency(new Exception(""), Frequency(0, Duration(0, TimeUnit.SECONDS)))
-
   private val baseUrl = "http://httpbin.org"
   private val headers = Set(new Header("X-StackMob-Test", "StackMobTestHeader"))
   private val body = "StackMobTestBody"
