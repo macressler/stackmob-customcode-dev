@@ -29,18 +29,16 @@ Use the CustomCodeMethodServer class to run a server with your custom code endpo
 ###In Java
 
 ```java
-JarEntryObject jeo = new YourJarEntryObjectSubclass();
-CustomCodeServer server = new CustomCodeServer(jeo);
-server.serve();
+EntryPointExtender entryObject = new MyEntryPointExtender();
+CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret")
 ```
 
 
 ###In Scala
 
 ```scala
-val jeo = new YourJarEntryObjectSubclass()
-val server = new CustomCodeMethodServer(jeo)
-server.serve
+val entryObject = new MyEntryPointExtender
+CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret")
 ```
 
 
