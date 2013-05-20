@@ -65,7 +65,7 @@ private [dataservice] trait BaseTestGroup { this: Specification with CustomMatch
       val maxCallsPerReq = {
         val datastore = new MockStackMobDatastore(ResponseDetails(200), ResponseDetails(200), ResponseDetails(200), ResponseDetails(200))
         val svc = dataService(datastore, maxCallsPerRequest = 0)
-        //TODO: implement the calls per request limit. see https://github.com/stackmob/stackmob-customcode-localrunner/issues/29
+        //TODO: implement the calls per request limit. see https://github.com/stackmob/stackmob-customcode-dev/issues/29
         //Try(svc.createObject(schemaName, obj)).toEither must beThrowableInstance[CallsPerRequestLimitExceeded]
         svc must beAnInstanceOf[DataServiceImpl]
       }

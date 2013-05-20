@@ -15,7 +15,7 @@ As always with StackMob open source software, we encourage you to [let us know](
 ```xml
 <dependency>
   <groupId>com.stackmob</groupId>
-  <artifactId>customcode-localrunner</artifactId>
+  <artifactId>customcode-dev</artifactId>
   <version>0.1.0</version>
 </dependency>
 ```
@@ -23,7 +23,7 @@ As always with StackMob open source software, we encourage you to [let us know](
 ### SBT
 
 ```scala
-"com.stackmob" % "customcode-localrunner" % "0.1.0"
+"com.stackmob" % "customcode-dev" % "0.1.0"
 ```
 
 ## Usage
@@ -56,7 +56,7 @@ It also includes local implementations of all of `SDKServiceProvider`'s methods.
 * `TwitterService`: All methods are currently stubbed and have no usable functionality.
 * `FacebookService`: All methods are currently stubbed and have no usable functionality.
 * `isSandbox`: Always returns `true`.
-* `getVersion`: always returns `localRunnerVersion`.
+* `getVersion`: always returns `ccDevVersion`.
 * `ConfigVarService`: All methods currently return constant values that are computed from `key` and moduleName`, where applicable.
 * `CachingService`: All methods cache locally, in memory. Calls to each method will randomly simulate `TimeoutException`s and `RateLimitedException`s, so make sure your code can handle those cases.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will randomly simulate `AccessDeniedException`s and `TimeoutException`s, so make sure your code can handle those cases.
@@ -64,4 +64,4 @@ It also includes local implementations of all of `SDKServiceProvider`'s methods.
 
 ## TODOs / Future Features
 
-See https://github.com/stackmob/stackmob-customcode-localrunner/issues/
+See https://github.com/stackmob/stackmob-customcode-dev/issues/
