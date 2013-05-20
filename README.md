@@ -5,7 +5,9 @@ The StackMob Custom Code Development Environment provides a server that runs you
 
 The dev environment contains a complete [Custom Code SDK](https://github.com/stackmob/stackmob-customcode-sdk) implementation as well as a local API server. It runs your custom code locally and proxies all normal API calls to your v0 StackMob API. Normal push calls are not currently supported.
 
-The development enviromment is currently in beta. As always with StackMob open source software, we encourage you to [let us know](https://github.com/stackmob/stackmob-customcode-localrunner/issues) if you find issues. Pull requests are also welcome.
+The development enviromment is currently in beta as we work to make its functionality mirror our servers' as closely as possible.
+
+As always with StackMob open source software, we encourage you to [let us know](https://github.com/stackmob/stackmob-customcode-localrunner/issues) if you find issues, or submit pull requests.
 
 ## Setup
 
@@ -35,7 +37,6 @@ Use the CustomCodeMethodServer class to run a server with your custom code endpo
 EntryPointExtender entryObject = new MyEntryPointExtender();
 CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret")
 ```
-
 
 ###In Scala
 
@@ -73,7 +74,6 @@ make sure your code can handle those cases.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will simulate `AccessDeniedException`s and `TimeoutException`s,
 so make sure your code can handle those cases.
 * `LoggerService`: All logs go to the console on which you run your server.
-
 
 ## TODOs / Future Features
 
