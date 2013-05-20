@@ -1,3 +1,19 @@
+/**
+ * Copyright 2011-2013 StackMob
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.stackmob.customcode.dev
 package server
 package sdk
@@ -35,7 +51,7 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
     settableFuture
   }
 
-  override def isWhitelisted(url: String) = {
+  override def isWhitelisted(url: String): Boolean = {
     true
   }
 
@@ -144,7 +160,7 @@ object HttpServiceImpl {
   lazy val DefaultRateLimitedThrowableFrequency = ThrowableFrequency(new RateLimitedException, Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultWhitelistedThrowableFrequency = ThrowableFrequency(new WhitelistException("test domain"), Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultTimeoutThrowableFrequency = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(2, TimeUnit.HOURS)))
+  private val fixedThreadPoolSize = 28
   //keep this lazy so a thread pool isn't created possibly needlessly
-  lazy val DefaultExecutorService = Executors.newFixedThreadPool(28)
-  lazy val DefaultNewmanClient = new ApacheHttpClient(strategy = Strategy.Executor(Executors.newFixedThreadPool(15)))
+  lazy val DefaultNewmanClient = new ApacheHttpClient(strategy = Strategy.Executor(Executors.newFixedThreadPool(fixedThreadPoolSize)))
 }

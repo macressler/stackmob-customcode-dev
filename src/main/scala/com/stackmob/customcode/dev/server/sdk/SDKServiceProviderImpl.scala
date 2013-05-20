@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 StackMob
+ * Copyright 2011-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,11 @@ class SDKServiceProviderImpl(stackmob: StackMob,
     enabled.fold(enabled = identity[Boolean])
   }.getOrElse(false)
 
-  override lazy val getDatastoreService = {
+  override lazy val getDatastoreService: DatastoreService = {
     if(enableDSService) {
-      throw new DatastoreException("""DatastoreService is deprecated. Please use DataService instead. If you must use DatastoreService, please enable it in configuration.""")
+      throw new DatastoreException("""DatastoreService is deprecated. Please use DataService instead.
+          If you must use DatastoreService, please enable it in configuration.
+       """)
     } else {
       new DatastoreServiceImpl(getDataService)
     }
@@ -58,6 +60,6 @@ class SDKServiceProviderImpl(stackmob: StackMob,
   override lazy val getConfigVarService: ConfigVarService = new ConfigVarServiceImpl
   override lazy val getCachingService: CachingService = new CachingServiceImpl
   override lazy val getHttpService: HttpService = new HttpServiceImpl
-  override def getLoggerService(s: String) = new LoggerServiceImpl(s)
-  override def getLoggerService(c: Class[_]) = getLoggerService(c.getCanonicalName)
+  override def getLoggerService(s: String): LoggerService = new LoggerServiceImpl(s)
+  override def getLoggerService(c: Class[_]): LoggerService = getLoggerService(c.getCanonicalName)
 }

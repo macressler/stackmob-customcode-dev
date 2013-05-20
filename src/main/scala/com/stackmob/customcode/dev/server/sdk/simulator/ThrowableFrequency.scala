@@ -1,17 +1,23 @@
+/**
+ * Copyright 2011-2013 StackMob
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.stackmob.customcode.dev.server.sdk.simulator
 
 import com.twitter.util.Time
 import scala.util.Random
-
-/**
-* Created by IntelliJ IDEA.
-*
-* com.stackmob.customcode.server.sdk.simulator
-*
-* User: aaron
-* Date: 4/17/13
-* Time: 2:42 PM
-*/
 
 /**
 * a single throwable and a frequency with which it should be thrown
@@ -21,12 +27,12 @@ import scala.util.Random
 */
 class ThrowableFrequency(val err: Throwable,
                          val freq: Frequency,
-                         val rand: Random = DefaultRandom) {
+                         val rand: Random = defaultRandom) {
   private var count = 0
   private var lastRollover = Time.now
   private val lock = new Object
-  def getCount = count
-  def getLastRollover = lastRollover
+  def getCount: Int = count
+  def getLastRollover: Time = lastRollover
 
   /**
    * simulate a call to op, randomly selecting when to throw based on freq
@@ -55,7 +61,7 @@ class ThrowableFrequency(val err: Throwable,
 }
 
 object ThrowableFrequency {
-  def apply(err: Throwable, freq: Frequency, rand: Random = DefaultRandom) = {
+  def apply(err: Throwable, freq: Frequency, rand: Random = defaultRandom): ThrowableFrequency = {
     new ThrowableFrequency(err, freq, rand)
   }
 }

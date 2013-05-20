@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 StackMob
+ * Copyright 2011-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.dev.example
+package com.stackmob.customcode.dev
+package example
+
 import com.stackmob.core.jar.JarEntryObject
+import com.stackmob.customcode.dev.server.sdk.JavaList
 import collection.JavaConversions._
+import com.stackmob.core.customcode.CustomCodeMethod
 
 class EntryPointExtender extends JarEntryObject {
-  override def methods = List(new SetHighScoreMethod)
+  override def methods: JavaList[CustomCodeMethod] = List(new SetHighScoreMethod)
 }

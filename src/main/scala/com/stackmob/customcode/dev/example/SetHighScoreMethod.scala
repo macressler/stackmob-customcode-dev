@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 StackMob
+ * Copyright 2011-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,45 +14,61 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.dev.example
+package com.stackmob.customcode.dev
+package example
 
 import com.stackmob.core._
-import com.stackmob.core.customcode.CustomCodeMethod;
-import com.stackmob.core.rest.ProcessedAPIRequest;
-import com.stackmob.core.rest.ResponseToProcess;
-import com.stackmob.sdkapi.SDKServiceProvider;
+import com.stackmob.core.customcode.CustomCodeMethod
+import com.stackmob.core.rest.ProcessedAPIRequest
+import com.stackmob.core.rest.ResponseToProcess
+import com.stackmob.sdkapi.SDKServiceProvider
 import collection.JavaConversions._
+import javax.servlet.http.HttpServletResponse
+import com.stackmob.customcode.dev.server.sdk.JavaList
 
 class SetHighScoreMethod extends CustomCodeMethod {
 
-  private def getParam(request:ProcessedAPIRequest, name:String) = request.getParams.get(name) match {
-    case null => None
-    case "" => None
-    case param => Some(param)
+  private def getParam(request:ProcessedAPIRequest, name:String) = Option(request.getParams.get(name)).flatMap { param =>
+    if (param.isEmpty) {
+      None
+    } else {
+      Some(param)
+    }
   }
 
-  override def getMethodName = "set_high_score"
-  override def getParams = seqAsJavaList(List("username", "score"))
+  override def getMethodName: String = "set_high_score"
+  override def getParams: JavaList[String] = seqAsJavaList(List("username", "score"))
+
+  private class EmptyUsernameException extends Exception("username was empty") {
+    val responseToProcess = {
+      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "username was empty"))
+    }
+  }
+  private class EmptyScoreException extends Exception("score was empty") {
+    val responseToProcess = {
+      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "score was empty"))
+    }
+  }
 
   override def execute(request: ProcessedAPIRequest, serviceProvider: SDKServiceProvider): ResponseToProcess = {
-    val username = getParam(request, "username") match {
-      case None => return new ResponseToProcess(400, Map("error" -> "username was empty"))
+    lazy val username = getParam(request, "username") match {
+      case None => throw new EmptyUsernameException//
       case Some(u) => u
     }
-    val score = getParam(request, "score") match {
-      case None => return new ResponseToProcess(400, Map("error" -> "score was empty"))
+    lazy val score = getParam(request, "score") match {
+      case None => throw new EmptyScoreException
       case Some(s) => Integer.parseInt(s)
     }
 
     // get the datastore service and assemble the query
-    val datastoreService = serviceProvider.getDatastoreService
-    val query = Map("username" -> seqAsJavaList(List(username)))
+    lazy val datastoreService = serviceProvider.getDatastoreService
+    lazy val query = Map("username" -> seqAsJavaList(List(username)))
 
     // execute the query
     try {
       val result = datastoreService.readObjects("users", query)
 
-      val newUser = result == null || result.size() == 0
+      val newUser = (!Option(result).isDefined) || result.isEmpty
 
       var userMap:Map[String, Object] = newUser match {
         //not a new user so fetch from the datastore map
@@ -73,15 +89,24 @@ class SetHighScoreMethod extends CustomCodeMethod {
         case false => datastoreService.updateObject("users", username, userMap)
       }
 
-      new ResponseToProcess(200,
+      new ResponseToProcess(HttpServletResponse.SC_OK,
         Map("updated" -> updated, "newUser" -> newUser, "username" -> username, "newScore" -> userMap("score")))
     } catch {
-      case e: InvalidSchemaException =>
-        new ResponseToProcess(500, Map("error" -> "invalid schema", "detail" -> e.toString))
-      case e: DatastoreException =>
-        new ResponseToProcess(500, Map("error" -> "datastore exception", "detail" -> e.toString))
-      case e: Throwable =>
-        new ResponseToProcess(500, Map("error" -> "unknown", "detail" -> e.toString))
+      case e: EmptyScoreException => {
+        e.responseToProcess
+      }
+      case e: EmptyUsernameException => {
+        e.responseToProcess
+      }
+      case e: InvalidSchemaException => {
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "invalid schema", "detail" -> e.toString))
+      }
+      case e: DatastoreException => {
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "datastore exception", "detail" -> e.toString))
+      }
+      case e: Throwable => {
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "unknown", "detail" -> e.toString))
+      }
     }
   }
 }
