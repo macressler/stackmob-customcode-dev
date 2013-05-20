@@ -1,4 +1,3 @@
-
 # Stackmob Custom Code Development Environment
 
 The StackMob Custom Code Development Environment provides a server that runs your custom code in a local debugging environment, making it quicker and easier to test and iterate on your code before uploading it to StackMob's infrastructure.
@@ -7,7 +6,7 @@ The dev environment contains a complete [Custom Code SDK](https://github.com/sta
 
 The development enviromment is currently in beta as we work to make its functionality mirror our servers' as closely as possible.
 
-As always with StackMob open source software, we encourage you to [let us know](https://github.com/stackmob/stackmob-customcode-localrunner/issues) if you find issues, or submit pull requests.
+As always with StackMob open source software, we encourage you to [let us know](https://github.com/stackmob/stackmob-customcode-dev/issues) if you find issues, or submit pull requests.
 
 ## Setup
 
