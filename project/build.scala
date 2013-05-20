@@ -23,19 +23,14 @@ object BuildSettings {
     "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
   )
 
-	/*
-	lazy val publishSetting = publishTo <<= version { v: String =>
-		val nexus = "https://oss.sonatype.org/"
-    if (v.trim.endsWith("SNAPSHOT")) {
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    } else {
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    }
-  }
-	*/
-
 	lazy val publishSettings = Seq(
-//    publishSetting,
+		publishTo <<= version { (v: String) =>
+		  val nexus = "https://oss.sonatype.org/"
+		  if (v.trim.endsWith("SNAPSHOT"))
+		    Some("snapshots" at nexus + "content/repositories/snapshots")
+		  else
+		    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+		},
     publishMavenStyle := true,
     pomIncludeRepository := { x => false },
     pomExtra := (
