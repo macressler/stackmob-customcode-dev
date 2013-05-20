@@ -23,6 +23,41 @@ object BuildSettings {
     "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
   )
 
+	lazy val publishSetting = publishTo <<= version { v: String =>
+		val nexus = "https://oss.sonatype.org/"
+    if (v.trim.endsWith("SNAPSHOT")) {
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    } else {
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    }
+  }
+	lazy val publishSettings = Seq(
+    publishSetting,
+    publishMavenStyle := true,
+    pomIncludeRepository := { x => false },
+    pomExtra := (
+      <url>https://github.com/stackmob/stackmob-customcode-dev</url>
+      <licenses>
+        <license>
+          <name>Apache 2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <url>git@github.com:stackmob/stackmob-customcode-dev.git</url>
+        <connection>scm:git:git@github.com:stackmob/stackmob-customcode-dev.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>arschles</id>
+          <name>Aaron Schlesinger</name>
+          <url>http://github.com/arschles</url>
+        </developer>
+      </developers>
+    )
+  )
+
   lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ filterSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
@@ -67,7 +102,7 @@ object CustomCodeDevBuild extends Build {
   import Dependencies._
 
   lazy val customCodeDev = Project("stackmob-customcode-dev", file("."),
-    settings = standardSettings ++ Seq(
+    settings = standardSettings ++ publishSettings ++ Seq(
       libraryDependencies ++= Seq(javaClientSDK,
         customcode,
         scalaz,
