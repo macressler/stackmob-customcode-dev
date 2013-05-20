@@ -117,9 +117,8 @@ object CustomCodeDevBuild extends Build {
         mockito,
         twitterUtil,
         pegdown),
-      name := "stackmob-customcode-dev",
-      publish := {}
-    )
+      name := "stackmob-customcode-dev"
+		)
   )
 }
 
