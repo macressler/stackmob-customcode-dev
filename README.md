@@ -57,7 +57,7 @@ It also includes local implementations of all of `SDKServiceProvider`'s methods.
 * `FacebookService`: All methods are currently stubbed and have no usable functionality.
 * `isSandbox`: Always returns `true`.
 * `getVersion`: always returns `ccDevVersion`.
-* `ConfigVarService`: All methods currently return constant values that are computed from `key` and moduleName`, where applicable.
+* `ConfigVarService`: All methods currently return constant values that are computed from `key` and `moduleName`, where applicable.
 * `CachingService`: All methods cache locally, in memory. Calls to each method will randomly simulate `TimeoutException`s and `RateLimitedException`s, so make sure your code can handle those cases.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will randomly simulate `AccessDeniedException`s and `TimeoutException`s, so make sure your code can handle those cases.
 * `LoggerService`: All logs go to the console on which you run your server.
