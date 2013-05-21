@@ -1,6 +1,6 @@
 package com.stackmob.customcode.dev
 
-import scalaz.{Validation, Success, Failure}
+import scalaz.Validation
 import scalaz.Scalaz._
 import java.util.UUID
 import java.io.BufferedReader
@@ -15,15 +15,6 @@ import com.stackmob.newman.request.HttpRequestType
 import com.stackmob.newman.Headers
 import java.net.URL
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server
- *
- * User: aaron
- * Date: 3/27/13
- * Time: 4:53 PM
- */
 package object server {
   lazy val maxDepth = 2
   class SMValueDepthLimitReached(depth: Int) extends Exception(s"the maximum SMValue depth of $depth has been reached")
@@ -83,7 +74,10 @@ package object server {
 
   implicit class HttpServletRequestW(val servletReq: HttpServletRequest) {
     def getMethodVerb: Try[MethodVerb] = {
-      Try(MethodVerb.valueOf(servletReq.getMethod))
+      Try {
+        val methodString = servletReq.getMethod
+        MethodVerb.valueOf(methodString)
+      }
     }
 
     def getNewmanVerb: Option[HttpRequestType] = {

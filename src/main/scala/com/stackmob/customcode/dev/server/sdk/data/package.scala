@@ -19,7 +19,7 @@ package server
 package sdk
 
 import com.stackmob.sdkapi._
-import com.stackmob.sdk.api.{StackMobOptions, StackMobQueryField, StackMobQuery}
+import com.stackmob.sdk.api.{StackMobOptions, StackMobQuery}
 import collection.JavaConverters._
 import data.extensions._
 
