@@ -19,6 +19,7 @@ package server
 package sdk
 package data
 package extensions
+import language.existentials
 
 import com.stackmob.sdkapi.{SMValue, SMObject}
 import com.stackmob.customcode.dev.server.sdk.data.SMObjectConverter
