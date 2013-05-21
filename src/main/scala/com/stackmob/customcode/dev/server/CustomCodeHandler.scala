@@ -37,7 +37,7 @@ class CustomCodeHandler(apiKey: String,
                       baseRequest: Request,
                       servletRequest: HttpServletRequest,
                       response: HttpServletResponse) {
-    val writer = response.getWriter
+    def writer = response.getWriter
     val realPath = baseRequest.getPathInfo.replaceFirst("/", "")
 
     val body = baseRequest.getBody
@@ -57,8 +57,18 @@ class CustomCodeHandler(apiKey: String,
           val respMap = resp.getResponseMap
           json.write(respMap.asScala)
         }
-        _ <- Try(response.setStatus(resp.getResponseCode))
-        _ <- Try(writer.print(respJSON))
+        _ <- Try {
+          response.setContentType("application/json")
+        }
+        _ <- Try {
+          response.setStatus(resp.getResponseCode)
+        }
+        _ <- Try {
+          baseRequest.setHandled(true)
+        }
+        _ <- Try {
+          writer.println(respJSON)
+        }
       } yield ()
 
       try {
@@ -67,11 +77,13 @@ class CustomCodeHandler(apiKey: String,
         case t: TimeoutException => {
           //note - if the future is in an infinite loop, it will continue to take up the thread on which it's executing until the server is killed
           logger.warn(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds to execute")
-          writer.print(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds) to execute. Please shorten its execution time")
+          baseRequest.setHandled(true)
+          writer.println(s"${method.getMethodName} took over ${maxMethodDuration.toSeconds} seconds) to execute. Please shorten its execution time")
         }
         case t: Throwable => {
           logger.warn(s"${method.getMethodName} threw ${t.getMessage}", t)
-          writer.print(s"${method.getMethodName} threw ${t.getMessage}. see logs for details")
+          baseRequest.setHandled(true)
+          writer.println(s"${method.getMethodName} threw ${t.getMessage}. see logs for details")
         }
       }
     }.getOrElse {
@@ -80,6 +92,7 @@ class CustomCodeHandler(apiKey: String,
         newmanResp <- APIRequestProxy(baseRequest)
         _ <- Try(response.setStatus(newmanResp.code.code))
         _ <- Try(response.setHeaders(newmanResp.headers))
+        _ <- Try(baseRequest.setHandled(true))
         _ <- Try(writer.print(newmanResp.bodyString))
       } yield {
         ()
@@ -91,11 +104,10 @@ class CustomCodeHandler(apiKey: String,
       catch {
         case t: Throwable => {
           logger.warn(s"proxy failed with ${t.getMessage}", t)
+          baseRequest.setHandled(true)
           writer.print(s"proxy failed with ${t.getMessage}")
         }
       }
     }
-
-    baseRequest.setHandled(true)
   }
 }
