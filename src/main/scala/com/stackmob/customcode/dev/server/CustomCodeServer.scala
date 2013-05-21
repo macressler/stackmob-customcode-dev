@@ -32,7 +32,7 @@ object CustomCodeServer {
     val addr = new InetSocketAddress(host, port)
     val svr = new Server(addr)
     svr.setHandler(handler)
-    logger.info(s"Starting custom code local runner session ${session.toString} on $host:$port")
+    logger.info(s"Starting custom code dev server session ${session.toString} on $host:$port")
     svr.start()
     svr.join()
   }
