@@ -21,10 +21,12 @@ import java.net.InetSocketAddress
 import com.stackmob.core.jar.JarEntryObject
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import com.stackmob.newman.{ApacheHttpClient, HttpClient}
 
 object CustomCodeServer {
   private lazy val logger = LoggerFactory.getLogger(CustomCodeServer.getClass)
-  def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int = 8080) {
+  def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int = 8080)
+           (implicit httpClient: HttpClient = new ApacheHttpClient()) {
     implicit val session = UUID.randomUUID()
     val handler = new CustomCodeHandler(apiKey, apiSecret, jarEntryObject)
 

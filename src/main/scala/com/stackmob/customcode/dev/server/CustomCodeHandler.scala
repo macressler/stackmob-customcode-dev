@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory
 import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
 import java.util.UUID
+import com.stackmob.newman.HttpClient
 
 class CustomCodeHandler(apiKey: String,
                         apiSecret: String,
@@ -37,7 +38,8 @@ class CustomCodeHandler(apiKey: String,
                         maxMethodDuration: Duration = 25.seconds,
                         config: ConfigMap = DefaultConfig)
                        (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext,
-                        session: UUID)
+                        session: UUID,
+                        newmanClient: HttpClient)
   extends AbstractHandler {
 
   private lazy val logger = LoggerFactory.getLogger(classOf[CustomCodeHandler])
