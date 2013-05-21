@@ -16,14 +16,14 @@ As always with StackMob open source software, we encourage you to [let us know](
 <dependency>
   <groupId>com.stackmob</groupId>
   <artifactId>customcode-dev</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 
 ### SBT
 
 ```scala
-"com.stackmob" % "customcode-dev" % "0.1.0"
+"com.stackmob" % "customcode-dev" % "0.1.5"
 ```
 
 ## Usage
