@@ -48,15 +48,11 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   private def err = {
     val random = rand(true)
     val duration = Duration.fromMilliseconds(100)
-    val freq = ThrowableFrequency(exception, Frequency(100, duration), rand = random)
+    val freq = ThrowableFrequency(exception, Frequency(100000, duration), rand = random)
     //trigger a rollover
-    Try(freq.simulate())
-    //then execute the real thing
-    val exRes = Try(freq.simulate()).toEither must beLeft.like {
+    Try(freq.simulate()).toEither must beLeft.like {
       case t => t.getMessage must beEqualTo(exception.getMessage)
     }
-
-    exRes
   }
 
   private def normal = {
