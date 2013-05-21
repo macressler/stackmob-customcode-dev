@@ -1,5 +1,7 @@
 # Stackmob Custom Code Development Environment
 
+[![Build Status](https://travis-ci.org/stackmob/stackmob-customcode-dev.png?branch=master)](https://travis-ci.org/stackmob/stackmob-customcode-dev)
+
 The StackMob Custom Code Development Environment provides a server that runs your custom code in a local debugging environment, making it quicker and easier to test and iterate on your code before uploading it to StackMob's infrastructure.
 
 The dev environment contains a complete [Custom Code SDK](https://github.com/stackmob/stackmob-customcode-sdk) implementation as well as a local API server. It runs your custom code locally and proxies all normal API calls to your v0 StackMob API. Normal push calls are not currently supported.
