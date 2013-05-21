@@ -28,20 +28,35 @@ As always with StackMob open source software, we encourage you to [let us know](
 
 ## Usage
 
-It takes 2 lines of code to set up and run a server that responds to your custom code's defined endpoints. Do so like this:
+It takes just a few lines of code to set up and run a server that responds to your custom code's defined endpoints.
+
+Below is complete working code to do so:
 
 ###In Java
 
 ```java
-EntryPointExtender entryObject = new MyEntryPointExtender();
-CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+import com.stackmob.core.jar.JarEntryObject;
+import com.stackmob.customcode.dev.server.CustomCodeServer;
+import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
+
+public class LocalDevServer {
+    public static void main(String[] args) {
+        JarEntryObject entryObject = new MyJarEntryObject();
+        CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080);
+    }
+}
 ```
 
 ###In Scala
 
 ```scala
-val entryObject = new MyEntryPointExtender
-CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+import com.stackmob.customcode.dev.server.CustomCodeServer;
+import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
+
+object LocalDevServer extends App {
+  val entryObject = new MyJarEntryObject
+  CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+}
 ```
 
 ## Details
