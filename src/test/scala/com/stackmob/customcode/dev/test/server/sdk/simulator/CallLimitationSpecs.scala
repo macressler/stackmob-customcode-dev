@@ -10,15 +10,6 @@ import scala.util.Try
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Gen
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk
- *
- * User: aaron
- * Date: 4/17/13
- * Time: 4:03 PM
- */
 class CallLimitationSpecs extends Specification with CustomMatchers with ScalaCheck { def is =
   "CallLimitationSpecs".title                                                                                           ^ end ^
   "CallLimitation tracks the number of calls to a method or some methods, and then throws if over a high watermark"     ^ end ^

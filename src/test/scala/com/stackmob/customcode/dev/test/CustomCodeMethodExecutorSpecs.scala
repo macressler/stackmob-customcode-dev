@@ -11,15 +11,6 @@ import org.specs2.mock.Mockito
 import concurrent.TimeoutException
 import java.util.UUID
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server
- *
- * User: aaron
- * Date: 4/17/13
- * Time: 4:21 PM
- */
 class CustomCodeMethodExecutorSpecs extends Specification with Mockito { def is =
   "CustomCodeMethodExecutorSpecs".title                                                                                  ^ end ^
   "CustomCodeMethodExecutor executes CustomCodeMethods"                                                                  ^ end ^

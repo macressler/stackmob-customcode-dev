@@ -15,15 +15,6 @@ import scala.util.Try
 import com.stackmob.customcode.dev.server.SMConditionDepthLimitReached
 import org.mockito.Matchers.{eq => mockitoEq}
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data
- *
- * User: aaron
- * Date: 4/24/13
- * Time: 2:21 PM
- */
 class StackMobQueryExtensionsSpecs extends Specification with Mockito with ScalaCheck { def is =
   "StackMobQueryExtensionsSpecs".title                                                                                       ^ end ^
   "StackMobQueryUtils has implicit classes to support building StackMobQuery objects from SMConditions"                 ^ end ^

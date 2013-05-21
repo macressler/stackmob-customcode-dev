@@ -8,15 +8,6 @@ package dataservice
 import org.specs2.Specification
 import org.specs2.mock.Mockito
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data.dataservice
- *
- * User: aaron
- * Date: 5/6/13
- * Time: 2:13 PM
- */
 trait CountObjects extends BaseTestGroup { this: Specification with Mockito with CustomMatchers =>
 
   case class CountObjects() extends BaseTestContext {

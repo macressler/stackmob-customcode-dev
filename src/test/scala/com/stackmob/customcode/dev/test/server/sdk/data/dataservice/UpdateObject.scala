@@ -15,15 +15,6 @@ import com.stackmob.core.DatastoreException
 import com.stackmob.customcode.dev.server.sdk.data._
 import com.stackmob.customcode.dev.server.json
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data.dataservice
- *
- * User: aaron
- * Date: 5/6/13
- * Time: 12:19 PM
- */
 private[dataservice] trait UpdateObject
   extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
 

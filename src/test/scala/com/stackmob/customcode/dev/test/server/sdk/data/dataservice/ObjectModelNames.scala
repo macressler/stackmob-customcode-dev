@@ -11,15 +11,6 @@ import org.specs2.mock.Mockito
 import scala.util.Try
 import com.stackmob.core.DatastoreException
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data.dataservice
- *
- * User: aaron
- * Date: 5/6/13
- * Time: 1:21 PM
- */
 trait ObjectModelNames extends BaseTestGroup { this: Specification with CustomMatchers with Mockito =>
   protected case class ObjectModelNames() extends BaseTestContext {
     private val (_, _, _, svc) = defaults

@@ -8,15 +8,6 @@ import com.stackmob.customcode.dev.server.sdk.simulator.{Frequency, ThrowableFre
 import com.twitter.util.Duration
 import java.util.concurrent.TimeUnit
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test
- *
- * User: aaron
- * Date: 4/18/13
- * Time: 5:58 PM
- */
 package object test {
   val throwableFreq0 = ThrowableFrequency(new Exception(""), Frequency(0, Duration(0, TimeUnit.SECONDS)))
 

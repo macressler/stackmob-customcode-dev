@@ -8,15 +8,6 @@ import org.specs2.Specification
 import com.stackmob.customcode.dev.server.sdk.data.extensions._
 import com.stackmob.sdkapi.{SMSet, SMInt, SMIncrement}
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.dev.test.server.sdk.data
- *
- * User: aaron
- * Date: 4/25/13
- * Time: 4:06 PM
- */
 class SMUpdateExtensionsSpecs extends Specification { def is =
   "SMUpdateExtensionsSpecs".title                                                                                            ^ end ^
   "SMUpdateUtils is a class extension designed to convert an SMUpdate to a tuple representing a PUT body"               ^ end ^

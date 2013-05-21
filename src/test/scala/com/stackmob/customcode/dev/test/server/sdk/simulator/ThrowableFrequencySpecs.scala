@@ -11,15 +11,6 @@ import scala.util.Random
 import com.stackmob.customcode.dev.server.sdk.simulator.{ThrowableFrequency, Frequency}
 import scala.util.Try
 
-/**
- * Created by IntelliJ IDEA.
- *
- * com.stackmob.customcode.server.sdk
- *
- * User: aaron
- * Date: 4/17/13
- * Time: 11:15 AM
- */
 class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   "ErrorSimulator".title                                                                                                ^
   "ErrorSimulator is a class to simulate N errors in a time window T"                                                   ^ end ^
