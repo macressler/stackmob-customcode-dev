@@ -65,7 +65,7 @@ The custom code dev server implements a local HTTP server that parses incoming H
 
 It also includes local implementations of all of `SDKServiceProvider`'s methods. Below are details on how each works:
 
-* `DataService`: All methods translate to calls to version 0 of your StackMob Datastore REST API, using the API key and secret that you provided in the configuration file. In order for all calls to work properly, please ensure that your schemas have private key ACL permissions, or equivalent, set up. The local runner attempts to detect query patterns that may be problematic on StackMob's production servers. For example, if your code makes more than 5 queries in a single request, the custom code method will fail.
+* `DataService`: All methods translate to calls to version 0 of your StackMob Datastore REST API, using the API key and secret that you provided in the configuration file. In order for all calls to work properly, please ensure that your schemas have private key ACL permissions, or equivalent, set up. The dev server attempts to detect query patterns that may be problematic on StackMob's production servers. For example, if your code makes more than 5 queries in a single request, the custom code method will fail.
 * `DatastoreService`: All methods translate to calls to `DataService`, so this object works similarly to `DataService`.
 * `PushService`: All methods translate to calls to version 0 of your StackMob Push REST API, using the API key and secret that you provided. Please ensure that you have valid push credentials uploaded to the StackMob server.
 * `TwitterService`: All methods are currently stubbed and have no usable functionality.
