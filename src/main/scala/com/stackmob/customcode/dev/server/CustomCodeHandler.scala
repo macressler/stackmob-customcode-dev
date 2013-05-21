@@ -111,7 +111,7 @@ class CustomCodeHandler(apiKey: String,
         _ <- Try(response.setStatus(newmanResp.code.code))
         _ <- Try(response.setHeaders(newmanResp.headers))
         _ <- Try(baseRequest.setHandled(true))
-        _ <- Try(writer.print(newmanResp.bodyString))
+        _ <- Try(writer.println(newmanResp.bodyString))
       } yield {
         ()
       }

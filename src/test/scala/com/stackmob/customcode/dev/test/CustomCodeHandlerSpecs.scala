@@ -13,12 +13,14 @@ import com.stackmob.core.rest.{ResponseToProcess, ProcessedAPIRequest}
 import com.stackmob.sdkapi.SDKServiceProvider
 import com.stackmob.core.jar.JarEntryObject
 import java.util.UUID
-import org.eclipse.jetty.http.HttpURI
+import com.stackmob.newman.test.DummyHttpClient
+import com.stackmob.customcode.dev.test.server.MockJettyRequest
 
 class CustomCodeHandlerSpecs extends Specification with Mockito { def is =
   "CustomCodeHandlerSpecs".title                                                                                        ^ end ^
   "CustomCodeHandler is the entry point for all custom code HTTP requests"                                              ^ end ^
   "a standard CC method call should work"                                                                               ! standardCCMethod ^ end ^
+  "a non-CC method call should work"                                                                                    ! nonCCMethod ^ end ^
   end
 
   private lazy val methodName = "helloworld"
@@ -40,20 +42,17 @@ class CustomCodeHandlerSpecs extends Specification with Mockito { def is =
   private lazy val apiSecret = "api_secret"
 
   private implicit def sessionUUID = UUID.randomUUID()
+  private implicit val dummyHttpClient = new DummyHttpClient()
   private def handler = new CustomCodeHandler(apiKey, apiSecret, jarEntryObject)
 
   private def jettyArgs(verbString: String,
-                        methodName: String): (Request, HttpServletRequest, PrintWriter, HttpServletResponse) = {
+                        methodName: String): (MockJettyRequest, HttpServletRequest, PrintWriter, HttpServletResponse) = {
     val responseWriter = {
       val w = mock[PrintWriter]
       w
     }
     val request = {
-      val r = mock[Request]
-      r.getPathInfo returns s"/$methodName"
-      r.getMethod returns verbString
-      r.getUri returns new HttpURI(s"http://test.com/$methodName")
-      r
+      new MockJettyRequest(verbString, s"http://test.com/$methodName", Map[String, String]().asJava, "")
     }
 
     val servletRequest = {
@@ -78,10 +77,23 @@ class CustomCodeHandlerSpecs extends Specification with Mockito { def is =
 
     val cType = there was one(servletResponse).setContentType(Matchers.eq("application/json"))
     val status = there was one(servletResponse).setStatus(Matchers.eq(200))
-    val handled = there was one(request).setHandled(Matchers.eq(true))
+    val handled = request.getHandled must beEqualTo(true)
     val written = there was one(responseWriter).println(Matchers.contains(methodReturnStr))
 
     cType and status and handled and written
+  }
+
+  private def nonCCMethod = {
+    val returnedResponse = dummyHttpClient.responseToReturn()
+    val methodName = UUID.randomUUID().toString
+    val (request, servletRequest, responseWriter, servletResponse) = jettyArgs("GET", methodName)
+    handler.handle(methodName, request, servletRequest, servletResponse)
+
+    val status = there was one(servletResponse).setStatus(returnedResponse.code.code)
+    val handled = request.getHandled must beEqualTo(true)
+    val written = there was one(responseWriter).println(Matchers.eq(returnedResponse.bodyString))
+
+    status and handled and written
   }
 
 }
