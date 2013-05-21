@@ -16,32 +16,47 @@ As always with StackMob open source software, we encourage you to [let us know](
 <dependency>
   <groupId>com.stackmob</groupId>
   <artifactId>customcode-dev</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 
 ### SBT
 
 ```scala
-"com.stackmob" % "customcode-dev" % "0.1.0"
+"com.stackmob" % "customcode-dev" % "0.1.5"
 ```
 
 ## Usage
 
-It takes 2 lines of code to set up and run a server that responds to your custom code's defined endpoints. Do so like this:
+It takes just a few lines of code to set up and run a server that responds to your custom code's defined endpoints.
+
+Below is complete working code to do so:
 
 ###In Java
 
 ```java
-EntryPointExtender entryObject = new MyEntryPointExtender();
-CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+import com.stackmob.core.jar.JarEntryObject;
+import com.stackmob.customcode.dev.server.CustomCodeServer;
+import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
+
+public class LocalDevServer {
+    public static void main(String[] args) {
+        JarEntryObject entryObject = new MyJarEntryObject();
+        CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080);
+    }
+}
 ```
 
 ###In Scala
 
 ```scala
-val entryObject = new MyEntryPointExtender
-CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+import com.stackmob.customcode.dev.server.CustomCodeServer;
+import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
+
+object LocalDevServer extends App {
+  val entryObject = new MyJarEntryObject
+  CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+}
 ```
 
 ## Details
@@ -57,7 +72,7 @@ It also includes local implementations of all of `SDKServiceProvider`'s methods.
 * `FacebookService`: All methods are currently stubbed and have no usable functionality.
 * `isSandbox`: Always returns `true`.
 * `getVersion`: always returns `ccDevVersion`.
-* `ConfigVarService`: All methods currently return constant values that are computed from `key` and moduleName`, where applicable.
+* `ConfigVarService`: All methods currently return constant values that are computed from `key` and `moduleName`, where applicable.
 * `CachingService`: All methods cache locally, in memory. Calls to each method will randomly simulate `TimeoutException`s and `RateLimitedException`s, so make sure your code can handle those cases.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will randomly simulate `AccessDeniedException`s and `TimeoutException`s, so make sure your code can handle those cases.
 * `LoggerService`: All logs go to the console on which you run your server.
