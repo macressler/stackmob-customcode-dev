@@ -18,7 +18,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature")
 libraryDependencies ++= {
     val customCodeVsn = "0.5.6"
     val jettyVsn = "7.5.4.v20111024"
-    val newmanVsn = "0.14.0"
+    val newmanVsn = "0.16.0"
     val scalazVsn = "7.0.0"
     Seq (
         "com.stackmob" % "customcode" % customCodeVsn,
@@ -29,10 +29,10 @@ libraryDependencies ++= {
         "org.specs2" %% "specs2" % "1.12.3" % "test",
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
         "org.eclipse.jetty" % "jetty-server" % jettyVsn,
-        "net.liftweb" %% "lift-json" % "2.5-RC6",
-        "net.liftweb" %% "lift-json-scalaz7" % "2.5-RC6",
+        "net.liftweb" %% "lift-json" % "2.5-RC5",
+        "net.liftweb" %% "lift-json-scalaz7" % "2.5-RC5" exclude("org.scalaz", "scalaz-core_2.10"),
         "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0",
-        "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec"),
+        "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10"),
         "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test"),
         "com.google.guava" % "guava" % "14.0.1",
         "org.slf4j" % "slf4j-api" % "1.7.2",
