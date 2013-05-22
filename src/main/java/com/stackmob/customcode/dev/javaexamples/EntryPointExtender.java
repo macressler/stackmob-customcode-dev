@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.stackmob.customcode.dev
-package example
+package com.stackmob.customcode.dev.javaexamples;
 
-import com.stackmob.core.jar.JarEntryObject
-import com.stackmob.customcode.dev.server.sdk.JavaList
-import collection.JavaConversions._
-import com.stackmob.core.customcode.CustomCodeMethod
+import com.stackmob.core.jar.JarEntryObject;
+import com.stackmob.core.customcode.CustomCodeMethod;
+import java.util.List;
+import java.util.ArrayList;
 
-class EntryPointExtender extends JarEntryObject {
-  override def methods: JavaList[CustomCodeMethod] = List(
-    new SetHighScoreMethod,
-    new HelloWorldMethod
-  )
+public class EntryPointExtender extends JarEntryObject {
+    @Override
+    public List<CustomCodeMethod> methods() {
+        List<CustomCodeMethod> methods = new ArrayList<CustomCodeMethod>();
+        methods.add(new HelloWorldMethod());
+        return methods;
+    }
 }

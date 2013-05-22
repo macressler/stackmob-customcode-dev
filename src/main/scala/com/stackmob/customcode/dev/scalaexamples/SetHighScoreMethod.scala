@@ -15,7 +15,7 @@
  */
 
 package com.stackmob.customcode.dev
-package example
+package scalaexamples
 
 import com.stackmob.core._
 import com.stackmob.core.customcode.CustomCodeMethod

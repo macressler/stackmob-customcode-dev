@@ -25,6 +25,23 @@ import com.stackmob.newman.{ApacheHttpClient, HttpClient}
 
 object CustomCodeServer {
   private lazy val logger = LoggerFactory.getLogger(CustomCodeServer.getClass)
+
+  /**
+   * java compatability method for #serve(JarEntryObject, String, String, Int)(HttpClient)
+   */
+  def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int) {
+    serve(jarEntryObject, apiKey, apiSecret)
+  }
+
+  /**
+   * start a custom code server
+   * @param jarEntryObject the custom code JarEntryObject to serve
+   * @param apiKey the api key used to proxy requests to StackMob API v0
+   * @param apiSecret the api secret used to proxy requests to StackMob API v0
+   * @param port the port to serve on
+   * @param httpClient the Newman HttpClient used to proxy requests to StackMob API v0
+   * @return nothing. the server will continue serving forever
+   */
   def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int = 8080)
            (implicit httpClient: HttpClient = new ApacheHttpClient()) {
     implicit val session = UUID.randomUUID()

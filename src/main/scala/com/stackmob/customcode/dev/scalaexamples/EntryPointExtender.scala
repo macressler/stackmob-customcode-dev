@@ -15,19 +15,16 @@
  */
 
 package com.stackmob.customcode.dev
-package example
+package scalaexamples
 
+import com.stackmob.core.jar.JarEntryObject
+import com.stackmob.customcode.dev.server.sdk.JavaList
+import collection.JavaConversions._
 import com.stackmob.core.customcode.CustomCodeMethod
-import com.stackmob.core.rest.ProcessedAPIRequest
-import com.stackmob.core.rest.ResponseToProcess
-import com.stackmob.sdkapi.SDKServiceProvider
-import java.net.HttpURLConnection
-import collection.JavaConverters._
 
-class HelloWorldMethod extends CustomCodeMethod {
-  override lazy val getMethodName = "hello_world"
-  override lazy val getParams = List[String]().asJava
-  override def execute(request: ProcessedAPIRequest, serviceProvider: SDKServiceProvider): ResponseToProcess = {
-    new ResponseToProcess(HttpURLConnection.HTTP_OK, Map("msg" -> "Hello, world!").asJava)
-  }
+class EntryPointExtender extends JarEntryObject {
+  override def methods: JavaList[CustomCodeMethod] = List(
+    new SetHighScoreMethod,
+    new HelloWorldMethod
+  )
 }

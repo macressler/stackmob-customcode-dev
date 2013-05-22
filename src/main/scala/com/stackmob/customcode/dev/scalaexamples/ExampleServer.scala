@@ -15,7 +15,7 @@
  */
 
 package com.stackmob.customcode.dev
-package example
+package scalaexamples
 
 import com.stackmob.customcode.dev.server.CustomCodeServer
 
