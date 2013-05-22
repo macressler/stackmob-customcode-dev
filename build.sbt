@@ -30,16 +30,20 @@ libraryDependencies ++= {
         "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
         "org.eclipse.jetty" % "jetty-server" % jettyVsn,
         "net.liftweb" %% "lift-json" % "2.5-RC6",
+        "net.liftweb" %% "lift-json-scalaz7" % "2.5-RC6",
         "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0",
-        "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec") withSources(),
-        "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test") withSources(),
+        "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec"),
+        "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test"),
         "com.google.guava" % "guava" % "14.0.1",
-        "net.liftweb" %% "lift-json-scalaz" % "2.5-RC2",
         "org.slf4j" % "slf4j-api" % "1.7.2",
         "ch.qos.logback" % "logback-classic" % "1.0.9",
         "org.mockito" % "mockito-core" % "1.9.5" % "test",
         "org.pegdown" % "pegdown" % "1.2.1" % "test"
     )
+}
+
+conflictWarning ~= { cw =>
+    cw.copy(filter = (id: ModuleID) => true, group = (id: ModuleID) => id.organization + ":" + id.name, level = Level.Error, failOnConflict = true)
 }
 
 logBuffered := false
