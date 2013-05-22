@@ -36,7 +36,7 @@ class DataServiceImpl(stackMob: StackMob,
           lst.map { elt =>
             elt.toMapStringObj
           }
-        } ||| { errNel =>
+        } | {
           throw new DatastoreException(s"invalid response $s")
         }
       }

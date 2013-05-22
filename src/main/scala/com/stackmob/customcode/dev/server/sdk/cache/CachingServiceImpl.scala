@@ -102,15 +102,17 @@ class CachingServiceImpl(getRateLimitThrowableFreq: ThrowableFrequency = Default
 
         v.map { value =>
           value._1
-        } ||| {
-          case t: NoSuchKeyException => {
-            null
+        } valueOr {
+          case _: NoSuchKeyException => {
+            null: Array[Byte]
           }
-          case t: NeedsRemovalException => {
+          case _: NeedsRemovalException => {
             cache.remove(key)
-            null
+            null: Array[Byte]
           }
-          case t => throw t
+          case otherEx: Throwable => {
+            (throw otherEx): Array[Byte]
+          }
         }
       }
     }
@@ -134,7 +136,7 @@ class CachingServiceImpl(getRateLimitThrowableFreq: ThrowableFrequency = Default
         }
         v.map { _ =>
           true: JBoolean
-        } ||| {
+        } valueOr {
           case t: CacheTooBigException => false
           case t => throw t
         }
@@ -152,7 +154,7 @@ class CachingServiceImpl(getRateLimitThrowableFreq: ThrowableFrequency = Default
         ()
       }
 
-      v ||| { t =>
+      v getOrElse { t: Throwable =>
         throw t
       }
     }

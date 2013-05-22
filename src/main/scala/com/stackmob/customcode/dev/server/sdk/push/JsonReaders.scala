@@ -21,6 +21,7 @@ package push
 
 import com.stackmob.sdkapi.PushService.{TokenAndType, TokenType}
 import net.liftweb.json.{JValue, JArray, JObject, parse}
+import scalaz.NonEmptyList
 import scalaz.Scalaz._
 import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.JsonAST.JField
@@ -32,7 +33,7 @@ trait JsonReaders {
       val tokenResult = field[String]("token")(json)
       val typeResult = field[String]("type")(json).flatMap { typeString =>
         validating(TokenType.valueOf(typeString)).mapFailure { t =>
-          nel(UncategorizedError("unknown token type", "%s isn't a valid token type".format(typeString), Nil))
+          NonEmptyList(UncategorizedError("unknown token type", "%s isn't a valid token type".format(typeString), Nil))
         }
       }
       for {
@@ -51,7 +52,7 @@ trait JsonReaders {
           val listOfResults: List[Result[(K, V)]] = fields.map { jField =>
             for {
               fieldNameJValue <- validating(parse(jField.name)).mapFailure { t =>
-                nel(UncategorizedError("invalid JSON %s".format(jField.name), t.getMessage, Nil))
+                NonEmptyList(UncategorizedError("invalid JSON %s".format(jField.name), t.getMessage, Nil))
               }
               key <- fromJSON[K](fieldNameJValue)
               value <- fromJSON[V](jField.value)
@@ -61,7 +62,7 @@ trait JsonReaders {
             listOfTuples.toMap
           }
         }
-        case otherJValue => UnexpectedJSONError(otherJValue, classOf[JObject]).fail.liftFailNel
+        case otherJValue => UnexpectedJSONError(otherJValue, classOf[JObject]).fail.toValidationNel
       }
     }
   }
@@ -76,7 +77,7 @@ trait JsonReaders {
           }
           listOfResults.sequence[Result, T]
         }
-        case otherJValue => UnexpectedJSONError(otherJValue, classOf[JArray]).fail.liftFailNel
+        case otherJValue => UnexpectedJSONError(otherJValue, classOf[JArray]).fail.toValidationNel
       }
     }
   }

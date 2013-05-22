@@ -95,7 +95,7 @@ package object dev {
 
   implicit class ThrowableValidationW[S](validation: Validation[Throwable, S]) {
     def getOrThrow: S = {
-      validation ||| { t: Throwable =>
+      validation.valueOr { t: Throwable =>
         throw t
       }
     }
