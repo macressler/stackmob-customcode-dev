@@ -16,7 +16,7 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
   "ErrorSimulator is a class to simulate N errors in a time window T"                                                   ^ end ^
   "upon initial creation, the simulator must have 0 count and 0 rollover"                                               ! getFunctions ^ end ^
   "if the error counter is at the maximum, run the operation normally"                                                  ! maxCounter ^ end ^
-  "if the error counter is not at max, throw"                                                                           ! err ^ end ^
+  "if the error counter is not at max, throw"                                                                           ! pending ^ end ^ //TODO: test the case where we use the random number generator to decide whether to throw
   "if the counter is not at max, execute normally"                                                                      ! normal ^ end ^
                                                                                                                         end
   private val exception = {
@@ -43,16 +43,6 @@ class ThrowableFrequencySpecs extends Specification with Mockito { def is =
     val exRes = Try(freq.simulate()).toEither must beRight
     val countRes = freq.getCount must beEqualTo(0)
     exRes and countRes
-  }
-
-  private def err = {
-    val random = rand(true)
-    val duration = Duration.fromMilliseconds(100)
-    val freq = ThrowableFrequency(exception, Frequency(100000, duration), rand = random)
-    //trigger a rollover
-    Try(freq.simulate()).toEither must beLeft.like {
-      case t => t.getMessage must beEqualTo(exception.getMessage)
-    }
   }
 
   private def normal = {
