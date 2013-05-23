@@ -79,6 +79,10 @@ It also includes local implementations of all of `SDKServiceProvider`'s methods.
 * `HttpService`: All methods perform real HTTP requests to the outside world, and calls to each method will randomly simulate `AccessDeniedException`s and `TimeoutException`s, so make sure your code can handle those cases.
 * `LoggerService`: All logs go to the console on which you run your server.
 
-## TODOs / Future Features
+## Bugs and New Features
 
-See https://github.com/stackmob/stackmob-customcode-dev/issues/
+We track known issues and new feature requests at https://github.com/stackmob/stackmob-customcode-dev/issues/. If you find an issue, please report it at the same place, complete with instructions
+on how to reproduce it.
+
+If you have a new feature that you'd like to see in the dev environment, please add it [here](https://github.com/stackmob/stackmob-customcode-dev/issues/new) and label it with "feature-request".
+If you'd like to implement the feature yourself, please fork this repository and submit a pull request with your changes. Don't forget to add tests for your new feature!
