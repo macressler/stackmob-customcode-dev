@@ -28,11 +28,15 @@ As always with StackMob open source software, we encourage you to [let us know](
 "com.stackmob" % "customcode-dev" % "0.1.7"
 ```
 
-## Usage
+## To Run a Server
 
-It takes just a few lines of code to set up and run a server that responds to your custom code's defined endpoints.
+A local server provides an HTTP server that routes requests to the appropriate custom code method, and then runs them in
+a local execution environment (see the "Details" section below). Also, if it sees an HTTP request that doesn't match a custom
+code method, it proxies it straight through to `api.stackmob.com`. Note that the proxy doesn't modify the request,
+so if your app makes a normal datastore request to the dev server and the server forwards it, it will receive the expected
+response back from the StackMob API. Make sure your app is hitting version 0!
 
-Below is complete working code to do so:
+Here's sample code to set up a complete dev server:
 
 ###In Java
 
@@ -67,7 +71,7 @@ The custom code dev server implements a local HTTP server that parses incoming H
 
 It also includes local implementations of all of `SDKServiceProvider`'s methods. Below are details on how each works:
 
-* `DataService`: All methods translate to calls to version 0 of your StackMob Datastore REST API, using the API key and secret that you provided in the configuration file. In order for all calls to work properly, please ensure that your schemas have private key ACL permissions, or equivalent, set up. The dev server attempts to detect query patterns that may be problematic on StackMob's production servers. For example, if your code makes more than 5 queries in a single request, the custom code method will fail.
+* `DataService`: All methods translate to calls to version 0 of your StackMob Datastore REST API, using the API key and secret that you passed to `CustomCodeServer.serve`. In order for all calls to work properly, please ensure that your schemas have private key ACL permissions, or equivalent, set up. The dev server attempts to detect query patterns that may be problematic on StackMob's production servers. For example, if your code makes more than 5 queries in a single request, the custom code method will fail.
 * `DatastoreService`: All methods translate to calls to `DataService`, so this object works similarly to `DataService`.
 * `PushService`: All methods translate to calls to version 0 of your StackMob Push REST API, using the API key and secret that you provided. Please ensure that you have valid push credentials uploaded to the StackMob server.
 * `TwitterService`: All methods are currently stubbed and have no usable functionality.
