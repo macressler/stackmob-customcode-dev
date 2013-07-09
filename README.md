@@ -1,4 +1,4 @@
-# Stackmob Custom Code Development Environment (Beta)
+# StackMob Custom Code Development Environment (Beta)
 
 [![Build Status](https://travis-ci.org/stackmob/stackmob-customcode-dev.png?branch=master)](https://travis-ci.org/stackmob/stackmob-customcode-dev)
 
