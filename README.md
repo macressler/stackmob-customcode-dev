@@ -17,7 +17,7 @@ As always with StackMob open source software, we encourage you to [let us know](
 ```xml
 <dependency>
   <groupId>com.stackmob</groupId>
-  <artifactId>customcode-dev_2.10</artifactId>
+  <artifactId>stackmob-customcode-dev_2.10</artifactId>
   <version>0.1.7</version>
 </dependency>
 ```
@@ -25,7 +25,7 @@ As always with StackMob open source software, we encourage you to [let us know](
 ### SBT
 
 ```scala
-"com.stackmob" %% "customcode-dev" % "0.1.7"
+"com.stackmob" %% "stackmob-customcode-dev" % "0.1.7"
 ```
 
 ## To Run a Server
