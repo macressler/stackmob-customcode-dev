@@ -11,12 +11,12 @@ name := "stackmob-customcode-dev"
 
 organization := "com.stackmob"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature")
 
 libraryDependencies ++= {
-    val customCodeVsn = "0.5.6"
+    val customCodeVsn = "0.6.2"
     val jettyVsn = "7.5.4.v20111024"
     val newmanVsn = "0.16.0"
     val scalazVsn = "7.0.0"
