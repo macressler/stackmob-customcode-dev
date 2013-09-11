@@ -273,6 +273,15 @@ class DataServiceImpl(stackMob: StackMob,
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
+  override def deleteObjects(schema: String,
+                             conditions: java.util.List[SMCondition]): Long = {
+    allCallsLimiter("deleteObjects") {
+      0L // TODO: implement!
+    }
+  }
+
+  @throws(classOf[DatastoreException])
+  @throws(classOf[InvalidSchemaException])
   override def removeRelatedObjects(schema: String,
                                     objectId: SMValue[_],
                                     relation: String,
@@ -304,6 +313,20 @@ class DataServiceImpl(stackMob: StackMob,
   override def countObjects(schema: String): Long = {
     allCallsLimiter("countObjects") {
       synchronous(datastore.count(schema, _))
+        .get
+        .mapFailure(convert)
+        .map { respString =>
+          json.read[Long](respString)
+        }
+        .getOrThrow
+    }
+  }
+
+  def countObjects(schema: String,
+                   conditions: JavaList[SMCondition]): Long = {
+    allCallsLimiter("countObjects") {
+      val query = smQuery(schema, conditions.asScala.toList)
+      synchronous(datastore.count(query, _))
         .get
         .mapFailure(convert)
         .map { respString =>
