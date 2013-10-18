@@ -34,7 +34,7 @@ libraryDependencies ++= {
         "com.google.guava"  % "guava"                       % "14.0.1",
         "org.slf4j"         % "slf4j-api"                   % "1.7.2",
         "ch.qos.logback"    % "logback-classic"             % "1.0.9",
-        "org.specs2"        %% "specs2"                     % "2.2.2"   % "test",
+        "org.specs2"        %% "specs2"                     % "2.2.3"   % "test",
         "org.scalacheck"    %% "scalacheck"                 % "1.10.1"  % "test",
         "com.stackmob"      %% "newman"                     % newmanVsn % "test" classifier("test"),
         "org.mockito"       % "mockito-all"                 % "1.9.5"   % "test" exclude("org.parboiled", "parboiled-core"),
