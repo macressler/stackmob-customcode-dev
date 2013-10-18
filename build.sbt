@@ -68,8 +68,6 @@ releaseProcess := Seq[ReleaseStep](
     pushChanges
 )
 
-resolvers += "StackMob Nexus" at "http://nexus/nexus/content/groups/public"
-
 publishTo <<= (version) { version: String =>
     val nexus = "https://oss.sonatype.org/"
     if (version.trim.endsWith("SNAPSHOT")) {
