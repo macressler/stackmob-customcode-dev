@@ -24,6 +24,8 @@ import collection.JavaConverters._
 import com.stackmob.newman.dsl._
 import java.util.concurrent.{TimeUnit, Future, Callable}
 import scala.util.Try
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 package object http {
   def newmanHeaders(headerSet: Set[CCHeader]): NewmanHeaders = {
@@ -53,7 +55,7 @@ package object http {
   }
 
   def ccHttpResponse(builder: Builder): CCHttpResponse = {
-    ccHttpResponse(builder.prepare.unsafePerformIO)
+    ccHttpResponse(Await.result(builder.apply, Duration.Inf))
   }
 
   def callable[T](fn: => T): Callable[T] = new Callable[T] {

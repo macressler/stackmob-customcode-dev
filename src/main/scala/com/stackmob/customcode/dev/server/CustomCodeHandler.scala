@@ -107,7 +107,7 @@ class CustomCodeHandler(apiKey: String,
     }.getOrElse {
       logger.debug(s"unknown custom code method $realPath. attempting to proxy the request to v0 of your API")
       val respTry = for {
-        newmanResp <- APIRequestProxy(baseRequest)
+        newmanResp <- Try(Await.result(APIRequestProxy(baseRequest), maxMethodDuration))
         _ <- Try(response.setStatus(newmanResp.code.code))
         _ <- Try(response.setHeaders(newmanResp.headers))
         _ <- Try(baseRequest.setHandled(true))

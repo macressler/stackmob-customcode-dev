@@ -90,6 +90,18 @@ class DataServiceImpl(stackMob: StackMob,
 
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
+  override def createObjects(schema: String,
+                             toCreate: JavaList[SMObject]): BulkResult = {
+    synchronous(datastore.postBulk(schema, toCreate, _)).get.mapFailure(convert).map { respStr =>
+      val resp = json.read[PostBulkResponse](respStr)
+      val successSMValues = resp.succeeded.map { idStr => smValue(idStr) }
+      val failSMValues = resp.failed.map { idStr => smValue(idStr) }
+      new BulkResult(successSMValues.asJava, failSMValues.asJava)
+    }.getOrThrow
+  }
+
+  @throws(classOf[DatastoreException])
+  @throws(classOf[InvalidSchemaException])
   override def createRelatedObjects(schema: String,
                                     objectId: SMValue[_],
                                     relatedField: String,
@@ -271,12 +283,53 @@ class DataServiceImpl(stackMob: StackMob,
     deleteObject(schema, getSMString(id).getValue)
   }
 
+  /*
+  Implementation note: the StackMob REST API supports delete-by-query, and in
+  turn the StackMob Java Client SDK is able to use this feature. However,
+  the REST API only returns whether a delete-by-query was successful; it does
+  not return how many objects were deleted as a result of the operation.
+
+  As a result, the emulated Custom Code method here must make three outgoing
+  calls: a count of objects matching a query before delete, the delete itself,
+  and a count of objects matching the query after delete. Ideally, the
+  post-delete count would be zero, but it is possible by means of data
+  replication and propagation lag for the post-delete count to be nonzero.
+  Additionally, since these method calls are not handled transactionally,
+  any objects created between calls may disrupt the final count.
+
+  As such, please be aware that the results of this method may not be 100%
+  accurate to its effects, as a limitation of its implementation outside of
+  the real Custom Code environment.
+
+  Note that this inaccuracy is *not* the case within the real Custom Code
+  environment; a delete is a single call to the datastore, which returns a
+  value immediately, and that value is accurate to the number deleted.
+   */
   @throws(classOf[DatastoreException])
   @throws(classOf[InvalidSchemaException])
   override def deleteObjects(schema: String,
                              conditions: java.util.List[SMCondition]): Long = {
     allCallsLimiter("deleteObjects") {
-      0L // TODO: implement!
+      val query = smQuery(schema, conditions.asScala.toList)
+      val preCount = synchronous(datastore.count(query, _))
+        .get
+        .mapFailure(convert)
+        .map { respString =>
+          json.read[Long](respString)
+        }
+        .getOrThrow
+      synchronous(datastore.delete(query, _))
+        .get
+        .mapFailure(convert)
+        .getOrThrow
+      val postCount = synchronous(datastore.count(query, _))
+        .get
+        .mapFailure(convert)
+        .map { respString =>
+          json.read[Long](respString)
+        }
+        .getOrThrow
+      preCount - postCount
     }
   }
 
@@ -359,6 +412,7 @@ object DataServiceImpl {
   class CallsPerRequestLimitExceeded(maxCalls: Int)
     extends Exception(s"you tried to make more than $maxCalls datastore calls in a single custom code request")
 
+  case class PostBulkResponse(succeeded: List[String], failed: List[String])
   case class PostRelatedResponse(succeeded: List[String], failed: List[String])
 
   implicit def listJSONR[T: JSONR]: JSONR[List[T]] = new JSONR[List[T]] {

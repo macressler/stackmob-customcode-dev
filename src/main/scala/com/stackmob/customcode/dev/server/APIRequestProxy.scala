@@ -20,46 +20,32 @@ package server
 import org.eclipse.jetty.server.Request
 import com.stackmob.newman.response.HttpResponse
 import com.stackmob.newman.{HttpClient, ApacheHttpClient}
-import scala.util.Try
 import com.stackmob.newman.request.HttpRequestType
 import com.stackmob.newman.dsl._
+import scala.concurrent.Future
 
 object APIRequestProxy {
 
   val DefaultHttpClient = new ApacheHttpClient()
+  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
   class UnknownVerbError(verb: String) extends Exception(s"unknown HTTP verb $verb")
 
   def apply(req: Request)
-           (implicit httpClient: HttpClient = DefaultHttpClient): Try[HttpResponse] = {
-    for {
-      newmanVerb <- req.getNewmanVerb match {
-        case Some(v) => Try(v)
-        case None => Try {
-          throw new UnknownVerbError(req.getMethod.toUpperCase)
-        }
-      }
-      url <- req.getURL
-      headers <- Try(req.getAllHeaders)
-      body <- Try(req.getBody)
-      req <- newmanVerb match {
-        case HttpRequestType.GET => {
-          Try(GET(url).addHeaders(headers))
-        }
-        case HttpRequestType.POST => {
-          Try(POST(url).addHeaders(headers).addBody(body))
-        }
-        case HttpRequestType.PUT => {
-          Try(PUT(url).addHeaders(headers).addBody(body))
-        }
-        case HttpRequestType.DELETE => {
-          Try(DELETE(url).addHeaders(headers))
-        }
-        case HttpRequestType.HEAD => {
-          Try(HEAD(url).addHeaders(headers))
-        }
-      }
+           (implicit httpClient: HttpClient = DefaultHttpClient): Future[HttpResponse] = {
+    (for {
+      newmanVerb <- Future(req.getNewmanVerb.getOrElse(throw new UnknownVerbError(req.getMethod.toUpperCase)))
+      url <- Future(req.getURL.get)
+      headers <- Future(req.getAllHeaders)
+      body <- Future(req.getBody)
+      req <- Future(newmanVerb match {
+        case HttpRequestType.GET => GET(url).addHeaders(headers)
+        case HttpRequestType.POST => POST(url).addHeaders(headers).addBody(body)
+        case HttpRequestType.PUT => PUT(url).addHeaders(headers).addBody(body)
+        case HttpRequestType.DELETE => DELETE(url).addHeaders(headers)
+        case HttpRequestType.HEAD => HEAD(url).addHeaders(headers)
+      })
     } yield {
-      req.toRequest.executeUnsafe
-    }
+      req.toRequest
+    }).flatMap(_.apply)
   }
 }

@@ -20,7 +20,7 @@ package sdk
 package http
 
 import com.stackmob.sdkapi.http.HttpService
-import java.util.concurrent.{TimeUnit, Executors, Future}
+import java.util.concurrent.{TimeUnit, Future}
 import com.stackmob.sdkapi.http.request._
 import com.stackmob.sdkapi.http.response.HttpResponse
 import com.stackmob.newman.dsl._
@@ -29,7 +29,6 @@ import com.stackmob.sdkapi.http.exceptions.{WhitelistException, RateLimitedExcep
 import com.twitter.util.Duration
 import simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
 import HttpServiceImpl._
-import scalaz.concurrent.Strategy
 import com.google.common.util.concurrent.SettableFuture
 import com.stackmob.newman.{ApacheHttpClient, HttpClient}
 
@@ -42,10 +41,11 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   private val allSimulators = accessDeniedSimulator.and(timeoutFreq :: Nil)
 
   private implicit val client = newmanClient
+  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
 
   private def async(bld: => Builder): Future[HttpResponse] = {
     val settableFuture = SettableFuture.create[HttpResponse]()
-    bld.prepareAsync.unsafePerformIO.map { res =>
+    bld.apply.map { res =>
       settableFuture.set(ccHttpResponse(res))
     }
     settableFuture
@@ -160,7 +160,6 @@ object HttpServiceImpl {
   lazy val DefaultRateLimitedThrowableFrequency = ThrowableFrequency(new RateLimitedException, Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultWhitelistedThrowableFrequency = ThrowableFrequency(new WhitelistException("test domain"), Frequency(2, Duration(1, TimeUnit.HOURS)))
   lazy val DefaultTimeoutThrowableFrequency = ThrowableFrequency(new TimeoutException("test url"), Frequency(1, Duration(2, TimeUnit.HOURS)))
-  private val fixedThreadPoolSize = 28
   //keep this lazy so a thread pool isn't created possibly needlessly
-  lazy val DefaultNewmanClient = new ApacheHttpClient(strategy = Strategy.Executor(Executors.newFixedThreadPool(fixedThreadPoolSize)))
+  lazy val DefaultNewmanClient = new ApacheHttpClient()
 }
