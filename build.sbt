@@ -19,7 +19,7 @@ libraryDependencies ++= {
     val customCodeVsn = "0.6.3"
     val jettyVsn = "9.0.6.v20130930"
     val newmanVsn = "1.2.3"
-    val scalazVsn = "7.0.2"
+    val scalazVsn = "7.0.0"
     Seq (
         "com.stackmob"      % "customcode"                  % customCodeVsn,
         "com.twitter"       %% "util-core"                  % "6.3.0",
@@ -28,13 +28,13 @@ libraryDependencies ++= {
         "org.scalaz"        %% "scalaz-concurrent"          % scalazVsn,
         "org.eclipse.jetty" % "jetty-server"                % jettyVsn,
         "net.liftweb"       %% "lift-json"                  % "2.5.1",
-        "net.liftweb"       %% "lift-json-scalaz7"          % "2.5.1" exclude("org.scalaz", "scalaz-core_2.10"),
+        "net.liftweb"       %% "lift-json-scalaz7"          % "2.5.1",
         "com.stackmob"      % "stackmob-java-client-sdk"    % "1.3.7",
         "com.stackmob"      %% "newman"                     % newmanVsn exclude("commons-codec", "commons-codec") exclude("com.twitter", "finagle-http_2.10"),
         "com.google.guava"  % "guava"                       % "14.0.1",
         "org.slf4j"         % "slf4j-api"                   % "1.7.2",
         "ch.qos.logback"    % "logback-classic"             % "1.0.9",
-        "org.specs2"        %% "specs2"                     % "2.2.3"   % "test",
+        "org.specs2"        %% "specs2"                     % "2.0"     % "test",
         "org.scalacheck"    %% "scalacheck"                 % "1.10.1"  % "test",
         "com.stackmob"      %% "newman"                     % newmanVsn % "test" classifier("test"),
         "org.mockito"       % "mockito-all"                 % "1.9.5"   % "test" exclude("org.parboiled", "parboiled-core"),
