@@ -16,29 +16,29 @@ scalaVersion := "2.10.2"
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature")
 
 libraryDependencies ++= {
-    val customCodeVsn = "0.6.2"
-    val jettyVsn = "7.5.4.v20111024"
-    val newmanVsn = "0.16.0"
-    val scalazVsn = "7.0.0"
+    val customCodeVsn = "0.6.3"
+    val jettyVsn = "9.0.6.v20130930"
+    val newmanVsn = "1.2.3"
+    val scalazVsn = "7.0.2"
     Seq (
-        "com.stackmob" % "customcode" % customCodeVsn,
-        "com.twitter" %% "util-core" % "6.3.0",
-        "org.scalaz" %% "scalaz-core" % scalazVsn,
-        "org.scalaz" %% "scalaz-effect" % scalazVsn,
-        "org.scalaz" %% "scalaz-concurrent" % scalazVsn,
-        "org.specs2" %% "specs2" % "1.12.3" % "test",
-        "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
-        "org.eclipse.jetty" % "jetty-server" % jettyVsn,
-        "net.liftweb" %% "lift-json" % "2.5-RC5",
-        "net.liftweb" %% "lift-json-scalaz7" % "2.5-RC5" exclude("org.scalaz", "scalaz-core_2.10"),
-        "com.stackmob" % "stackmob-java-client-sdk" % "1.2.0",
-        "com.stackmob" %% "newman" % newmanVsn exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10"),
-        "com.stackmob" %% "newman" % newmanVsn % "test" classifier("test"),
-        "com.google.guava" % "guava" % "14.0.1",
-        "org.slf4j" % "slf4j-api" % "1.7.2",
-        "ch.qos.logback" % "logback-classic" % "1.0.9",
-        "org.mockito" % "mockito-core" % "1.9.5" % "test",
-        "org.pegdown" % "pegdown" % "1.2.1" % "test"
+        "com.stackmob"      % "customcode"                  % customCodeVsn,
+        "com.twitter"       %% "util-core"                  % "6.3.0",
+        "org.scalaz"        %% "scalaz-core"                % scalazVsn,
+        "org.scalaz"        %% "scalaz-effect"              % scalazVsn,
+        "org.scalaz"        %% "scalaz-concurrent"          % scalazVsn,
+        "org.eclipse.jetty" % "jetty-server"                % jettyVsn,
+        "net.liftweb"       %% "lift-json"                  % "2.5.1",
+        "net.liftweb"       %% "lift-json-scalaz7"          % "2.5.1" exclude("org.scalaz", "scalaz-core_2.10"),
+        "com.stackmob"      % "stackmob-java-client-sdk"    % "1.3.7",
+        "com.stackmob"      %% "newman"                     % newmanVsn exclude("commons-codec", "commons-codec") exclude("com.twitter", "finagle-http_2.10"),
+        "com.google.guava"  % "guava"                       % "14.0.1",
+        "org.slf4j"         % "slf4j-api"                   % "1.7.2",
+        "ch.qos.logback"    % "logback-classic"             % "1.0.9",
+        "org.specs2"        %% "specs2"                     % "2.2.2"   % "test",
+        "org.scalacheck"    %% "scalacheck"                 % "1.10.1"  % "test",
+        "com.stackmob"      %% "newman"                     % newmanVsn % "test" classifier("test"),
+        "org.mockito"       % "mockito-all"                 % "1.9.5"   % "test" exclude("org.parboiled", "parboiled-core"),
+        "org.pegdown"       % "pegdown"                     % "1.2.1"   % "test" exclude("org.parboiled", "parboiled-core")
     )
 }
 
@@ -67,6 +67,8 @@ releaseProcess := Seq[ReleaseStep](
     commitNextVersion,
     pushChanges
 )
+
+resolvers += "StackMob Nexus" at "http://nexus/nexus/content/groups/public"
 
 publishTo <<= (version) { version: String =>
     val nexus = "https://oss.sonatype.org/"
