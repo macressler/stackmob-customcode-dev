@@ -25,7 +25,7 @@ import com.stackmob.newman.dsl._
 import java.util.concurrent.{TimeUnit, Future, Callable}
 import scala.util.Try
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 package object http {
   def newmanHeaders(headerSet: Set[CCHeader]): NewmanHeaders = {
@@ -55,7 +55,7 @@ package object http {
   }
 
   def ccHttpResponse(builder: Builder): CCHttpResponse = {
-    ccHttpResponse(Await.result(builder.apply, Duration.Inf))
+    ccHttpResponse(Await.result(builder.apply, maxCustomCodeMethodDuration))
   }
 
   def callable[T](fn: => T): Callable[T] = new Callable[T] {
@@ -69,4 +69,6 @@ package object http {
       Try(f.get(1, TimeUnit.SECONDS))
     }
   }
+
+  lazy val maxCustomCodeMethodDuration: Duration = 25.seconds
 }

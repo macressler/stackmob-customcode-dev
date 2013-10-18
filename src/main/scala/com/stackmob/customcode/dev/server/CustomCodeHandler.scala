@@ -31,11 +31,12 @@ import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
 import java.util.UUID
 import com.stackmob.newman.HttpClient
+import com.stackmob.customcode.dev.server.sdk.http._
 
 class CustomCodeHandler(apiKey: String,
                         apiSecret: String,
                         jarEntry: JarEntryObject,
-                        maxMethodDuration: Duration = 25.seconds,
+                        maxMethodDuration: Duration = maxCustomCodeMethodDuration,
                         config: ConfigMap = DefaultConfig)
                        (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext,
                         session: UUID,
