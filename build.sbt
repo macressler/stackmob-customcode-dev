@@ -68,6 +68,8 @@ releaseProcess := Seq[ReleaseStep](
     pushChanges
 )
 
+resolvers += "Sonatype Releases Repository" at "http://oss.sonatype.org/content/repositories/releases/"
+
 publishTo <<= (version) { version: String =>
     val nexus = "https://oss.sonatype.org/"
     if (version.trim.endsWith("SNAPSHOT")) {
