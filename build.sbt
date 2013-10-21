@@ -68,7 +68,11 @@ releaseProcess := Seq[ReleaseStep](
     pushChanges
 )
 
-resolvers += "Sonatype Releases Repository" at "http://oss.sonatype.org/content/repositories/releases/"
+resolvers ++= List(
+    "Sonatype Releases Repository" at "http://oss.sonatype.org/content/repositories/releases/",
+    "spray repo" at "http://repo.spray.io",
+    "spray nightly" at "http://nightlies.spray.io"
+)
 
 publishTo <<= (version) { version: String =>
     val nexus = "https://oss.sonatype.org/"
