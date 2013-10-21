@@ -7,6 +7,10 @@ import com.stackmob.newman.test.DummyHttpClient
 import com.stackmob.customcode.dev.server.APIRequestProxy
 import com.stackmob.customcode.dev.server.APIRequestProxy.UnknownVerbError
 import collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import com.stackmob.newman.response.HttpResponse
+import com.stackmob.newman.ApacheHttpClient
 
 class APIRequestProxySpecs extends Specification with CustomMatchers { def is =
   "APIRequestProxySpecs".title                                                                                          ^ end ^
@@ -19,8 +23,8 @@ class APIRequestProxySpecs extends Specification with CustomMatchers { def is =
   "the proxy should work properly for HEAD requests"                                                                    ! head ^ end ^
   end
 
-  private val resp = DummyHttpClient.CannedResponse
-  private implicit def client = new DummyHttpClient(responseToReturn = () => resp)
+  private implicit def client = new DummyHttpClient(DummyHttpClient.CannedResponseFuture)
+  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
 
   private def request(verb: String,
                       uri: String,
@@ -31,31 +35,31 @@ class APIRequestProxySpecs extends Specification with CustomMatchers { def is =
 
   private def unknownVerb = {
     val req = request("OPTIONS", "http://httpbin.org/options")
-    APIRequestProxy(req).toEither must beThrowableInstance[UnknownVerbError]
+    Await.result(APIRequestProxy(req), Duration.Inf) must throwA[UnknownVerbError]
   }
 
   private def get = {
     val req = request("GET", "http://httpbin.org/get")
-    APIRequestProxy(req).toEither must beRight
+    Await.result(APIRequestProxy(req), Duration.Inf) must beAnInstanceOf[HttpResponse]
   }
 
   private def post = {
     val req = request("POST", "http://httpbin.org/post")
-    APIRequestProxy(req).toEither must beRight
+    Await.result(APIRequestProxy(req), Duration.Inf) must beAnInstanceOf[HttpResponse]
   }
 
   private def put = {
     val req = request("PUT", "http://httpbin.org/put")
-    APIRequestProxy(req).toEither must beRight
+    Await.result(APIRequestProxy(req), Duration.Inf) must beAnInstanceOf[HttpResponse]
   }
 
   private def delete = {
     val req = request("DELETE", "http://httpbin.org/delete")
-    APIRequestProxy(req).toEither must beRight
+    Await.result(APIRequestProxy(req), Duration.Inf) must beAnInstanceOf[HttpResponse]
   }
 
   private def head = {
     val req = request("HEAD", "http://httpbin.org/head")
-    APIRequestProxy(req).toEither must beRight
+    Await.result(APIRequestProxy(req), Duration.Inf) must beAnInstanceOf[HttpResponse]
   }
 }

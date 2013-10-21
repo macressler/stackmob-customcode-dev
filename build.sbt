@@ -17,7 +17,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-feature")
 
 libraryDependencies ++= {
     val customCodeVsn = "0.6.3"
-    val jettyVsn = "9.0.6.v20130930"
+    val jettyVsn = "8.1.13.v20130916"
     val newmanVsn = "1.2.2"
     val scalazVsn = "7.0.0"
     Seq (
