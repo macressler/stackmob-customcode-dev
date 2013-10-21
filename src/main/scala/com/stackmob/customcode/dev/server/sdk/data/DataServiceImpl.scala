@@ -311,25 +311,27 @@ class DataServiceImpl(stackMob: StackMob,
                              conditions: java.util.List[SMCondition]): Long = {
     allCallsLimiter("deleteObjects") {
       val query = smQuery(schema, conditions.asScala.toList)
-      val preCount = synchronous(datastore.count(query, _))
-        .get
-        .mapFailure(convert)
-        .map { respString =>
-          json.read[Long](respString)
-        }
-        .getOrThrow
-      synchronous(datastore.delete(query, _))
-        .get
-        .mapFailure(convert)
-        .getOrThrow
-      val postCount = synchronous(datastore.count(query, _))
-        .get
-        .mapFailure(convert)
-        .map { respString =>
-          json.read[Long](respString)
-        }
-        .getOrThrow
-      preCount - postCount
+      synchronized {
+        val preCount = synchronous(datastore.count(query, _))
+          .get
+          .mapFailure(convert)
+          .map { respString =>
+            json.read[Long](respString)
+          }
+          .getOrThrow
+        synchronous(datastore.delete(query, _))
+          .get
+          .mapFailure(convert)
+          .getOrThrow
+        val postCount = synchronous(datastore.count(query, _))
+          .get
+          .mapFailure(convert)
+          .map { respString =>
+            json.read[Long](respString)
+          }
+          .getOrThrow
+        preCount - postCount
+      }
     }
   }
 
