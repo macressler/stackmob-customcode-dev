@@ -35,9 +35,9 @@ object APIRequestProxy {
     (for {
       newmanVerb <- Future(req.getNewmanVerb.getOrElse(throw new UnknownVerbError(req.getMethod.toUpperCase)))
       url <- Future(req.getURL.get)
-      headers <- Future(req.getAllHeaders)
-      body <- Future(req.getBody)
-      req <- Future(newmanVerb match {
+      headers <- Future.successful(req.getAllHeaders)
+      body <- Future.successful(req.getBody)
+      req <- Future.successful(newmanVerb match {
         case HttpRequestType.GET => GET(url).addHeaders(headers)
         case HttpRequestType.POST => POST(url).addHeaders(headers).addBody(body)
         case HttpRequestType.PUT => PUT(url).addHeaders(headers).addBody(body)
