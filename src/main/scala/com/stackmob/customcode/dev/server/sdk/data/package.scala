@@ -142,6 +142,7 @@ package object data {
       case l: Long => new SMInt(l)
       case d: Double => new SMDouble(d)
       case i: Int => new SMInt(i.toLong)
+      case i: BigInt => new SMInt(i.toLong)
       case s: String => new SMString(s)
       case l: RawList => new SMList(smValueList(l, depth).asJava)
       case m: RawMap => new SMObject(smValueMap(m, depth).asJava)
