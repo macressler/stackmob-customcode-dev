@@ -62,7 +62,7 @@ public class MockJettyRequest extends Request {
     }
 
     @Override
-    public Enumeration getHeaderNames() {
+    public Enumeration<String> getHeaderNames() {
         return Collections.enumeration(this.headers.keySet());
     }
 
