@@ -15,6 +15,8 @@ import com.stackmob.core.jar.JarEntryObject
 import java.util.UUID
 import com.stackmob.newman.test.DummyHttpClient
 import com.stackmob.customcode.dev.test.server.MockJettyRequest
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 class CustomCodeHandlerSpecs extends Specification with Mockito { def is =
   "CustomCodeHandlerSpecs".title                                                                                        ^ end ^
@@ -84,7 +86,7 @@ class CustomCodeHandlerSpecs extends Specification with Mockito { def is =
   }
 
   private def nonCCMethod = {
-    val returnedResponse = dummyHttpClient.responseToReturn()
+    val returnedResponse = Await.result(dummyHttpClient.responseToReturn, Duration.Inf)
     val methodName = UUID.randomUUID().toString
     val (request, servletRequest, responseWriter, servletResponse) = jettyArgs("GET", methodName)
     handler.handle(methodName, request, servletRequest, servletResponse)

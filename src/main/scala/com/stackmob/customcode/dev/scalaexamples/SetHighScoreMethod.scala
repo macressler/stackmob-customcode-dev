@@ -21,10 +21,10 @@ import com.stackmob.core._
 import com.stackmob.core.customcode.CustomCodeMethod
 import com.stackmob.core.rest.ProcessedAPIRequest
 import com.stackmob.core.rest.ResponseToProcess
-import com.stackmob.sdkapi.SDKServiceProvider
-import collection.JavaConversions._
+import com.stackmob.sdkapi._
 import javax.servlet.http.HttpServletResponse
 import com.stackmob.customcode.dev.server.sdk.JavaList
+import scala.collection.JavaConverters._
 
 class SetHighScoreMethod extends CustomCodeMethod {
 
@@ -37,17 +37,25 @@ class SetHighScoreMethod extends CustomCodeMethod {
   }
 
   override def getMethodName: String = "set_high_score"
-  override def getParams: JavaList[String] = seqAsJavaList(List("username", "score"))
+  override def getParams: JavaList[String] = List("username", "score").asJava
 
   private class EmptyUsernameException extends Exception("username was empty") {
     val responseToProcess = {
-      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "username was empty"))
+      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "username was empty").asJava)
     }
   }
   private class EmptyScoreException extends Exception("score was empty") {
     val responseToProcess = {
-      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "score was empty"))
+      new ResponseToProcess(HttpServletResponse.SC_BAD_REQUEST, Map("error" -> "score was empty").asJava)
     }
+  }
+
+  private def responseHelper(updated: Boolean,
+                             newUser: Boolean,
+                             username: String,
+                             newScore: Int): ResponseToProcess = {
+    new ResponseToProcess(HttpServletResponse.SC_OK,
+      Map("updated" -> updated, "newUser" -> newUser, "username" -> username, "newScore" -> newScore).asJava)
   }
 
   override def execute(request: ProcessedAPIRequest, serviceProvider: SDKServiceProvider): ResponseToProcess = {
@@ -61,36 +69,37 @@ class SetHighScoreMethod extends CustomCodeMethod {
     }
 
     // get the datastore service and assemble the query
-    lazy val datastoreService = serviceProvider.getDatastoreService
-    lazy val query = Map("username" -> seqAsJavaList(List(username)))
+    lazy val dataService = serviceProvider.getDataService
+    lazy val query = List[SMCondition](new SMEquals("username", new SMString(username))).asJava
 
     // execute the query
     try {
-      val result = datastoreService.readObjects("users", query)
+      val result = dataService.readObjects("users", query).asScala
+      val response = result.headOption match {
 
-      val newUser = (!Option(result).isDefined) || result.isEmpty
+        // existing user pathway, which sends an SMUpdate
+        case Some(userObj) => {
+          val userMap = userObj.getValue.asScala
+          val oldScore = userMap("score").toString.toInt
 
-      var userMap:Map[String, Object] = newUser match {
-        //not a new user so fetch from the datastore map
-        case false => result.get(0).asInstanceOf[Map[String, Object]]
-        //new user so create the map
-        case true => Map("username" -> username, "score" -> new Integer(0))
+          if(oldScore < score) {
+            val update = List[SMUpdate](new SMSet("score", new SMInt(score))).asJava
+            dataService.updateObject("users", username, update)
+            responseHelper(true, false, username, score)
+          } else {
+            responseHelper(false, false, username, score)
+          }
+        }
+
+        // new user pathway, which creates a new SMObject
+        case None => {
+          val user = new SMObject(
+            Map[String, SMValue[_]]("username" -> new SMString(username), "score" -> new SMInt(score)).asJava)
+          dataService.createObject("users", user)
+          responseHelper(true, true, username, score)
+        }
       }
-
-      val oldScore = userMap("score").toString.toInt
-
-      val updated = oldScore < score
-      if(updated) userMap = userMap - "score" + (("score", new Integer(score)))
-
-      newUser match {
-        //create new user in datastore
-        case true => datastoreService.createObject("users", userMap)
-        //update existing user in datastore
-        case false => datastoreService.updateObject("users", username, userMap)
-      }
-
-      new ResponseToProcess(HttpServletResponse.SC_OK,
-        Map("updated" -> updated, "newUser" -> newUser, "username" -> username, "newScore" -> userMap("score")))
+      response
     } catch {
       case e: EmptyScoreException => {
         e.responseToProcess
@@ -99,13 +108,16 @@ class SetHighScoreMethod extends CustomCodeMethod {
         e.responseToProcess
       }
       case e: InvalidSchemaException => {
-        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "invalid schema", "detail" -> e.toString))
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          Map("error" -> "invalid schema", "detail" -> e.toString).asJava)
       }
       case e: DatastoreException => {
-        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "datastore exception", "detail" -> e.toString))
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          Map("error" -> "datastore exception", "detail" -> e.toString).asJava)
       }
       case e: Throwable => {
-        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Map("error" -> "unknown", "detail" -> e.toString))
+        new ResponseToProcess(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          Map("error" -> "unknown", "detail" -> e.toString).asJava)
       }
     }
   }

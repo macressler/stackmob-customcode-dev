@@ -28,6 +28,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
+  @deprecated("Use DataService methods instead", "0.4.0")
   override def createObject(modelName: String, toCreate: JavaMap[String, Object]): JavaMap[String, Object] = {
     val smObjectToCreate = smObject(toCreate.asScala.toMap)
     dataService.createObject(modelName, smObjectToCreate).toObjectMap().asJava
@@ -36,6 +37,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
+  @deprecated("Use DataService methods instead", "0.4.0")
   override def readObjects(modelName: String,
                            queryFields: JavaMap[String, JavaList[String]]): JavaList[JavaMap[String, Object]] = {
 
@@ -56,6 +58,7 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
+  @deprecated("Use DataService methods instead", "0.4.0")
   override def updateObject(modelName: String,
                             objectId: String,
                             newValue: JavaMap[String, Object]): JavaMap[String, Object] = {
@@ -70,11 +73,13 @@ class DatastoreServiceImpl(dataService: DataService) extends DatastoreService {
 
   @throws(classOf[InvalidSchemaException])
   @throws(classOf[DatastoreException])
+  @deprecated("Use DataService methods instead", "0.4.0")
   override def deleteObject(modelName: String, objectId: String): JavaBoolean = {
     dataService.deleteObject(modelName, objectId)
   }
 
   @throws(classOf[ConnectException])
+  @deprecated("Use DataService methods instead", "0.4.0")
   override def getObjectModelNames: JavaSet[String] = {
     dataService.getObjectModelNames
   }

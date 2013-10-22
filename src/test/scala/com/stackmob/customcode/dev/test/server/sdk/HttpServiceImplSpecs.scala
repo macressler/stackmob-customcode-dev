@@ -7,16 +7,17 @@ import com.stackmob.customcode.dev.server.sdk.JavaList
 import org.specs2.{ScalaCheck, Specification}
 import com.stackmob.customcode.dev.server.sdk.http.HttpServiceImpl
 import com.stackmob.sdkapi.http.request. _
-import com.stackmob.customcode.dev.server.sdk.simulator.{Frequency, ThrowableFrequency}
-import com.twitter.util.Duration
-import java.util.concurrent.{Future, TimeUnit}
+import java.util.concurrent.{Future => JFuture, TimeUnit}
 import scala.util.Try
+import scala.concurrent.{Future => SFuture}
+import scala.concurrent.duration.Duration
 import com.stackmob.sdkapi.http.response.HttpResponse
 import com.stackmob.sdkapi.http.{HttpService, Header}
 import collection.JavaConverters._
 import com.stackmob.newman.test.DummyHttpClient
 import com.stackmob.newman.response.{HttpResponse => NewmanHttpResponse}
 import org.specs2.matcher.MatchResult
+import scala.concurrent.Await
 
 class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaCheck { def is =
   "HttpServiceImplSpecs".title                                                                                          ^ end ^
@@ -40,7 +41,7 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   private val putRequest = new PutRequest(s"$baseUrl/put", headers.asJava, body)
   private val deleteRequest = new DeleteRequest(s"$baseUrl/delete", headers.asJava)
 
-  private def resolveFuture(fn: => Future[HttpResponse])
+  private def resolveFuture(fn: => JFuture[HttpResponse])
                            (implicit timeMagnitude: Int = 1000,
                             timeUnit: TimeUnit = TimeUnit.MILLISECONDS): Either[Throwable, HttpResponse] = {
     Try {
@@ -58,51 +59,51 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   }
 
   private def responseAndRequest[CallListType](givenResp: HttpResponse,
-                                               expectedResp: NewmanHttpResponse,
+                                               expectedResp: SFuture[NewmanHttpResponse],
                                                callList: JavaList[CallListType],
                                                expectedNumCalls: Int = 1): MatchResult[Any] = {
-    val resp = givenResp must beResponse(expectedResp)
+    val resp = givenResp must beResponse(Await.result(expectedResp, Duration.Inf))
     val numCalls = callList.size must beEqualTo(expectedNumCalls)
     resp and numCalls
   }
 
   private def get = run { (dummyClient, impl) =>
-    responseAndRequest(impl.get(getRequest), dummyClient.responseToReturn(), dummyClient.getRequests)
+    responseAndRequest(impl.get(getRequest), dummyClient.responseToReturn, dummyClient.getRequests)
   }
 
   private def getAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.getAsync(getRequest)) must beRight.like {
-      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.getRequests)
+      case r => responseAndRequest(r, dummyClient.responseToReturn, dummyClient.getRequests)
     }
   }
 
   private def post = run { (dummyClient, impl) =>
-    responseAndRequest(impl.post(postRequest), dummyClient.responseToReturn(), dummyClient.postRequests)
+    responseAndRequest(impl.post(postRequest), dummyClient.responseToReturn, dummyClient.postRequests)
   }
 
   private def postAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.postAsync(postRequest)) must beRight.like {
-      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.postRequests)
+      case r => responseAndRequest(r, dummyClient.responseToReturn, dummyClient.postRequests)
     }
   }
 
   private def put = run { (dummyClient, impl) =>
-    responseAndRequest(impl.put(putRequest), dummyClient.responseToReturn(), dummyClient.putRequests)
+    responseAndRequest(impl.put(putRequest), dummyClient.responseToReturn, dummyClient.putRequests)
   }
 
   private def putAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.putAsync(putRequest)) must beRight.like {
-      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.putRequests)
+      case r => responseAndRequest(r, dummyClient.responseToReturn, dummyClient.putRequests)
     }
   }
 
   private def delete = run { (dummyClient, impl) =>
-    responseAndRequest(impl.delete(deleteRequest), dummyClient.responseToReturn(), dummyClient.deleteRequests)
+    responseAndRequest(impl.delete(deleteRequest), dummyClient.responseToReturn, dummyClient.deleteRequests)
   }
 
   private def deleteAsync = run { (dummyClient, impl) =>
     resolveFuture(impl.deleteAsync(deleteRequest)) must beRight.like {
-      case r => responseAndRequest(r, dummyClient.responseToReturn(), dummyClient.deleteRequests)
+      case r => responseAndRequest(r, dummyClient.responseToReturn, dummyClient.deleteRequests)
     }
   }
 }

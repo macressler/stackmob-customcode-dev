@@ -94,7 +94,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck with CustomMa
       val smList = SMListTestUtils.createNested(depth, baseSMList)
       val nestedJArray = createNestedJArray(depth, expectedJArray)
       val resJValue = smList.toJValue()
-      (resJValue.toList <|*|> nestedJArray.toList) must beSome.like {
+      (resJValue.toList tuple nestedJArray.toList) must beSome.like {
         case tup => {
           val (list1, list2) = tup
           list1 must haveTheSameElementsAs(list2)
@@ -109,7 +109,7 @@ class SMValueExtensionsSpecs extends Specification with ScalaCheck with CustomMa
       val smObject = SMObjectTestUtils.createNested(depth, baseKey, baseSMObject)
       val nestedJObject = createNestedJObject(depth, expectedJObject, baseKey)
       val resJValue = smObject.toJValue()
-      (resJValue.toMap <|*|> nestedJObject.toMap) must beSome.like {
+      (resJValue.toMap tuple nestedJObject.toMap) must beSome.like {
         case tup => {
           val (map1, map2) = tup
           map1 must haveTheSameElementsAs(map2)

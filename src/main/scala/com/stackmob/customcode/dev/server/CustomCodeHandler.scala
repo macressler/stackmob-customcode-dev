@@ -31,11 +31,12 @@ import scala.util.Try
 import com.stackmob.customcode.dev.CustomCodeMethodExecutor
 import java.util.UUID
 import com.stackmob.newman.HttpClient
+import com.stackmob.customcode.dev.server.sdk.http._
 
 class CustomCodeHandler(apiKey: String,
                         apiSecret: String,
                         jarEntry: JarEntryObject,
-                        maxMethodDuration: Duration = 25.seconds,
+                        maxMethodDuration: Duration = maxCustomCodeMethodDuration,
                         config: ConfigMap = DefaultConfig)
                        (implicit executionContext: ExecutionContext = CustomCodeMethodExecutor.DefaultExecutionContext,
                         session: UUID,
@@ -107,7 +108,7 @@ class CustomCodeHandler(apiKey: String,
     }.getOrElse {
       logger.debug(s"unknown custom code method $realPath. attempting to proxy the request to v0 of your API")
       val respTry = for {
-        newmanResp <- APIRequestProxy(baseRequest)
+        newmanResp <- Try(Await.result(APIRequestProxy(baseRequest), maxMethodDuration))
         _ <- Try(response.setStatus(newmanResp.code.code))
         _ <- Try(response.setHeaders(newmanResp.headers))
         _ <- Try(baseRequest.setHandled(true))
