@@ -21,13 +21,13 @@ import org.eclipse.jetty.server.Request
 import com.stackmob.newman.response.HttpResponse
 import com.stackmob.newman.{HttpClient, ApacheHttpClient}
 import com.stackmob.newman.request.HttpRequestType
+import com.stackmob.newman.concurrent._
 import com.stackmob.newman.dsl._
 import scala.concurrent.Future
 
 object APIRequestProxy {
 
   val DefaultHttpClient = new ApacheHttpClient()
-  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
   class UnknownVerbError(verb: String) extends Exception(s"unknown HTTP verb $verb")
 
   def apply(req: Request)

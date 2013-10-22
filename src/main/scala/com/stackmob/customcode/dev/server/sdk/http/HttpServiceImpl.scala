@@ -31,6 +31,7 @@ import simulator.{ThrowableFrequency, Frequency, ErrorSimulator}
 import HttpServiceImpl._
 import com.google.common.util.concurrent.SettableFuture
 import com.stackmob.newman.{ApacheHttpClient, HttpClient}
+import com.stackmob.newman.concurrent._
 
 class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedThrowableFrequency,
                       whitelistedFreq: ThrowableFrequency = DefaultWhitelistedThrowableFrequency,
@@ -41,7 +42,6 @@ class HttpServiceImpl(rateLimitedFreq: ThrowableFrequency = DefaultRateLimitedTh
   private val allSimulators = accessDeniedSimulator.and(timeoutFreq :: Nil)
 
   private implicit val client = newmanClient
-  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
 
   private def async(bld: => Builder): Future[HttpResponse] = {
     val settableFuture = SettableFuture.create[HttpResponse]()

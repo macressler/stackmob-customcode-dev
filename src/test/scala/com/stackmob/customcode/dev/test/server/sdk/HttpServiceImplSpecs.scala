@@ -18,7 +18,6 @@ import com.stackmob.newman.test.DummyHttpClient
 import com.stackmob.newman.response.{HttpResponse => NewmanHttpResponse}
 import org.specs2.matcher.MatchResult
 import scala.concurrent.Await
-import com.stackmob.newman.ApacheHttpClient
 
 class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaCheck { def is =
   "HttpServiceImplSpecs".title                                                                                          ^ end ^
@@ -41,8 +40,6 @@ class HttpServiceImplSpecs extends Specification with CustomMatchers with ScalaC
   private val postRequest = new PostRequest(s"$baseUrl/post", headers.asJava, body)
   private val putRequest = new PutRequest(s"$baseUrl/put", headers.asJava, body)
   private val deleteRequest = new DeleteRequest(s"$baseUrl/delete", headers.asJava)
-
-  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
 
   private def resolveFuture(fn: => JFuture[HttpResponse])
                            (implicit timeMagnitude: Int = 1000,

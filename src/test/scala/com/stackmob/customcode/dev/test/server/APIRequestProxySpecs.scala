@@ -10,7 +10,6 @@ import collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import com.stackmob.newman.response.HttpResponse
-import com.stackmob.newman.ApacheHttpClient
 
 class APIRequestProxySpecs extends Specification with CustomMatchers { def is =
   "APIRequestProxySpecs".title                                                                                          ^ end ^
@@ -24,7 +23,6 @@ class APIRequestProxySpecs extends Specification with CustomMatchers { def is =
   end
 
   private implicit def client = new DummyHttpClient(DummyHttpClient.CannedResponseFuture)
-  private implicit lazy val ec = ApacheHttpClient.newmanRequestExecutionContext
 
   private def request(verb: String,
                       uri: String,
