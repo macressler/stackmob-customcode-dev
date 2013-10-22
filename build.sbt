@@ -69,7 +69,6 @@ releaseProcess := Seq[ReleaseStep](
 )
 
 resolvers ++= List(
-    "Sonatype Releases Repository" at "http://oss.sonatype.org/content/repositories/releases/",
     "spray repo" at "http://repo.spray.io",
     "spray nightly" at "http://nightlies.spray.io"
 )
