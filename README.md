@@ -18,14 +18,14 @@ As always with StackMob open source software, we encourage you to [let us know](
 <dependency>
   <groupId>com.stackmob</groupId>
   <artifactId>stackmob-customcode-dev_2.10</artifactId>
-  <version>0.1.7</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 ### SBT
 
 ```scala
-"com.stackmob" %% "stackmob-customcode-dev" % "0.1.7"
+"com.stackmob" %% "stackmob-customcode-dev" % "0.2.0"
 ```
 
 ## To Run a Server
