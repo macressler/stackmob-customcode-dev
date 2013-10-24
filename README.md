@@ -10,6 +10,8 @@ The development enviromment is currently in beta as we work to make its function
 
 As always with StackMob open source software, we encourage you to [let us know](https://github.com/stackmob/stackmob-customcode-dev/issues) if you find issues, or submit pull requests.
 
+**Important note!** StackMob no longer accepts Custom Code using Scala 2.9.x and older. The Custom Code Development Environment is a Scala 2.10 environment, to reflect this change.
+
 ## Setup
 
 ### Maven
