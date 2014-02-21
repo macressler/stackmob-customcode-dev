@@ -18,10 +18,11 @@ package com.stackmob.customcode.dev.javaexamples;
 
 import com.stackmob.core.jar.JarEntryObject;
 import com.stackmob.customcode.dev.server.CustomCodeServer;
+import scala.concurrent.duration.Duration;
 
 public class ExampleServer {
     public void main(String[] args) {
         final JarEntryObject obj = new EntryPointExtender();
-        CustomCodeServer.serve(obj, "example-api-key", "example-api-secret", 8080);
+        CustomCodeServer.serve(obj, "example-api-key", "example-api-secret", 8080, Duration.Inf());
     }
 }
