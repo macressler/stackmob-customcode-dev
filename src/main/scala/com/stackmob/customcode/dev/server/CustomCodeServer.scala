@@ -22,15 +22,21 @@ import com.stackmob.core.jar.JarEntryObject
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import com.stackmob.newman.{ApacheHttpClient, HttpClient}
+import com.stackmob.customcode.dev.server.sdk.http.maxCustomCodeMethodDuration
+import scala.concurrent.duration.Duration
 
 object CustomCodeServer {
   private lazy val logger = LoggerFactory.getLogger(CustomCodeServer.getClass)
 
   /**
-   * java compatability method for #serve(JarEntryObject, String, String, Int)(HttpClient)
+   * java compatibility method for [[CustomCodeServer.serve]]
    */
-  def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int) {
-    serve(jarEntryObject, apiKey, apiSecret)
+  def serve(jarEntryObject: JarEntryObject,
+            apiKey: String,
+            apiSecret: String,
+            port: Int,
+            maxMethodDuration: Duration) {
+    serve(jarEntryObject, apiKey, apiSecret, maxMethodDuration = maxMethodDuration)(new ApacheHttpClient())
   }
 
   /**
@@ -39,13 +45,19 @@ object CustomCodeServer {
    * @param apiKey the api key used to proxy requests to StackMob API v0
    * @param apiSecret the api secret used to proxy requests to StackMob API v0
    * @param port the port to serve on
+   * @param maxMethodDuration the maximum duration to allow each method to execute inside this server.
+   *                          set to [[Duration.Inf]] to disable timeouts
    * @param httpClient the Newman HttpClient used to proxy requests to StackMob API v0
    * @return nothing. the server will continue serving forever
    */
-  def serve(jarEntryObject: JarEntryObject, apiKey: String, apiSecret: String, port: Int = 8080)
+  def serve(jarEntryObject: JarEntryObject,
+            apiKey: String,
+            apiSecret: String,
+            port: Int = 8080,
+            maxMethodDuration: Duration = maxCustomCodeMethodDuration)
            (implicit httpClient: HttpClient = new ApacheHttpClient()) {
     implicit val session = UUID.randomUUID()
-    val handler = new CustomCodeHandler(apiKey, apiSecret, jarEntryObject)
+    val handler = new CustomCodeHandler(apiKey, apiSecret, jarEntryObject, maxMethodDuration)
 
     val host = "localhost"
     val addr = new InetSocketAddress(host, port)

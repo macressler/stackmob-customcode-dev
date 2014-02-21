@@ -11,7 +11,7 @@ name := "stackmob-customcode-dev"
 
 organization := "com.stackmob"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-feature")
 
@@ -22,29 +22,27 @@ libraryDependencies ++= {
     val scalazVsn = "7.0.2"
     Seq (
         "com.stackmob"      % "customcode"                  % customCodeVsn,
-        "com.twitter"       %% "util-core"                  % "6.3.0",
-        "org.scalaz"        %% "scalaz-core"                % scalazVsn,
-        "org.scalaz"        %% "scalaz-effect"              % scalazVsn,
-        "org.scalaz"        %% "scalaz-concurrent"          % scalazVsn,
+        "com.twitter"       %% "util-core"                  % "6.11.1" exclude("org.scala-lang", "scala-library"),
+        "org.scalaz"        %% "scalaz-core"                % scalazVsn exclude("org.scala-lang", "scala-library"),
+        "org.scalaz"        %% "scalaz-effect"              % scalazVsn exclude("org.scala-lang", "scala-library"),
+        "org.scalaz"        %% "scalaz-concurrent"          % scalazVsn exclude("org.scala-lang", "scala-library"),
         "org.eclipse.jetty" % "jetty-server"                % jettyVsn,
-        "net.liftweb"       %% "lift-json"                  % "2.5.1",
-        "net.liftweb"       %% "lift-json-scalaz7"          % "2.5.1" exclude("org.scalaz", "scalaz-core_2.10"),
+        "net.liftweb"       %% "lift-json"                  % "2.5.1" exclude("org.scala-lang", "scala-library"),
+        "net.liftweb"       %% "lift-json-scalaz7"          % "2.5.1" exclude("org.scalaz", "scalaz-core_2.10") exclude("org.scala-lang", "scala-library"),
         "com.stackmob"      % "stackmob-java-client-sdk"    % "1.3.7",
-        "com.stackmob"      %% "newman"                     % newmanVsn exclude("commons-codec", "commons-codec") exclude("com.twitter", "finagle-http_2.10"),
+        "com.stackmob"      %% "newman"                     % newmanVsn exclude("commons-codec", "commons-codec") exclude("com.twitter", "finagle-http_2.10") exclude("org.scala-lang", "scala-library"),
         "com.google.guava"  % "guava"                       % "14.0.1",
         "org.slf4j"         % "slf4j-api"                   % "1.7.2",
         "ch.qos.logback"    % "logback-classic"             % "1.0.9",
-        "org.specs2"        %% "specs2"                     % "2.2.3"   % "test",
-        "org.scalacheck"    %% "scalacheck"                 % "1.10.1"  % "test",
+        "org.specs2"        %% "specs2"                     % "2.2.3"   % "test" exclude("org.scala-lang", "scala-library"),
+        "org.scalacheck"    %% "scalacheck"                 % "1.10.1"  % "test" exclude("org.scala-lang", "scala-library"),
         "com.stackmob"      %% "newman"                     % newmanVsn % "test" classifier("test"),
         "org.mockito"       % "mockito-all"                 % "1.9.5"   % "test" exclude("org.parboiled", "parboiled-core"),
         "org.pegdown"       % "pegdown"                     % "1.2.1"   % "test" exclude("org.parboiled", "parboiled-core")
     )
 }
 
-conflictWarning ~= { cw =>
-    cw.copy(filter = (id: ModuleID) => true, group = (id: ModuleID) => id.organization + ":" + id.name, level = Level.Error, failOnConflict = true)
-}
+conflictManager := ConflictManager.strict
 
 logBuffered := false
 

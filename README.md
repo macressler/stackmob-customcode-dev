@@ -45,12 +45,15 @@ Here's sample code to set up a complete dev server:
 ```java
 import com.stackmob.core.jar.JarEntryObject;
 import com.stackmob.customcode.dev.server.CustomCodeServer;
+import scala.concurrent.Duration;
+import java.util.concurrent.TimeUnit;
 import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
 
 public class LocalDevServer {
     public static void main(String[] args) {
         JarEntryObject entryObject = new MyJarEntryObject();
-        CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080);
+        //give each method 20 seconds to complete. pass Duration.Inf here to remove the time restriction
+        CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080, Duration.apply(20, TimeUnit.SECONDS);
     }
 }
 ```
@@ -59,11 +62,13 @@ public class LocalDevServer {
 
 ```scala
 import com.stackmob.customcode.dev.server.CustomCodeServer;
+import scala.concurrent.duration._
 import MyJarEntryObject; //this is the JarEntryObject subclass that you've created
 
 object LocalDevServer extends App {
   val entryObject = new MyJarEntryObject
-  CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080)
+  //give each method 20 seconds to complete. pass Duration.Inf here to remove the time restriction
+  CustomCodeServer.serve(entryObject, "example-api-key", "example-api-secret", 8080, 20.seconds)
 }
 ```
 
